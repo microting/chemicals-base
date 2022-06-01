@@ -42,4 +42,4 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Unit Tests
-      run: dotnet test --no-restore -c Release -v n ChemicalsBase.Tests/ChemicalsBase.Tests.csproj
+      run: dotnet test --no-restore -c Release -v n ChemicalBase.Tests/ChemicalBase.Tests.csproj
