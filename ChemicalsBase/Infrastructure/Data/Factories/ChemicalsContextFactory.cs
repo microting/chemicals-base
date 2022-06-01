@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 public class ChemicalsContextFactory : IDesignTimeDbContextFactory<ChemicalsDbContext>
 {
-    public ChemicalsDbContext CreateDbContext(string[] args)
+    public ChemicalsDbContext CreateDbContext(string?[] args)
     {
-        var defaultCs = "Server = localhost; port = 3306; Database = backend-configuration-pn; user = root; password = Qq1234567$;Convert Zero Datetime = true;";
+        var defaultCs = "Server = localhost; port = 3306; Database = chemical-base; user = root; password = secretpassword;Convert Zero Datetime = true;";
         var optionsBuilder = new DbContextOptionsBuilder<ChemicalsDbContext>();
 
-        optionsBuilder.UseMySql(args.Any() ? args[0] : defaultCs, new MariaDbServerVersion(
+        optionsBuilder.UseMySql((args.Any() ? args[0] : defaultCs)!, new MariaDbServerVersion(
             new Version(10, 4, 0)), mySqlOptionsAction: builder =>
         {
             builder.EnableRetryOnFailure();
