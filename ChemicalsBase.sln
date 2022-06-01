@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChemicalsBase", "ChemicalsB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBMigrator", "DBMigrator\DBMigrator.csproj", "{3A8B12EE-40FF-47BB-9F5E-41F80A5C0C25}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{31E938C1-F76E-44D7-AEE3-DF8911F67931}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChemicalBase.Tests", "ChemicalBase.Tests\ChemicalBase.Tests.csproj", "{583EF5A2-22EA-4083-9BD9-4F17C6189D0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,12 @@ Global
 		{3A8B12EE-40FF-47BB-9F5E-41F80A5C0C25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A8B12EE-40FF-47BB-9F5E-41F80A5C0C25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A8B12EE-40FF-47BB-9F5E-41F80A5C0C25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{583EF5A2-22EA-4083-9BD9-4F17C6189D0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{583EF5A2-22EA-4083-9BD9-4F17C6189D0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{583EF5A2-22EA-4083-9BD9-4F17C6189D0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{583EF5A2-22EA-4083-9BD9-4F17C6189D0E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{583EF5A2-22EA-4083-9BD9-4F17C6189D0E} = {31E938C1-F76E-44D7-AEE3-DF8911F67931}
 	EndGlobalSection
 EndGlobal
