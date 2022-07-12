@@ -37,4 +37,5 @@ public class Chemical : PnBase
     public virtual List<LoadTax> LoadTaxe { get; set; }
     public ICollection<Product> Products { get; set; }
     public string RemoteId { get; set; }
+    public bool Verified { get; set; }
 }

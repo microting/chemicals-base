@@ -34,4 +34,5 @@ public class ChemicalVersion : BaseEntity
     public DateTime? LastUpdatedDate { get; set; }
     public virtual List<LoadTax> LoadTaxe { get; set; }
     public string RemoteId { get; set; }
+    public bool Verified { get; set; }
 }

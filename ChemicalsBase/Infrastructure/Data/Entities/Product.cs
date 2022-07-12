@@ -12,4 +12,5 @@ public class Product : PnBase
     public bool IsValid { get; set; }
     public string FileName { get; set; }
     public string Checksum { get; set; }
+    public bool Verified { get; set; }
 }
