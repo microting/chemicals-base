@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChemicalsBase.Infrastructure.Data.Entities;
 
@@ -36,6 +37,7 @@ public class Chemical : PnBase
     public DateTime? LastUpdatedDate { get; set; }
     public virtual List<LoadTax> LoadTaxe { get; set; }
     public ICollection<Product> Products { get; set; }
+
     public string RemoteId { get; set; }
     public bool Verified { get; set; }
 }
