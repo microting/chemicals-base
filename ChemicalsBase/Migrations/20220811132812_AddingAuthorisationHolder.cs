@@ -10,15 +10,27 @@ namespace ChemicalsBase.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<int>(
+            migrationBuilder.DropColumn(
+                name: "AuthorisationHolderId",
+                table: "ChemicalVersions");
+
+            migrationBuilder.DropColumn(
+                name: "AuthorisationHolderId",
+                table: "Chemicals");
+
+            migrationBuilder.AddColumn<bool>(
+                name: "AuthorisationHolderId",
+                table: "ChemicalVersions",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<bool>(
                 name: "AuthorisationHolderId",
                 table: "Chemicals",
                 type: "int",
                 nullable: false,
-                defaultValue: 0,
-                oldClrType: typeof(int),
-                oldType: "int",
-                oldNullable: true);
+                defaultValue: 0);
 
             migrationBuilder.CreateTable(
                 name: "Address",
