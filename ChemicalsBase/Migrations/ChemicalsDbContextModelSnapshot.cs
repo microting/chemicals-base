@@ -16,7 +16,7 @@ namespace ChemicalsBase.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.8")
+                .HasAnnotation("ProductVersion", "6.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.ActiveSubstance", b =>
@@ -143,224 +143,6 @@ namespace ChemicalsBase.Migrations
                     b.ToTable("ActiveSubstanceVersions");
                 });
 
-            modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.Address", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("CityName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Country")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DistricName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Floor")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PostOfficeBox")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Room")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("StreetBuildingNo")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("StreetName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
-
-                    b.Property<string>("WorkflowState")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Addresses");
-                });
-
-            modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.AddressVersion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("CityName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Country")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DistricName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Floor")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PostOfficeBox")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Room")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("StreetBuildingNo")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("StreetName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
-
-                    b.Property<string>("WorkflowState")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AddressVersions");
-                });
-
-            modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.AuthorisationHolder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("AddressId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("RemoteId")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
-
-                    b.Property<string>("WorkflowState")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.ToTable("AuthorisationHolders");
-                });
-
-            modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.AuthorisationHolderVersion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("AddressId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("RemoteId")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
-
-                    b.Property<string>("WorkflowState")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AuthorisationHolderVersions");
-                });
-
             modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.Chemical", b =>
                 {
                     b.Property<int>("Id")
@@ -377,7 +159,6 @@ namespace ChemicalsBase.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<int?>("AuthorisationHolderId")
-                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("AuthorisationTerminationDate")
@@ -482,8 +263,6 @@ namespace ChemicalsBase.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuthorisationHolderId");
 
                     b.HasIndex("ClassificationAndLabelingId");
 
@@ -1227,32 +1006,13 @@ namespace ChemicalsBase.Migrations
                         .HasForeignKey("ChemicalVersionId");
                 });
 
-            modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.AuthorisationHolder", b =>
-                {
-                    b.HasOne("ChemicalsBase.Infrastructure.Data.Entities.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Address");
-                });
-
             modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.Chemical", b =>
                 {
-                    b.HasOne("ChemicalsBase.Infrastructure.Data.Entities.AuthorisationHolder", "AuthorisationHolder")
-                        .WithMany()
-                        .HasForeignKey("AuthorisationHolderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ChemicalsBase.Infrastructure.Data.Entities.ClassificationAndLabeling", "ClassificationAndLabeling")
                         .WithMany()
                         .HasForeignKey("ClassificationAndLabelingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AuthorisationHolder");
 
                     b.Navigation("ClassificationAndLabeling");
                 });
