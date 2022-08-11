@@ -11,7 +11,6 @@ public class Chemical : PnBase
     public int? Status { get; set; }
     public int? PesticideAuthorisationType { get; set; }
     public int? BiocideAuthorisationType { get; set; }
-    [ForeignKey("AuthorisationHolder")]
     public int? AuthorisationHolderId { get; set; }
     public virtual AuthorisationHolder AuthorisationHolder { get; set; }
     public DateTime? AuthorisationDate { get; set; }
