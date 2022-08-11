@@ -24,6 +24,9 @@ SOFTWARE.
 
 using ChemicalsBase.Infrastructure;
 using ChemicalsBase.Infrastructure.Data.Factories;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
+using DotNet.Testcontainers.Containers;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -36,6 +39,14 @@ namespace ChemicalBase.Tests
         private string? _connectionString;
         private const string DatabaseName = "chemical-base-tests";
 
+        private readonly MySqlTestcontainer _mySqlTestcontainer = new TestcontainersBuilder<MySqlTestcontainer>()
+            .WithDatabase(new MySqlTestcontainerConfiguration(image: "mariadb:10.8")
+            {
+                Database = "chemical-base-tests",
+                Username = "bla",
+                Password = "secretpassword",
+            }).Build();
+
         private void GetContext(string? connectionStr)
         {
             var contextFactory = new ChemicalsContextFactory();
@@ -46,26 +57,16 @@ namespace ChemicalBase.Tests
         }
 
         [SetUp]
-        public void Setup()
+        public async Task Setup()
         {
 
-            _connectionString =
-                @$"Server = localhost; port = 3306; Database = {DatabaseName}; user = root; password = secretpassword; Convert Zero Datetime = true;";
+            Console.WriteLine($"{DateTime.Now} : Starting MariaDb Container...");
+            await _mySqlTestcontainer.StartAsync();
+            Console.WriteLine($"{DateTime.Now} : Started MariaDb Container");
+            _connectionString = _mySqlTestcontainer.ConnectionString;
 
-            GetContext(_connectionString);
+            GetContext(_mySqlTestcontainer.ConnectionString);
 
-            _dbContext?.Database.SetCommandTimeout(300);
-
-            try
-            {
-                ClearDb();
-            }
-            catch
-            {
-                _dbContext?.Database.Migrate();
-            }
-
-            DoSetup();
         }
 
         [TearDown]
@@ -86,6 +87,10 @@ namespace ChemicalBase.Tests
                 "ChemicalVersions",
                 "ClassificationAndLabelings",
                 "ClassificationAndLabelingVersions",
+                "AuthorisationHolderVersions",
+                "AuthorisationHolders",
+                "Addresses",
+                "AddressVersions",
                 "Clps",
                 "ClpVersions",
                 "Dpds",

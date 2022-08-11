@@ -30,6 +30,10 @@ public class ChemicalsDbContext: DbContext
     public DbSet<LoadTaxVersion> LoadTaxVersions { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductVersion> ProductVersions { get; set; }
+    public DbSet<AuthorisationHolder> AuthorisationHolders { get; set; }
+    public DbSet<AuthorisationHolderVersion> AuthorisationHolderVersions { get; set; }
+    public DbSet<Address> Addresses { get; set; }
+    public DbSet<AddressVersion> AddressVersions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
