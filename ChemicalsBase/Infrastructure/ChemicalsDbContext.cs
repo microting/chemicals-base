@@ -56,6 +56,15 @@ public class ChemicalsDbContext: DbContext
                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
                     c => (ICollection<int>)c.ToList()));
         modelBuilder.Entity<Chemical>()
+            .Property(e => e.BiocideProductType)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
+                v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions)null!)!,
+                new ValueComparer<ICollection<int>>(
+                    (c1, c2) => c1!.SequenceEqual(c2!),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => (ICollection<int>)c.ToList()));
+        modelBuilder.Entity<Chemical>()
             .Property(e => e.PesticidePossibleUse)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
@@ -102,6 +111,15 @@ public class ChemicalsDbContext: DbContext
                     c => (ICollection<int>)c.ToList()));
         modelBuilder.Entity<ChemicalVersion>()
             .Property(e => e.PesticideProductGroup)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
+                v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions)null!)!,
+                new ValueComparer<ICollection<int>>(
+                    (c1, c2) => c1!.SequenceEqual(c2!),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => (ICollection<int>)c.ToList()));
+        modelBuilder.Entity<ChemicalVersion>()
+            .Property(e => e.BiocideProductType)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
                 v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions)null!)!,
