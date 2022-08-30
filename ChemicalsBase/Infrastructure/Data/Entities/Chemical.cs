@@ -24,7 +24,7 @@ public class Chemical : PnBase
     public int? PesticideUser { get; set; }
     public ICollection<int> BiocideUser { get; set; } // virtual
     public ICollection<int> PesticideProductGroup { get; set; } // virtual
-    public int BiocideProductGroup { get; set; }
+    public int? BiocideProductGroup { get; set; }
     public ICollection<int> BiocideProductType { get; set; } // virtual
     public int? ActiveSubstanceType { get; set; }
     public ICollection<ActiveSubstance> ActiveSubstances { get; set; }
