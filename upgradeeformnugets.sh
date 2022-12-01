@@ -6,7 +6,7 @@ if (( "$GIT_STATUS" > 0 )); then
 	cd ChemicalsBase
   CURRENT_NUMBER_OF_COMMITS=`git log --oneline | wc -l`
 
-	PACKAGES=('Microsoft.EntityFrameworkCore' 'Microsoft.EntityFrameworkCore.Design' 'Microsoft.EntityFrameworkCore.Relational' 'Pomelo.EntityFrameworkCore.MySql')
+	PACKAGES=('Microsoft.EntityFrameworkCore' 'Microsoft.EntityFrameworkCore.Design' 'Microsoft.EntityFrameworkCore.Relational')
 	PROJECT_NAME='ChemicalsBase.csproj'
 	REPOSITORY='chemical-base'
 
