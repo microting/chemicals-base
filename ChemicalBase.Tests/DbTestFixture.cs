@@ -29,6 +29,7 @@ using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
+using Testcontainers.MariaDb;
 
 namespace ChemicalBase.Tests
 {
@@ -36,16 +37,12 @@ namespace ChemicalBase.Tests
     public abstract class DbTestFixture
     {
         private ChemicalsDbContext? _dbContext;
-        private string? _connectionString;
         private const string DatabaseName = "chemical-base-tests";
 
-        private readonly MySqlTestcontainer _mySqlTestcontainer = new TestcontainersBuilder<MySqlTestcontainer>()
-            .WithDatabase(new MySqlTestcontainerConfiguration(image: "mariadb:10.8")
-            {
-                Database = "chemical-base-tests",
-                Username = "bla",
-                Password = "secretpassword",
-            }).Build();
+        private readonly MariaDbContainer _mariadbTestcontainer = new MariaDbBuilder()
+            .WithDatabase(
+                "chemical-base-tests").WithUsername("bla").WithPassword("secretpassword")
+            .Build();
 
         private void GetContext(string? connectionStr)
         {
@@ -61,11 +58,10 @@ namespace ChemicalBase.Tests
         {
 
             Console.WriteLine($"{DateTime.Now} : Starting MariaDb Container...");
-            await _mySqlTestcontainer.StartAsync();
+            await _mariadbTestcontainer.StartAsync();
             Console.WriteLine($"{DateTime.Now} : Started MariaDb Container");
-            _connectionString = _mySqlTestcontainer.ConnectionString;
 
-            GetContext(_mySqlTestcontainer.ConnectionString);
+            GetContext(_mariadbTestcontainer.GetConnectionString());
 
         }
 
