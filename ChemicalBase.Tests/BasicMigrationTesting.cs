@@ -9,6 +9,6 @@ public class BasicMigrationTesting  : DbTestFixture
     [Test]
     public void CanMigrate()
     {
-        Assert.True(true);
+        Assert.That(true);
     }
 }
