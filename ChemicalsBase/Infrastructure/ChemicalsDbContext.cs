@@ -34,6 +34,8 @@ public class ChemicalsDbContext: DbContext
     public DbSet<AuthorisationHolderVersion> AuthorisationHolderVersions { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<AddressVersion> AddressVersions { get; set; }
+    public DbSet<BarcodeSuggestion> BarcodeSuggestions { get; set; }
+    public DbSet<BarcodeSuggestionVersion> BarcodeSuggestionVersions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -199,5 +201,8 @@ public class ChemicalsDbContext: DbContext
                     (c1, c2) => c1!.SequenceEqual(c2!),
                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
                     c => (ICollection<int>)c.ToList()));
+            modelBuilder.Entity<BarcodeSuggestion>().HasIndex(x => x.Barcode);
+        modelBuilder.Entity<BarcodeSuggestion>().HasIndex(x => new { x.Status, x.ChemicalId });
+        modelBuilder.Entity<BarcodeSuggestionVersion>().HasIndex(x => x.BarcodeSuggestionId);
     }
 }
