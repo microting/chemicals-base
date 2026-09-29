@@ -37,6 +37,7 @@ namespace ChemicalBase.Tests
     public abstract class DbTestFixture
     {
         private ChemicalsDbContext? _dbContext;
+        protected ChemicalsDbContext DbContext => _dbContext!;
         private const string DatabaseName = "chemical-base-tests";
 
         private readonly MariaDbContainer _mariadbTestcontainer = new MariaDbBuilder()
@@ -97,6 +98,8 @@ namespace ChemicalBase.Tests
                 "LoadTaxVersions",
                 "Products",
                 "ProductVersions",
+                "BarcodeSuggestions",
+                "BarcodeSuggestionVersions",
             };
 
             var firstRunNotDone = true;
