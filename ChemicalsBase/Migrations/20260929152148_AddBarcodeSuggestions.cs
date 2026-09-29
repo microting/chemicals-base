@@ -12,6 +12,7 @@ namespace ChemicalsBase.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // The generated no-op identity AlterColumn calls on existing tables were intentionally removed (see PR #170 description).
             migrationBuilder.CreateTable(
                 name: "BarcodeSuggestions",
                 columns: table => new
