@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET Core
@@ -28,5 +31,10 @@ jobs:
       run: dotnet test --no-restore -c Release -v n ChemicalBase.Tests/ChemicalBase.Tests.csproj
     - name: Pack
       run: dotnet pack ChemicalsBase.sln -c Release -o ./artifacts -p:PackageVersion=${{ steps.get_version.outputs.VERSION }}
+    - name: NuGet login (OIDC trusted publishing)
+      uses: NuGet/login@v1
+      id: nuget-login
+      with:
+        user: microtingas
     - name: Push generated package to GitHub registry
-      run: dotnet nuget push /home/runner/work/chemicals-base/chemicals-base/artifacts/ChemicalsBase.${{ steps.get_version.outputs.VERSION }}.nupkg -k ${{secrets.NUGET_SECRET_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
+      run: dotnet nuget push /home/runner/work/chemicals-base/chemicals-base/artifacts/ChemicalsBase.${{ steps.get_version.outputs.VERSION }}.nupkg -k ${{ steps.nuget-login.outputs.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
