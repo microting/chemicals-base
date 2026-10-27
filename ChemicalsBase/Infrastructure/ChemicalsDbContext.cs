@@ -36,6 +36,11 @@ public class ChemicalsDbContext: DbContext
     public DbSet<AddressVersion> AddressVersions { get; set; }
     public DbSet<BarcodeSuggestion> BarcodeSuggestions { get; set; }
     public DbSet<BarcodeSuggestionVersion> BarcodeSuggestionVersions { get; set; }
+    public DbSet<ChemicalDocument> ChemicalDocuments { get; set; }
+    public DbSet<ChemicalDocumentVersion> ChemicalDocumentVersions { get; set; }
+    public DbSet<SdsHarvestAttempt> SdsHarvestAttempts { get; set; }
+    public DbSet<HolderSdsSite> HolderSdsSites { get; set; }
+    public DbSet<HolderSdsSiteVersion> HolderSdsSiteVersions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -205,5 +210,15 @@ public class ChemicalsDbContext: DbContext
         modelBuilder.Entity<BarcodeSuggestion>().HasIndex(x => x.Barcode);
         modelBuilder.Entity<BarcodeSuggestion>().HasIndex(x => new { x.Status, x.ChemicalId });
         modelBuilder.Entity<BarcodeSuggestionVersion>().HasIndex(x => x.BarcodeSuggestionId);
+
+        // Not filtered on WorkflowState: a soft-deleted document is revived by Update, never re-created.
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => new { d.ChemicalId, d.Type, d.ContentMd5 }).IsUnique();
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => d.SourceFileId);
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => d.ContentMd5);
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => new { d.Type, d.Status });
+        modelBuilder.Entity<ChemicalDocumentVersion>().HasIndex(x => x.ChemicalDocumentId);
+        modelBuilder.Entity<SdsHarvestAttempt>().HasIndex(a => new { a.ChemicalId, a.AttemptedAt });
+        modelBuilder.Entity<HolderSdsSite>().HasIndex(s => new { s.AuthorisationHolderId, s.Domain }).IsUnique();
+        modelBuilder.Entity<HolderSdsSiteVersion>().HasIndex(x => x.HolderSdsSiteId);
     }
 }

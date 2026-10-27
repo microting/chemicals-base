@@ -43,6 +43,11 @@ public class Chemical : PnBase
 
     public string RemoteId { get; set; }
     public bool Verified { get; set; }
+    public string? AdditionalTradeNames { get; set; }
+
+    /// <summary>Feed only (Active labels); never stored or versioned.</summary>
+    [NotMapped]
+    public List<ChemicalLabelFeedItem>? Labels { get; set; }
 
 
 }
