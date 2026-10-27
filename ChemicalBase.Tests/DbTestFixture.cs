@@ -100,6 +100,11 @@ namespace ChemicalBase.Tests
                 "ProductVersions",
                 "BarcodeSuggestions",
                 "BarcodeSuggestionVersions",
+                "ChemicalDocuments",
+                "ChemicalDocumentVersions",
+                "SdsHarvestAttempts",
+                "HolderSdsSites",
+                "HolderSdsSiteVersions",
             };
 
             var firstRunNotDone = true;
