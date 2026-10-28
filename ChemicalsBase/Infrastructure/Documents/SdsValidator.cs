@@ -56,9 +56,11 @@ public static class SdsValidator
 
     // Any hyphen or dash between two digits, optionally spaced: "706–12", "706 - 12" → "706-12".
     private static readonly Regex DashBetweenDigits =
-        new(@"(?<=[0-9])\s?[\-‐‑‒–—−]\s?(?=[0-9])", RegexOptions.Compiled);
+        new(@"(?<=[0-9])\s?[\-‐‑‒–—−]\s?(?=[0-9])", RegexOptions.Compiled,
+            RevisionDateParser.MatchTimeout);
 
-    private static readonly Regex Token = new(@"[\p{L}\p{M}\p{Nd}]+", RegexOptions.Compiled);
+    private static readonly Regex Token = new(@"[\p{L}\p{M}\p{Nd}]+", RegexOptions.Compiled,
+        RevisionDateParser.MatchTimeout);
 
     public static SdsValidation Validate(byte[] pdf, SdsQuery q) => ValidateText(PdfText.Pages(pdf, MaxPages), q);
 
@@ -67,6 +69,7 @@ public static class SdsValidator
     {
         ArgumentNullException.ThrowIfNull(text);
         ArgumentNullException.ThrowIfNull(q);
+        text = RevisionDateParser.Cap(text); // pages 1–2; PDF text is untrusted, capped before any regex runs
 
         var classification = DocumentClassifier.ClassifyText(text);
         if (classification.Kind == PageOneKind.NoText)
@@ -107,6 +110,18 @@ public static class SdsValidator
     }
 
     private static (string? Match, int Points) Identity(string slice, SdsQuery q)
+    {
+        try
+        {
+            return IdentityOrThrow(slice, q);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return (null, 0); // pathological text: no identity rather than a stalled caller
+        }
+    }
+
+    private static (string? Match, int Points) IdentityOrThrow(string slice, SdsQuery q)
     {
         var expected = string.IsNullOrWhiteSpace(q.RegistrationNo)
             ? null

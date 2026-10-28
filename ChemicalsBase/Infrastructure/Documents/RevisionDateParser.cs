@@ -37,6 +37,12 @@ public static class RevisionDateParser
     /// <summary>How far after a keyword its date may start.</summary>
     internal const int Window = 100;
 
+    // The longest date text: "dd. <month name> yyyy" with the longest month name stays well under this.
+    private const int MaxDateLength = 40;
+
+    /// <summary>Per regex call; PDF text is untrusted. A timeout counts as "no date".</summary>
+    internal static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(250);
+
     /// <summary>Only the first this-many characters of the (normalised) text are scanned: pages 1–2 of an SDS.</summary>
     public const int MaxScanLength = 64 * 1024;
 
@@ -51,11 +57,12 @@ public static class RevisionDateParser
     public static DateTime? Find(string text, string? language)
     {
         ArgumentNullException.ThrowIfNull(text);
-        return FindNormalized(SdsLanguageDetector.Normalize(text), language);
+        return FindNormalized(SdsLanguageDetector.Normalize(Cap(text)), language);
     }
 
     internal static DateTime? FindNormalized(string normalizedText, string? language)
     {
+        normalizedText = Cap(normalizedText);
         var code = SdsLanguages.Normalize(language);
         var own = code != null && ByLanguage.Value.TryGetValue(code, out var rules)
             ? rules.Find(normalizedText)
@@ -84,27 +91,37 @@ public static class RevisionDateParser
             }
 
             return new Rules(
-                new Regex($@"(?<![\p{{L}}\p{{M}}])(?:{Alternation(keywords)})", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+                new Regex($@"(?<![\p{{L}}\p{{M}}])(?:{Alternation(keywords)})", RegexOptions.Compiled | RegexOptions.CultureInvariant, MatchTimeout),
                 new Regex(
                     $@"(?<![0-9])(?:(?<iy>[0-9]{{4}})-(?<im>[0-9]{{1,2}})-(?<id>[0-9]{{1,2}})" +
                     $@"|(?<nd>[0-9]{{1,2}})(?<sep>[-./])(?<nm>[0-9]{{1,2}})\k<sep>(?<ny>[0-9]{{4}})" +
                     $@"|(?<md>[0-9]{{1,2}})\.?\s?(?<mn>{Alternation(months.Keys)})(?![\p{{L}}\p{{M}}])\s?(?<my>[0-9]{{4}}))(?![0-9])",
-                    RegexOptions.Compiled | RegexOptions.CultureInvariant),
+                    RegexOptions.Compiled | RegexOptions.CultureInvariant, MatchTimeout),
                 months);
         }
 
+        /// <summary>Linear in the text: each keyword searches only its own window, never the rest of the text.</summary>
         internal DateTime? Find(string text)
         {
-            for (var keyword = keywords.Match(text); keyword.Success; keyword = keyword.NextMatch())
+            try
             {
-                var end = keyword.Index + keyword.Length;
-                for (var date = dates.Match(text, end); date.Success && date.Index - end <= Window; date = date.NextMatch())
+                for (var keyword = keywords.Match(text); keyword.Success; keyword = keyword.NextMatch())
                 {
-                    if (ToDate(date) is { } found)
+                    var end = keyword.Index + keyword.Length;
+                    var length = Math.Min(Window + MaxDateLength, text.Length - end);
+                    for (var date = dates.Match(text, end, length); date.Success && date.Index - end <= Window;
+                         date = date.NextMatch())
                     {
-                        return found;
+                        if (ToDate(date) is { } found)
+                        {
+                            return found;
+                        }
                     }
                 }
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                // Hostile or pathological text: no date rather than a stalled harvester.
             }
 
             return null;
@@ -125,6 +142,9 @@ public static class RevisionDateParser
 
         private static int Int(Match m, string group) => int.Parse(m.Groups[group].Value);
     }
+
+    /// <summary>The first <see cref="MaxScanLength"/> characters: applied before any regex runs.</summary>
+    internal static string Cap(string text) => text.Length > MaxScanLength ? text[..MaxScanLength] : text;
 
     private static string Alternation(IEnumerable<string> words) => string.Join("|", words
         .Select(SdsLanguageDetector.Normalize)

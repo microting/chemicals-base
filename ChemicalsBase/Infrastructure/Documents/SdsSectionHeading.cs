@@ -59,7 +59,8 @@ internal sealed class SdsSectionHeading
     {
         Language = language;
         _heading = new Regex(HeadingRegex(terms, 1), RegexOptions.Compiled | RegexOptions.CultureInvariant);
-        _section2 = new Regex(HeadingRegex(terms, 2), RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        _section2 = new Regex(HeadingRegex(terms, 2), RegexOptions.Compiled | RegexOptions.CultureInvariant,
+            RevisionDateParser.MatchTimeout);
         _title = SdsLanguageDetector.Normalize(terms.Section1Title!);
         _titleStart = TitleStart(_title);
     }
@@ -101,8 +102,15 @@ internal sealed class SdsSectionHeading
     /// <summary>Position of the section-2 heading ("punkt 2", "2. szakasz") at or after <paramref name="startAt"/>, or -1.</summary>
     internal int FindSection2(string normalizedText, int startAt)
     {
-        var match = _section2.Match(normalizedText, startAt);
-        return match.Success ? match.Index : -1;
+        try
+        {
+            var match = _section2.Match(normalizedText, startAt);
+            return match.Success ? match.Index : -1;
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return -1; // the caller falls back to a fixed-length slice
+        }
     }
 
     /// <summary>The heading for section <paramref name="n"/> (a one-digit section number).</summary>
