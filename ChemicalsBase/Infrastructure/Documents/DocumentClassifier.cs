@@ -103,7 +103,9 @@ public static class DocumentClassifier
         return new Classification(isSds ? PageOneKind.Sds : PageOneKind.LabelOrInstructions, registrationNumbers);
     }
 
-    private static IReadOnlyList<string> RegistrationNumbers(string text) =>
+    /// <summary>The reg.nr. extractor (a superset, see <see cref="Classification.RegistrationNumbersFound"/>); shared
+    /// with <see cref="SdsValidator"/>.</summary>
+    internal static IReadOnlyList<string> RegistrationNumbers(string text) =>
         RegistrationNumber.Matches(text)
             .Select(match => match.Value)
             .Where(value => !IsDateLike(value))

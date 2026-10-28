@@ -28,7 +28,7 @@ namespace ChemicalsBase.Infrastructure.Documents;
 
 /// <summary>
 /// The one section-1 heading rule (F22), shared by <see cref="SdsLanguageDetector"/> and
-/// <see cref="DocumentClassifier"/>. Works on text normalised by <c>SdsLanguageDetector.Normalize</c>.
+/// <see cref="DocumentClassifier"/>, and by <see cref="SdsValidator"/> (section-1 slice up to the section-2 heading). Works on text normalised by <c>SdsLanguageDetector.Normalize</c>.
 /// <list type="bullet">
 /// <item><b>Heading:</b> the language's HeadingPattern with n = 1, any separator. Word-first "punkt 1", "punkt1",
 /// "rubrique 1 —" (not "punkt 10", not "section 1.4"); number-first "1. szakasz", "1.szakasz", "1 skirsnis".</item>
@@ -51,13 +51,15 @@ internal sealed class SdsSectionHeading
         .ToList());
 
     private readonly Regex _heading;
+    private readonly Regex _section2;
     private readonly string _title;
     private readonly string _titleStart;
 
     private SdsSectionHeading(string language, SdsLanguageTerms terms)
     {
         Language = language;
-        _heading = new Regex(HeadingRegex(terms), RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        _heading = new Regex(HeadingRegex(terms, 1), RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        _section2 = new Regex(HeadingRegex(terms, 2), RegexOptions.Compiled | RegexOptions.CultureInvariant);
         _title = SdsLanguageDetector.Normalize(terms.Section1Title!);
         _titleStart = TitleStart(_title);
     }
@@ -66,6 +68,9 @@ internal sealed class SdsSectionHeading
     internal static IReadOnlyList<SdsSectionHeading> All => Loaded.Value;
 
     internal string Language { get; }
+
+    /// <summary>The heading rule of a language, or null when it has no headings or is unknown.</summary>
+    internal static SdsSectionHeading? For(string? language) => All.FirstOrDefault(h => h.Language == language);
 
     /// <summary>True when the text holds this language's section-1 heading (with or without its title).</summary>
     internal bool HasHeading(string normalizedText) => _heading.IsMatch(normalizedText);
@@ -93,13 +98,21 @@ internal sealed class SdsSectionHeading
         return -1;
     }
 
-    private static string HeadingRegex(SdsLanguageTerms terms)
+    /// <summary>Position of the section-2 heading ("punkt 2", "2. szakasz") at or after <paramref name="startAt"/>, or -1.</summary>
+    internal int FindSection2(string normalizedText, int startAt)
+    {
+        var match = _section2.Match(normalizedText, startAt);
+        return match.Success ? match.Index : -1;
+    }
+
+    /// <summary>The heading for section <paramref name="n"/> (a one-digit section number).</summary>
+    private static string HeadingRegex(SdsLanguageTerms terms, int n)
     {
         var word = Regex.Escape(SdsLanguageDetector.Normalize(terms.SectionWord!));
         var numberFirst = terms.HeadingPattern!.TrimStart().StartsWith("{n}", StringComparison.Ordinal);
         return numberFirst
-            ? $@"(?<![\p{{L}}\p{{M}}\d.,])1\s?\.?\s?{word}{NotLetterAfter}"
-            : $@"{NotLetterBefore}{word}\s?1(?!\d)(?!\s?[.,]\s?\d)";
+            ? $@"(?<![\p{{L}}\p{{M}}\d.,]){n}\s?\.?\s?{word}{NotLetterAfter}"
+            : $@"{NotLetterBefore}{word}\s?{n}(?!\d)(?!\s?[.,]\s?\d)";
     }
 
     /// <summary>The title up to its third word break (space or "/"): "identifikation af stoffet".</summary>
