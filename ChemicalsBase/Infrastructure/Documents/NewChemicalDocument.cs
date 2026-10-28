@@ -29,7 +29,7 @@ namespace ChemicalsBase.Infrastructure.Documents;
 /// <summary>
 /// A document to write through <see cref="ChemicalDocumentWriter"/>. Automation passes
 /// <see cref="ChemicalDocumentStatus.PendingReview"/>; <see cref="ChemicalDocumentStatus.Active"/> is accepted only from
-/// a staff path (<see cref="ChemicalDocumentSource.Staff"/> or a named <see cref="ReviewedBy"/>).
+/// with a named <see cref="ReviewedBy"/> (staff endpoints pass the caller).
 /// </summary>
 public sealed record NewChemicalDocument(
     int ChemicalId, ChemicalDocumentType Type, ChemicalDocumentSource Source, ChemicalDocumentStatus Status, byte[] Pdf,
@@ -37,6 +37,9 @@ public sealed record NewChemicalDocument(
     int? SourceProductId = null, string? SourceAdapter = null, DateTime? SourceRevisionDate = null, string? SourceRevision = null,
     int? ValidationScore = null, string? ValidationNotes = null, string? ReviewedBy = null, string? Language = null)
 {
+    /// <summary><see cref="ReviewedBy"/>, or null when blank.</summary>
+    internal string? Reviewer => string.IsNullOrWhiteSpace(ReviewedBy) ? null : ReviewedBy;
+
     /// <summary>A staff upload or a write on behalf of a named reviewer.</summary>
-    internal bool IsStaffPath => Source == ChemicalDocumentSource.Staff || !string.IsNullOrWhiteSpace(ReviewedBy);
+    internal bool IsStaffPath => Source == ChemicalDocumentSource.Staff || Reviewer != null;
 }

@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using ChemicalsBase.Infrastructure.Data.Entities;
 using ChemicalsBase.Infrastructure.Data.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -36,8 +38,19 @@ public enum WriteOutcome
     DryRun,
 }
 
-/// <summary><see cref="Document"/> is null only for a dry run of an unknown document.</summary>
-public sealed record WriteResult(WriteOutcome Outcome, ChemicalDocument? Document, string ContentMd5);
+/// <summary>
+/// <see cref="Document"/> is null only for a dry run of an unknown document. An <see cref="WriteOutcome.AlreadyKnown"/>
+/// document can still be soft-deleted (a hands-off row that only a staff path revives): check
+/// <see cref="IsRemoved"/> before treating it as live.
+/// </summary>
+public sealed record WriteResult(WriteOutcome Outcome, ChemicalDocument? Document, string ContentMd5)
+{
+    public bool IsRemoved => Document?.WorkflowState == WorkflowStates.Removed;
+}
+
+/// <summary>The md5 matches a stored document but the SHA-256 does not: different bytes, never merged.</summary>
+public sealed class ChemicalDocumentHashCollisionException(int documentId, string md5)
+    : InvalidOperationException($"ChemicalDocument {documentId} has md5 {md5} but a different SHA-256 (hash collision).");
 
 /// <summary>
 /// The single write path for chemical documents (labels, SDS, minor-use instructions): BMD label import,
@@ -45,9 +58,15 @@ public sealed record WriteResult(WriteOutcome Outcome, ChemicalDocument? Documen
 /// stores each blob once under "&lt;md5&gt;.pdf", and writes through PnBase.Create/Update so every change has a
 /// version row.
 /// <para>
-/// Nothing goes live automatically: <see cref="ChemicalDocumentStatus.Active"/> is only written for a staff
-/// path (Source=Staff or a named reviewer), and automation never revives a soft-deleted Active row.
-/// A known document keeps its Status, Source and StaffLocked, so a staff rejection is sticky.
+/// Nothing goes live automatically: <see cref="ChemicalDocumentStatus.Active"/> needs a named reviewer, and
+/// automation never revives a soft-deleted hands-off (Staff or StaffLocked) row. A known document keeps its Status,
+/// Source and StaffLocked, so a staff rejection is sticky.
+/// </para>
+/// <para>
+/// Input is validated before the DbContext is touched, and a lost insert race is detached, so a refused write never
+/// leaves the shared context unusable. PnBase.Create/Update save every pending change in the context: callers must
+/// not leave unrelated tracked edits pending. Pass the tracked instance of a document; attaching an untracked copy
+/// of an already tracked row throws.
 /// </para>
 /// </summary>
 public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobStore blobs, TimeProvider clock)
@@ -56,23 +75,31 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
 
     private static ReadOnlySpan<byte> PdfMagic => "%PDF-"u8;
 
+    /// <summary>[StringLength] of every ChemicalDocument column, so the checks cannot drift from the schema.</summary>
+    private static readonly Dictionary<string, int> MaxLengths = typeof(ChemicalDocument).GetProperties()
+        .Select(p => (p.Name, Max: p.GetCustomAttribute<StringLengthAttribute>()?.MaximumLength))
+        .Where(c => c.Max != null)
+        .ToDictionary(c => c.Name, c => c.Max!.Value);
+
     private DateTime Now => clock.GetUtcNow().UtcDateTime;
 
     public async Task<WriteResult> WriteAsync(NewChemicalDocument doc, bool dryRun = false)
     {
         ArgumentNullException.ThrowIfNull(doc);
         EnsurePdf(doc.Pdf);
-        if (doc.Status == ChemicalDocumentStatus.Active && !doc.IsStaffPath)
+        EnsureFits(doc);
+        if (doc.Status == ChemicalDocumentStatus.Active && doc.Reviewer == null)
         {
-            throw new ArgumentException(
-                "Only a staff path (Source=Staff or a named ReviewedBy) may write an Active document.", nameof(doc));
+            throw new ArgumentException("An Active document needs a named ReviewedBy (a staff path).", nameof(doc));
         }
 
         var md5 = DocumentHashes.Md5Hex(doc.Pdf);
-
-        // No WorkflowState filter: the unique index covers removed rows too, so they are revived, never re-created.
-        var existing = await db.ChemicalDocuments.SingleOrDefaultAsync(d =>
-            d.ChemicalId == doc.ChemicalId && d.Type == doc.Type && d.ContentMd5 == md5);
+        var sha256 = DocumentHashes.Sha256Hex(doc.Pdf);
+        var existing = await FindAsync(doc, md5);
+        if (existing != null)
+        {
+            EnsureSameContent(existing, sha256);
+        }
 
         if (dryRun)
         {
@@ -83,13 +110,11 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
 
         if (existing != null)
         {
-            MergeKnown(existing, doc);
-            await TouchAsync(existing);
-            return new WriteResult(WriteOutcome.AlreadyKnown, existing, md5);
+            return await KnownAsync(existing, doc, md5);
         }
 
         var now = Now;
-        var reviewedBy = string.IsNullOrWhiteSpace(doc.ReviewedBy) ? null : doc.ReviewedBy;
+        var reviewed = doc.Reviewer != null && doc.Status != ChemicalDocumentStatus.PendingReview;
         var created = new ChemicalDocument
         {
             ChemicalId = doc.ChemicalId,
@@ -98,7 +123,7 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
             Status = doc.Status,
             Language = SdsLanguages.Normalize(doc.Language),
             ContentMd5 = md5,
-            ContentSha256 = DocumentHashes.Sha256Hex(doc.Pdf),
+            ContentSha256 = sha256,
             SizeBytes = doc.Pdf.LongLength,
             SourceUrl = doc.SourceUrl,
             SourceFileId = doc.SourceFileId,
@@ -112,22 +137,44 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
             LastSeenAt = now,
             ValidationScore = doc.ValidationScore,
             ValidationNotes = doc.ValidationNotes,
-            StaffLocked = doc.IsStaffPath,
-            ReviewedBy = reviewedBy,
-            ReviewedAt = reviewedBy == null ? null : now,
+            StaffLocked = reviewed,
+            ReviewedBy = reviewed ? doc.Reviewer : null,
+            ReviewedAt = reviewed ? now : null,
         };
-        await created.Create(db);
+
+        try
+        {
+            await created.Create(db);
+        }
+        catch (DbUpdateException)
+        {
+            // Most likely a concurrent writer inserted the same (ChemicalId, Type, md5) after our lookup. Detach the
+            // failed row first, or every later SaveChanges on this context retries the insert.
+            db.Entry(created).State = EntityState.Detached;
+            var winner = await FindAsync(doc, md5);
+            if (winner == null)
+            {
+                throw;
+            }
+
+            EnsureSameContent(winner, sha256);
+            return await KnownAsync(winner, doc, md5);
+        }
+
         return new WriteResult(WriteOutcome.Created, created, md5);
     }
 
     /// <summary>
-    /// Sets the status. A named <paramref name="reviewedBy"/> is a staff action: it stamps the review fields and
-    /// sets StaffLocked. Without a reviewer (automation) the status may not become Active and a Staff or
-    /// StaffLocked row may not be changed.
+    /// Sets the status. A named <paramref name="reviewedBy"/> is a staff action: it stamps the review fields, replaces
+    /// ReviewNote with <paramref name="note"/> (null clears the previous decision's note) and sets StaffLocked.
+    /// Without a reviewer (automation) the status may not become Active, a Staff or StaffLocked row may not be
+    /// changed, and a null note keeps the existing one.
     /// </summary>
     public async Task SetStatusAsync(ChemicalDocument doc, ChemicalDocumentStatus status, string? reviewedBy, string? note)
     {
         ArgumentNullException.ThrowIfNull(doc);
+        EnsureFits(reviewedBy, nameof(ChemicalDocument.ReviewedBy));
+        EnsureFits(note, nameof(ChemicalDocument.ReviewNote));
         var byStaff = !string.IsNullOrWhiteSpace(reviewedBy);
         if (status == ChemicalDocumentStatus.Active && !byStaff)
         {
@@ -147,9 +194,9 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
             doc.ReviewedBy = reviewedBy;
             doc.ReviewedAt = Now;
             doc.StaffLocked = true;
+            doc.ReviewNote = note;
         }
-
-        if (note != null)
+        else if (note != null)
         {
             doc.ReviewNote = note;
         }
@@ -172,21 +219,64 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
         await doc.Update(db);
     }
 
+    /// <summary>No WorkflowState filter: the unique index covers removed rows too, so they are revived, never re-created.</summary>
+    private Task<ChemicalDocument?> FindAsync(NewChemicalDocument doc, string md5) =>
+        db.ChemicalDocuments.SingleOrDefaultAsync(d =>
+            d.ChemicalId == doc.ChemicalId && d.Type == doc.Type && d.ContentMd5 == md5);
+
+    private async Task<WriteResult> KnownAsync(ChemicalDocument existing, NewChemicalDocument doc, string md5)
+    {
+        MergeKnown(existing, doc);
+        await TouchAsync(existing);
+        return new WriteResult(WriteOutcome.AlreadyKnown, existing, md5);
+    }
+
     private static void EnsurePdf(byte[]? pdf)
     {
+        const string param = nameof(NewChemicalDocument.Pdf);
         if (pdf == null || pdf.Length == 0)
         {
-            throw new ArgumentException("The document is empty.", nameof(pdf));
+            throw new ArgumentException("The document is empty.", param);
         }
 
         if (pdf.LongLength > MaxPdfBytes)
         {
-            throw new ArgumentException($"The document is larger than {MaxPdfBytes} bytes.", nameof(pdf));
+            throw new ArgumentException($"The document is larger than {MaxPdfBytes} bytes.", param);
         }
 
         if (!pdf.AsSpan().StartsWith(PdfMagic))
         {
-            throw new ArgumentException("The document is not a PDF (no %PDF- header).", nameof(pdf));
+            throw new ArgumentException("The document is not a PDF (no %PDF- header).", param);
+        }
+    }
+
+    private static void EnsureFits(NewChemicalDocument doc)
+    {
+        EnsureFits(doc.SourceUrl, nameof(ChemicalDocument.SourceUrl));
+        EnsureFits(doc.SourceFileId, nameof(ChemicalDocument.SourceFileId));
+        EnsureFits(doc.SourceFileName, nameof(ChemicalDocument.SourceFileName));
+        EnsureFits(doc.SourcePackaging, nameof(ChemicalDocument.SourcePackaging));
+        EnsureFits(doc.SourceAdapter, nameof(ChemicalDocument.SourceAdapter));
+        EnsureFits(doc.SourceRevision, nameof(ChemicalDocument.SourceRevision));
+        EnsureFits(doc.ValidationNotes, nameof(ChemicalDocument.ValidationNotes));
+        EnsureFits(doc.ReviewedBy, nameof(ChemicalDocument.ReviewedBy));
+    }
+
+    private static void EnsureFits(string? value, string column)
+    {
+        if (value != null && value.Length > MaxLengths[column])
+        {
+            throw new ArgumentException(
+                $"{column} is {value.Length} characters; the column holds {MaxLengths[column]}.", column);
+        }
+    }
+
+    private static void EnsureSameContent(ChemicalDocument existing, string sha256)
+    {
+        // Rows written outside the writer may lack a SHA-256; then the md5 is all we can compare.
+        if (existing.ContentSha256.Length > 0 && existing.ContentSha256 != sha256)
+        {
+            throw new ChemicalDocumentHashCollisionException(existing.Id, existing.ContentMd5);
         }
     }
 
@@ -203,8 +293,10 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
     }
 
     /// <summary>
-    /// Fills missing provenance and revives a removed row. Never touches Status, Source or StaffLocked; the language
-    /// is filled only when unknown and the row is not hands-off; a removed Active row is revived only by a staff path.
+    /// Fills missing provenance and revives a removed row. Never touches Status, Source or StaffLocked. The language
+    /// is filled only when unknown and the row is not hands-off. A removed row is revived by a staff path, or by
+    /// automation only when it is neither hands-off nor Active, so automation never undoes a staff decision or puts
+    /// a document live (every writer-made Active row is hands-off; the Active check also covers rows made elsewhere).
     /// </summary>
     private static void MergeKnown(ChemicalDocument existing, NewChemicalDocument doc)
     {
@@ -222,8 +314,8 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
             existing.Language ??= SdsLanguages.Normalize(doc.Language);
         }
 
-        if (existing.WorkflowState == WorkflowStates.Removed
-            && (existing.Status != ChemicalDocumentStatus.Active || doc.IsStaffPath))
+        var automationMayRevive = !IsHandsOff(existing) && existing.Status != ChemicalDocumentStatus.Active;
+        if (existing.WorkflowState == WorkflowStates.Removed && (doc.IsStaffPath || automationMayRevive))
         {
             existing.WorkflowState = WorkflowStates.Created;
         }

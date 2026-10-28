@@ -404,6 +404,7 @@ public class ChemicalDocumentWriterTests : DbTestFixture
         _clock.Advance(TimeSpan.FromHours(1));
         var seen = await _writer.WriteAsync(BmdLabel(pdf, chemicalId: ChemB));
         Assert.That(seen.Outcome, Is.EqualTo(WriteOutcome.AlreadyKnown));
+        Assert.That(seen.IsRemoved, Is.True);
         var stillRemoved = await Stored(reviewed.Document.Id);
         Assert.That(stillRemoved.WorkflowState, Is.EqualTo(WorkflowStates.Removed));
         Assert.That(stillRemoved.Status, Is.EqualTo(ChemicalDocumentStatus.Active));
@@ -412,6 +413,7 @@ public class ChemicalDocumentWriterTests : DbTestFixture
         var restored = await _writer.WriteAsync(new(ChemB, ChemicalDocumentType.Label, ChemicalDocumentSource.Staff,
             ChemicalDocumentStatus.Active, pdf, ReviewedBy: "Bo Staff"));
         Assert.That(restored.Outcome, Is.EqualTo(WriteOutcome.AlreadyKnown));
+        Assert.That(restored.IsRemoved, Is.False);
         Assert.That((await Stored(reviewed.Document.Id)).WorkflowState, Is.EqualTo(WorkflowStates.Created));
         Assert.That(await DbContext.ChemicalDocuments.CountAsync(), Is.EqualTo(1));
     }
