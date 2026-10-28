@@ -377,6 +377,7 @@ public class ChemicalDocumentTests : DbTestFixture
             DetectedType = ChemicalDocumentType.Sds,
             DetectedLanguage = "da",
             LanguageConfidence = 0.92,
+            LanguageUncertain = true,
             MatchedChemicalId = 42,
             ChemicalDocumentId = 77,
             MatchScore = 85,
@@ -401,6 +402,7 @@ public class ChemicalDocumentTests : DbTestFixture
         Assert.That(stored.DetectedType, Is.EqualTo(ChemicalDocumentType.Sds));
         Assert.That(stored.DetectedLanguage, Is.EqualTo("da"));
         Assert.That(stored.LanguageConfidence, Is.EqualTo(0.92).Within(1e-9));
+        Assert.That(stored.LanguageUncertain, Is.True);
         Assert.That(stored.MatchedChemicalId, Is.EqualTo(42));
         Assert.That(stored.ChemicalDocumentId, Is.EqualTo(77));
         Assert.That(stored.MatchScore, Is.EqualTo(85));
@@ -418,6 +420,7 @@ public class ChemicalDocumentTests : DbTestFixture
         Assert.That(versions.Select(v => v.Status),
             Is.EqualTo(new[] { DocumentInboxStatus.Unmatched, DocumentInboxStatus.Matched }));
         Assert.That(versions.Select(v => v.ContentMd5), Is.All.EqualTo(Md5));
+        Assert.That(versions.Select(v => v.LanguageUncertain), Is.All.True);
         Assert.That(versions[1].ResolvedBy, Is.EqualTo("Anne Staff"));
         Assert.That(versions.Select(v => v.Note), Is.All.EqualTo("Nye SDS for 2026"));
         Assert.That(versions.Select(v => v.ResolutionNote), Is.EqualTo(new[] { null, "matched on reg. no." }));
@@ -452,6 +455,7 @@ public class ChemicalDocumentTests : DbTestFixture
         var storedNotPdf = await DbContext.DocumentInboxItems.AsNoTracking().SingleAsync(i => i.Id == notPdf.Id);
         Assert.That(storedNotPdf.ContentMd5, Is.EqualTo(""));
         Assert.That(storedNotPdf.DetectedType, Is.Null);
+        Assert.That(storedNotPdf.LanguageUncertain, Is.False, "defaults to false");
 
         var indexes = DbContext.Model.FindEntityType(typeof(DocumentInboxItem))!.GetIndexes()
             .Select(i => string.Join(",", i.Properties.Select(p => p.Name))).ToList();
