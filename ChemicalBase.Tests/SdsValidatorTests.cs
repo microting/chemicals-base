@@ -350,6 +350,10 @@ public class SdsValidatorTests
             .SetName("column layout, print date before the revision column");
         yield return new TestCaseData("Udstedelsesdato: Trykdato: Revisionsdato:\n01-01-2020 05-05-2025 01-03-2024", "2024-03-01")
             .SetName("column layout with colons");
+        yield return new TestCaseData("Revisionsdato Trykdato Version\n1. marts 2024 5. maj 2025 1.0", "2024-03-01")
+            .SetName("column layout, written-month dates count as one value each");
+        yield return new TestCaseData("Revisionsdato Trykdato Version\n1 marts 2024 5 maj 2025 1.0", "2024-03-01")
+            .SetName("column layout, written-month dates without a dot");
     }
 
     [TestCaseSource(nameof(RevisionDateEdgeCases))]
