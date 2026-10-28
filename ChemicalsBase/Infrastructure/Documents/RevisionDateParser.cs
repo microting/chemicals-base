@@ -72,6 +72,15 @@ public static class RevisionDateParser
         "data wydruku", // pl
     ];
 
+    // Column layout: labels of one header row are at most this far apart, with no digit between them.
+    private const int MaxHeaderGap = 30;
+
+    // How far after a header row its value row is read.
+    private const int MaxValueRow = 200;
+
+    private static readonly Regex ValueToken =
+        new(@"\S+", RegexOptions.Compiled | RegexOptions.CultureInvariant, UntrustedText.MatchTimeout);
+
     private static readonly Lazy<Regex> PrintDateLabel = new(() => new Regex(
         $@"(?<![\p{{L}}\p{{M}}])(?:{Alternation(PrintDateLabels)})",
         RegexOptions.Compiled | RegexOptions.CultureInvariant, UntrustedText.MatchTimeout));
@@ -139,6 +148,7 @@ public static class RevisionDateParser
             DateTime? latest = null;
             try
             {
+                var printValues = PrintColumnValues(text);
                 for (var keyword = keywords.Match(text); keyword.Success; keyword = keyword.NextMatch())
                 {
                     var end = keyword.Index + keyword.Length;
@@ -152,7 +162,8 @@ public static class RevisionDateParser
                     for (var date = dates.Match(text, end, length); date.Success && date.Index - end <= Window;
                          date = date.NextMatch())
                     {
-                        if (ToDate(date) is { } found && (latest == null || found > latest))
+                        if (!printValues.Any(v => date.Index >= v.Start && date.Index < v.End)
+                            && ToDate(date) is { } found && (latest == null || found > latest))
                         {
                             latest = found;
                         }
@@ -165,6 +176,70 @@ public static class RevisionDateParser
             }
 
             return latest;
+        }
+
+        /// <summary>
+        /// Column layout ("Revisionsdato Trykdato Version" then "01-03-2024 05-05-2025 1.0"): in a header row (labels
+        /// at most <see cref="MaxHeaderGap"/> apart, no digit between them) the value in a print label's column is a
+        /// print date, so it is excluded from every keyword window. In a row layout ("Trykdato: 30.03.2026") the
+        /// header row is the print label alone, and its value is the date after it. Linear: two passes of matches.
+        /// </summary>
+        private List<(int Start, int End)> PrintColumnValues(string text)
+        {
+            var labels = keywords.Matches(text).Select(m => (m.Index, End: m.Index + m.Length, Print: false))
+                .Concat(PrintDateLabel.Value.Matches(text).Select(m => (m.Index, End: m.Index + m.Length, Print: true)))
+                .OrderBy(label => label.Index)
+                .ToList();
+
+            var excluded = new List<(int Start, int End)>();
+            var run = new List<(int Index, int End, bool Print)>();
+            foreach (var label in labels.Append((Index: int.MaxValue, End: int.MaxValue, Print: false)))
+            {
+                if (run.Count > 0 && label.Index < run[^1].End)
+                {
+                    continue; // overlapping label
+                }
+
+                var sameRow = run.Count > 0 && label.Index != int.MaxValue && label.Index - run[^1].End <= MaxHeaderGap
+                              && !text.AsSpan(run[^1].End, label.Index - run[^1].End).ContainsAnyInRange('0', '9');
+                if (!sameRow && run.Count > 0)
+                {
+                    ExcludePrintColumns(text, run, excluded);
+                    run.Clear();
+                }
+
+                run.Add(label);
+            }
+
+            return excluded;
+        }
+
+        private static void ExcludePrintColumns(string text, List<(int Index, int End, bool Print)> run,
+            List<(int Start, int End)> excluded)
+        {
+            if (!run.Any(label => label.Print))
+            {
+                return;
+            }
+
+            var rowStart = run[^1].End;
+            var column = 0;
+            for (var token = ValueToken.Match(text, rowStart, Math.Min(MaxValueRow, text.Length - rowStart));
+                 token.Success && column < run.Count;
+                 token = token.NextMatch())
+            {
+                if (!token.Value.Any(char.IsLetterOrDigit))
+                {
+                    continue; // ":" between a label and its value
+                }
+
+                if (run[column].Print)
+                {
+                    excluded.Add((token.Index, token.Index + token.Length));
+                }
+
+                column++;
+            }
         }
 
         private DateTime? ToDate(Match m)
