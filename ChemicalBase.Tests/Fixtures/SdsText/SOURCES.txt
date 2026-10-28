@@ -1,5 +1,5 @@
 Page 1-2 text of real, publicly downloadable supplier SDS PDFs, extracted with `pdftotext -l 2 <pdf> <txt>`
-(poppler) and kept verbatim. Used by SdsLanguageTests (fixture cases). Collected in the 2026-10-27 SDS search
+(poppler) and kept verbatim. Used by SdsLanguageTests and DocumentClassifierTests (fixture cases). Collected in the 2026-10-27 SDS search
 spike (evidence/sdsspike/downloads.tsv); the PDFs themselves are not in the repo.
 
 da-7_1.txt   Ecolab "DrySan Oxy", Danish. Heading written "STOFFET/ BLANDINGEN ... SELSKABET/ VIRKSOMHEDEN"

@@ -39,8 +39,10 @@ public enum PageOneKind
     NoText,
 }
 
-/// <param name="RegistrationNumbersFound">Reg.nr.-shaped tokens on page 1 ("706-12", "882-2-11-2"), dates
-/// excluded, distinct, in order of appearance.</param>
+/// <param name="RegistrationNumbersFound">Reg.nr.-shaped candidates on page 1 ("706-12", "882-2-11-2"), distinct, in
+/// order of appearance, dates with a 4-digit year excluded. A superset: it also holds CAS/EC numbers ("247-500-7"),
+/// CAS fragments ("20-7"), phone extensions and dates with a 2-digit year ("28-11-24"). Consumers test
+/// "expected reg.nr. ∈ found", never "found == [expected]" or "the first one found".</param>
 public sealed record Classification(PageOneKind Kind, IReadOnlyList<string> RegistrationNumbersFound);
 
 /// <summary>
@@ -50,12 +52,14 @@ public sealed record Classification(PageOneKind Kind, IReadOnlyList<string> Regi
 /// language in <see cref="SdsHeadings.All"/> that has headings (F36, F68):
 /// <list type="number">
 /// <item>Fewer than 20 letters → <see cref="PageOneKind.NoText"/>.</item>
-/// <item>The language's section-1 heading (its HeadingPattern with n = 1, word-first "punkt 1", "rubrique 1" or
-/// number-first "1. szakasz", "1 skirsnis", whatever separator follows; not "punkt 10" or "section 1.4"), or its
-/// Annex II section-1 title → <see cref="PageOneKind.Sds"/>.</item>
-/// <item>A whole-word SDS term of any language ("sikkerhedsdatablad", "säkerhetsdatablad", "sds", …) and none of the
-/// Danish label markers ("læs nærmere i det eventuelt lovpligtige sikkerhedsdatablad", "brugsanvisning",
-/// "må kun anvendes") → <see cref="PageOneKind.Sds"/>.</item>
+/// <item>Section 1 as <see cref="SdsSectionHeading"/> defines it, the same rule the detector uses: the Annex II
+/// section-1 title, or the section-1 heading ("punkt 1", "1.szakasz", any separator; not "punkt 10") followed within
+/// 200 characters by the title's first three words → <see cref="PageOneKind.Sds"/>, whatever else the page says.</item>
+/// <item>No Danish label marker ("læs nærmere i det eventuelt lovpligtige sikkerhedsdatablad", "brugsanvisning",
+/// "må kun anvendes") and either a section-1 heading alone or a whole-word SDS term of any language
+/// ("sikkerhedsdatablad", "säkerhetsdatablad", "sds", "fds", …) → <see cref="PageOneKind.Sds"/>. The marker gate keeps a
+/// label's cross-reference "se punkt 1" or its "læs … sikkerhedsdatablad" sentence a label. An unmarked text such as
+/// "SDS available on request" still counts as Sds.</item>
 /// <item>Otherwise <see cref="PageOneKind.LabelOrInstructions"/>.</item>
 /// </list>
 /// Icelandic ("is") has no Annex II headings in the file, so only its SDS term can match.
@@ -63,9 +67,6 @@ public sealed record Classification(PageOneKind Kind, IReadOnlyList<string> Regi
 public static class DocumentClassifier
 {
     private const int MinLetters = 20;
-
-    private const string NotLetterBefore = @"(?<![\p{L}\p{M}])";
-    private const string NotLetterAfter = @"(?![\p{L}\p{M}])";
 
     private static readonly IReadOnlyList<string> DanishLabelMarkers =
     [
@@ -78,7 +79,7 @@ public static class DocumentClassifier
     private static readonly Regex RegistrationNumber =
         new(@"\b\d{1,4}(-\d{1,4}){1,4}\b", RegexOptions.Compiled | RegexOptions.ECMAScript);
 
-    private static readonly Lazy<Rules> Loaded = new(BuildRules);
+    private static readonly Lazy<Regex> SdsTerm = new(BuildSdsTerm);
 
     /// <summary>Classifies page 1 of <paramref name="pdf"/>; an unreadable PDF is <see cref="PageOneKind.NoText"/>.</summary>
     public static Classification Classify(byte[] pdf) => ClassifyText(PdfText.Pages(pdf, 1));
@@ -95,11 +96,9 @@ public static class DocumentClassifier
         }
 
         var text = SdsLanguageDetector.Normalize(pageOne);
-        var rules = Loaded.Value;
-        var isSds = rules.Section1Headings.Any(heading => heading.IsMatch(text))
-                    || rules.Section1Titles.Any(title => text.Contains(title, StringComparison.Ordinal))
-                    || (rules.SdsTerm.IsMatch(text)
-                        && !DanishLabelMarkers.Any(marker => text.Contains(marker, StringComparison.Ordinal)));
+        var isSds = SdsSectionHeading.All.Any(heading => heading.FindSection1(text) >= 0)
+                    || (!DanishLabelMarkers.Any(marker => text.Contains(marker, StringComparison.Ordinal))
+                        && (SdsSectionHeading.All.Any(heading => heading.HasHeading(text)) || SdsTerm.Value.IsMatch(text)));
 
         return new Classification(isSds ? PageOneKind.Sds : PageOneKind.LabelOrInstructions, registrationNumbers);
     }
@@ -111,7 +110,10 @@ public static class DocumentClassifier
             .Distinct()
             .ToList();
 
-    /// <summary>"28-11-2024", "2024-11-28", "11-2024": a day/month with a 4-digit year (19xx/20xx).</summary>
+    /// <summary>
+    /// "28-11-2024", "2024-11-28", "11-2024": a day/month with a 4-digit year (19xx/20xx). A 2-digit year ("28-11-24")
+    /// is not excluded: it cannot be told from a three-part reg.nr.
+    /// </summary>
     private static bool IsDateLike(string value)
     {
         var parts = value.Split('-');
@@ -127,46 +129,17 @@ public static class DocumentClassifier
         };
     }
 
-    private static Rules BuildRules()
+    /// <summary>Any language's SDS term as a whole word (not "sikkerhedsdatabladet").</summary>
+    private static Regex BuildSdsTerm()
     {
-        var withHeadings = SdsHeadings.All.Values.Where(terms => terms.HasHeadings).ToList();
-
-        var headings = withHeadings
-            .Select(Section1Heading)
-            .Distinct() // sv and no share "AVSNITT {n}: "
-            .Select(pattern => new Regex(pattern, RegexOptions.Compiled | RegexOptions.CultureInvariant))
-            .ToList();
-
-        var titles = withHeadings
-            .Select(terms => SdsLanguageDetector.Normalize(terms.Section1Title!))
-            .Distinct()
-            .ToList();
-
-        var sdsTerms = SdsHeadings.All.Values
+        var terms = SdsHeadings.All.Values
             .SelectMany(terms => terms.SdsTerms)
             .Select(SdsLanguageDetector.Normalize)
             .Where(term => term != "")
             .Distinct()
             .OrderByDescending(term => term.Length)
             .Select(Regex.Escape);
-        var sdsTerm = new Regex($"{NotLetterBefore}(?:{string.Join("|", sdsTerms)}){NotLetterAfter}",
+        return new Regex($@"(?<![\p{{L}}\p{{M}}])(?:{string.Join("|", terms)})(?![\p{{L}}\p{{M}}])",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-        return new Rules(headings, titles, sdsTerm);
     }
-
-    /// <summary>
-    /// The section-1 heading of one language, any separator: "PUNKT {n}: " → "punkt 1" not followed by another
-    /// digit or by ".4"/",5"; "{n}. SZAKASZ: " → "1. szakasz", "1.szakasz", "1 szakasz".
-    /// </summary>
-    private static string Section1Heading(SdsLanguageTerms terms)
-    {
-        var word = Regex.Escape(SdsLanguageDetector.Normalize(terms.SectionWord!));
-        var numberFirst = terms.HeadingPattern!.TrimStart().StartsWith("{n}", StringComparison.Ordinal);
-        return numberFirst
-            ? $@"(?<![\p{{L}}\p{{M}}\d.,])1\s?\.?\s?{word}{NotLetterAfter}"
-            : $@"{NotLetterBefore}{word}\s?1(?!\d)(?!\s?[.,]\s?\d)";
-    }
-
-    private sealed record Rules(IReadOnlyList<Regex> Section1Headings, IReadOnlyList<string> Section1Titles, Regex SdsTerm);
 }

@@ -35,7 +35,8 @@ public static class PdfText
 {
     /// <summary>
     /// The text of the first <paramref name="maxPages"/> pages in content order, pages joined by "\n".
-    /// "" when the bytes are not a readable PDF (damaged, encrypted, not a PDF) or the pages carry no text layer.
+    /// "" when the bytes are not a readable PDF (damaged, encrypted, not a PDF) or the pages carry no text layer;
+    /// callers cannot tell those cases apart (both classify as NoText).
     /// </summary>
     public static string Pages(byte[] pdf, int maxPages)
     {

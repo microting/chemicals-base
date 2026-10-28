@@ -37,11 +37,10 @@ public sealed record DetectedLanguage(string? Language, double Confidence, bool 
 /// algorithm (F31): chemicals-base itself (Tasks 5 and 9), the service (Task 8) and the plugin (Task 12g backfill)
 /// all call this copy:
 /// <list type="number">
-/// <item>Headings first: the text contains a language's Annex II section-1 title, or its section-1 heading
-/// (the language's HeadingPattern for n = 1, e.g. "punkt 1", "1. szakasz") followed within 200 characters by the
-/// title's first three words ("/" counts as a word break, so "identifikation af stoffet" also matches the older
-/// "stoffet/præparatet") → that language, confidence 1.0. Spaces around "/" are ignored ("stoffet/ blandingen").
-/// This is what separates "sv" and "no", which share the word "AVSNITT".</item>
+/// <item>Headings first: the text contains a language's section 1 as <see cref="SdsSectionHeading"/> defines it
+/// (the Annex II section-1 title, or the heading for n = 1, e.g. "punkt 1", "1.szakasz", followed within 200
+/// characters by the title's first three words) → that language, confidence 1.0. Spaces around "/" are ignored
+/// ("stoffet/ blandingen"). This is what separates "sv" and "no", which share the word "AVSNITT".</item>
 /// <item>Otherwise stop-word profiles: about 30 high-frequency words per language; confidence = hits of the
 /// top language / all profile hits.</item>
 /// <item>Uncertain = confidence &lt; 0.6, or a second language has more than 0.3 of the hits.</item>
@@ -52,7 +51,6 @@ public sealed record DetectedLanguage(string? Language, double Confidence, bool 
 /// </summary>
 public static class SdsLanguageDetector
 {
-    private const int TitleWindow = 200;
     private const int MinProfileHits = 20;
     private const double MinConfidence = 0.6;
     private const double MaxSecondShare = 0.3;
@@ -96,11 +94,6 @@ public static class SdsLanguageDetector
 
     private static readonly IReadOnlyDictionary<string, string> WordLanguage = BuildWordLanguage();
 
-    private static readonly Lazy<IReadOnlyList<Heading>> Headings = new(() => SdsHeadings.All
-        .Where(kv => kv.Value.HasHeadings)
-        .Select(kv => new Heading(kv.Key, Normalize(kv.Value.Section1Word!), Normalize(kv.Value.Section1Title!)))
-        .ToList());
-
     public static DetectedLanguage Detect(string text)
     {
         var normalized = Normalize(text);
@@ -114,8 +107,8 @@ public static class SdsLanguageDetector
 
     private static DetectedLanguage? ByHeading(string text)
     {
-        var found = Headings.Value
-            .Select(h => (h.Language, Position: h.FindIn(text)))
+        var found = SdsSectionHeading.All
+            .Select(h => (h.Language, Position: h.FindSection1(text)))
             .Where(m => m.Position >= 0)
             .OrderBy(m => m.Position)
             .ToList();
@@ -191,48 +184,5 @@ public static class SdsLanguageDetector
         }
 
         return map;
-    }
-
-    private sealed record Heading(string Language, string Word, string Title)
-    {
-        /// <summary>The title up to its third word break (space or "/"): "identifikation af stoffet".</summary>
-        private readonly string _titleStart = TitleStart(Title);
-
-        private static string TitleStart(string title)
-        {
-            var breaks = 0;
-            for (var i = 0; i < title.Length; i++)
-            {
-                if ((title[i] == ' ' || title[i] == '/') && ++breaks == 3)
-                {
-                    return title[..i];
-                }
-            }
-
-            return title;
-        }
-
-        /// <summary>Position of the heading in the text, or -1.</summary>
-        public int FindIn(string text)
-        {
-            var position = text.IndexOf(Title, StringComparison.Ordinal);
-            if (position >= 0)
-            {
-                return position;
-            }
-
-            for (var at = text.IndexOf(Word, StringComparison.Ordinal); at >= 0;
-                 at = text.IndexOf(Word, at + 1, StringComparison.Ordinal))
-            {
-                var after = at + Word.Length;
-                var window = text.Substring(after, Math.Min(TitleWindow + _titleStart.Length, text.Length - after));
-                if (window.Contains(_titleStart, StringComparison.Ordinal))
-                {
-                    return at;
-                }
-            }
-
-            return -1;
-        }
     }
 }
