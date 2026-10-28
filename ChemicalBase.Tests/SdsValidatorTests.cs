@@ -343,6 +343,13 @@ public class SdsValidatorTests
         yield return new TestCaseData("Versionsnummer: 01-03-2025 Revisionsdato: 01-03-2024", "2024-03-01")
             .SetName("a keyword must end at a word boundary");
         yield return new TestCaseData("Revisionsdato: 01-03-1985", null).SetName("before 1990 is not a revision date");
+        // Copilot #175: column layout, header row then value row; the print-date column stays excluded.
+        yield return new TestCaseData("Revisionsdato Trykdato Version\n01-03-2024 05-05-2025 1.0", "2024-03-01")
+            .SetName("column layout, print date in the middle column");
+        yield return new TestCaseData("Version Trykdato Revisionsdato\n3.0 05-05-2025 01-03-2024", "2024-03-01")
+            .SetName("column layout, print date before the revision column");
+        yield return new TestCaseData("Udstedelsesdato: Trykdato: Revisionsdato:\n01-01-2020 05-05-2025 01-03-2024", "2024-03-01")
+            .SetName("column layout with colons");
     }
 
     [TestCaseSource(nameof(RevisionDateEdgeCases))]
