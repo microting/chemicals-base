@@ -88,10 +88,7 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
         ArgumentNullException.ThrowIfNull(doc);
         EnsurePdf(doc.Pdf);
         EnsureFits(doc);
-        if (doc.Status == ChemicalDocumentStatus.Active && doc.Reviewer == null)
-        {
-            throw new ArgumentException("An Active document needs a named ReviewedBy (a staff path).", nameof(doc));
-        }
+        Demand(doc.Reviewer, row: null, doc.Status);
 
         var md5 = DocumentHashes.Md5Hex(doc.Pdf);
         var sha256 = DocumentHashes.Sha256Hex(doc.Pdf);
@@ -175,23 +172,14 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
         ArgumentNullException.ThrowIfNull(doc);
         EnsureFits(reviewedBy, nameof(ChemicalDocument.ReviewedBy));
         EnsureFits(note, nameof(ChemicalDocument.ReviewNote));
-        var byStaff = !string.IsNullOrWhiteSpace(reviewedBy);
-        if (status == ChemicalDocumentStatus.Active && !byStaff)
-        {
-            throw new ArgumentException("Only a named staff reviewer may set a document Active.", nameof(reviewedBy));
-        }
-
-        if (!byStaff && IsHandsOff(doc))
-        {
-            throw new InvalidOperationException(
-                $"ChemicalDocument {doc.Id} is a Staff or StaffLocked row; automation may not change its status.");
-        }
+        var reviewer = ReviewerOf(reviewedBy);
+        Demand(reviewer, doc, status);
 
         Track(doc);
         doc.Status = status;
-        if (byStaff)
+        if (reviewer != null)
         {
-            doc.ReviewedBy = reviewedBy;
+            doc.ReviewedBy = reviewer;
             doc.ReviewedAt = Now;
             doc.StaffLocked = true;
             doc.ReviewNote = note;
@@ -204,7 +192,10 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
         await doc.Update(db);
     }
 
-    /// <summary>Bookkeeping only (allowed on staff rows): LastSeenAt, and LastCheckedAt when checked, = now.</summary>
+    /// <summary>
+    /// Bookkeeping only: LastSeenAt, and LastCheckedAt when checked, = now. Deliberately outside the gate, because
+    /// these are the fields F27 permits automation to change on hands-off rows.
+    /// </summary>
     public async Task TouchAsync(ChemicalDocument doc, bool @checked = false)
     {
         ArgumentNullException.ThrowIfNull(doc);
@@ -293,10 +284,9 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
     }
 
     /// <summary>
-    /// Fills missing provenance and revives a removed row. Never touches Status, Source or StaffLocked. The language
-    /// is filled only when unknown and the row is not hands-off. A removed row is revived by a staff path, or by
-    /// automation only when it is neither hands-off nor Active, so automation never undoes a staff decision or puts
-    /// a document live (every writer-made Active row is hands-off; the Active check also covers rows made elsewhere).
+    /// Fills missing provenance (not a hands-off field) and, when the gate allows it, a missing language and the
+    /// revival of a removed row. Never touches Status, Source or StaffLocked. So automation never undoes a staff
+    /// decision and never revives an Active row into view.
     /// </summary>
     private static void MergeKnown(ChemicalDocument existing, NewChemicalDocument doc)
     {
@@ -309,15 +299,56 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
         existing.SourceRevisionDate ??= doc.SourceRevisionDate;
         existing.SourceRevision ??= doc.SourceRevision;
 
-        if (!IsHandsOff(existing))
+        // Language and revival are changes to the row as it stands, so they pass the same gate as a status change.
+        if (Authorize(doc.Reviewer, existing, existing.Status) != Denial.None)
         {
-            existing.Language ??= SdsLanguages.Normalize(doc.Language);
+            return;
         }
 
-        var automationMayRevive = !IsHandsOff(existing) && existing.Status != ChemicalDocumentStatus.Active;
-        if (existing.WorkflowState == WorkflowStates.Removed && (doc.IsStaffPath || automationMayRevive))
+        existing.Language ??= SdsLanguages.Normalize(doc.Language);
+        if (existing.WorkflowState == WorkflowStates.Removed)
         {
             existing.WorkflowState = WorkflowStates.Created;
+        }
+    }
+
+    internal static string? ReviewerOf(string? reviewedBy) => string.IsNullOrWhiteSpace(reviewedBy) ? null : reviewedBy;
+
+    private enum Denial
+    {
+        None,
+        ActiveNeedsReviewer,
+        HandsOff,
+    }
+
+    /// <summary>
+    /// The one authorization gate for every change that could put a document live or alter a staff decision:
+    /// creating a row, setting a status, and (on AlreadyKnown) filling the language or reviving a removed row.
+    /// A staff action is one with a named reviewer, nothing else (Source=Staff alone is not).
+    /// <list type="bullet">
+    /// <item>The resulting status may be Active only with a named reviewer.</item>
+    /// <item>Without a reviewer, a hands-off row (Source=Staff or StaffLocked) may not be changed.</item>
+    /// </list>
+    /// </summary>
+    private static Denial Authorize(string? reviewer, ChemicalDocument? row, ChemicalDocumentStatus resultingStatus)
+    {
+        if (resultingStatus == ChemicalDocumentStatus.Active && reviewer == null)
+        {
+            return Denial.ActiveNeedsReviewer;
+        }
+
+        return reviewer == null && row != null && IsHandsOff(row) ? Denial.HandsOff : Denial.None;
+    }
+
+    private static void Demand(string? reviewer, ChemicalDocument? row, ChemicalDocumentStatus resultingStatus)
+    {
+        switch (Authorize(reviewer, row, resultingStatus))
+        {
+            case Denial.ActiveNeedsReviewer:
+                throw new ArgumentException("Only a named staff reviewer may make a document Active.", nameof(NewChemicalDocument.ReviewedBy));
+            case Denial.HandsOff:
+                throw new InvalidOperationException(
+                    $"ChemicalDocument {row!.Id} is a Staff or StaffLocked row; automation may not change it.");
         }
     }
 

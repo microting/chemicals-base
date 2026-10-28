@@ -37,9 +37,7 @@ public sealed record NewChemicalDocument(
     int? SourceProductId = null, string? SourceAdapter = null, DateTime? SourceRevisionDate = null, string? SourceRevision = null,
     int? ValidationScore = null, string? ValidationNotes = null, string? ReviewedBy = null, string? Language = null)
 {
-    /// <summary><see cref="ReviewedBy"/>, or null when blank.</summary>
-    internal string? Reviewer => string.IsNullOrWhiteSpace(ReviewedBy) ? null : ReviewedBy;
-
-    /// <summary>A staff upload or a write on behalf of a named reviewer.</summary>
-    internal bool IsStaffPath => Source == ChemicalDocumentSource.Staff || Reviewer != null;
+    /// <summary>The staff caller (<see cref="ReviewedBy"/>), or null when blank: then the write is automation,
+    /// whatever <see cref="Source"/> says.</summary>
+    internal string? Reviewer => ChemicalDocumentWriter.ReviewerOf(ReviewedBy);
 }
