@@ -170,9 +170,9 @@ public static class SdsLanguageDetector
 
     /// <summary>
     /// NFC, lower case, final sigma folded to σ (upper-case Greek lowers to σ), whitespace collapsed,
-    /// spaces around "/" removed.
+    /// spaces around "/" removed. Shared with <see cref="DocumentClassifier"/>.
     /// </summary>
-    private static string Normalize(string text) =>
+    internal static string Normalize(string text) =>
         SpacedSlash.Replace(
             Whitespace.Replace(text.Normalize(NormalizationForm.FormC).ToLowerInvariant().Replace('ς', 'σ'), " "),
             "/").Trim();
