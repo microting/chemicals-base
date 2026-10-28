@@ -381,12 +381,14 @@ public class ChemicalDocumentTests : DbTestFixture
             MatchNotes = "regno=yes; name=yes; sugg=12,57,903",
             Status = DocumentInboxStatus.Unmatched,
             UploadedBy = "producer@example.com",
+            Note = "Nye SDS for 2026",
         };
         await item.Create(DbContext);
 
         item.Status = DocumentInboxStatus.Matched;
         item.ResolvedBy = "Anne Staff";
         item.ResolvedAt = new DateTime(2026, 10, 27, 14, 0, 0, DateTimeKind.Utc);
+        item.ResolutionNote = "matched on reg. no.";
         await item.Update(DbContext);
 
         var stored = await DbContext.DocumentInboxItems.AsNoTracking().SingleAsync();
@@ -405,6 +407,9 @@ public class ChemicalDocumentTests : DbTestFixture
         Assert.That(stored.UploadedBy, Is.EqualTo("producer@example.com"));
         Assert.That(stored.ResolvedBy, Is.EqualTo("Anne Staff"));
         Assert.That(stored.ResolvedAt, Is.EqualTo(new DateTime(2026, 10, 27, 14, 0, 0)));
+        Assert.That(stored.Note, Is.EqualTo("Nye SDS for 2026"));
+        Assert.That(stored.ResolutionNote, Is.EqualTo("matched on reg. no."));
+        Assert.That(stored.DuplicateOfInboxItemId, Is.Null);
 
         var versions = await DbContext.DocumentInboxItemVersions.AsNoTracking()
             .Where(v => v.DocumentInboxItemId == stored.Id).OrderBy(v => v.Version).ToListAsync();
@@ -412,6 +417,26 @@ public class ChemicalDocumentTests : DbTestFixture
             Is.EqualTo(new[] { DocumentInboxStatus.Unmatched, DocumentInboxStatus.Matched }));
         Assert.That(versions.Select(v => v.ContentMd5), Is.All.EqualTo(Md5));
         Assert.That(versions[1].ResolvedBy, Is.EqualTo("Anne Staff"));
+        Assert.That(versions.Select(v => v.Note), Is.All.EqualTo("Nye SDS for 2026"));
+        Assert.That(versions.Select(v => v.ResolutionNote), Is.EqualTo(new[] { null, "matched on reg. no." }));
+
+        // A second upload of the same file links back to the earlier inbox row.
+        var duplicate = new DocumentInboxItem
+        {
+            BatchId = "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+            OriginalFileName = "Rodalon_SDS_DK (1).pdf",
+            ContentMd5 = Md5,
+            SizeBytes = 204800,
+            Status = DocumentInboxStatus.Duplicate,
+            DuplicateOfInboxItemId = item.Id,
+            UploadedBy = "producer@example.com",
+        };
+        await duplicate.Create(DbContext);
+        var storedDuplicate = await DbContext.DocumentInboxItems.AsNoTracking().SingleAsync(i => i.Id == duplicate.Id);
+        Assert.That(storedDuplicate.DuplicateOfInboxItemId, Is.EqualTo(item.Id));
+        var duplicateVersion = await DbContext.DocumentInboxItemVersions.AsNoTracking()
+            .SingleAsync(v => v.DocumentInboxItemId == duplicate.Id);
+        Assert.That(duplicateVersion.DuplicateOfInboxItemId, Is.EqualTo(item.Id));
 
         // A NotPdf entry has no blob: empty md5, no detection.
         var notPdf = new DocumentInboxItem
@@ -504,24 +529,41 @@ public class SdsLanguageTests
         Assert.That(missing, Is.Empty, $"languages missing from annex-ii-headings.json: {string.Join(", ", missing)}");
         Assert.That(SdsHeadings.All.Keys, Is.SubsetOf(wanted));
 
+        // Icelandic has no quotable Annex II text: it loads, but is listed as headings-unavailable.
+        Assert.That(SdsHeadings.HeadingsUnavailable, Is.EqualTo(new[] { "is" }));
+        var icelandic = SdsHeadings.For("is")!;
+        Assert.That(icelandic.HasHeadings, Is.False);
+        Assert.That(icelandic.SectionWord, Is.Null);
+        Assert.That(icelandic.HeadingPattern, Is.Null);
+        Assert.That(icelandic.Section1Word, Is.Null);
+        Assert.That(icelandic.Section1Title, Is.Null);
+        Assert.That(icelandic.SdsTerms, Does.Contain("Öryggisblað"));
+
         Assert.Multiple(() =>
         {
             foreach (var (code, terms) in SdsHeadings.All)
             {
                 Assert.That(terms.SdsTerms, Is.Not.Empty, $"{code}: sds terms");
                 Assert.That(terms.RevisionKeywords, Is.Not.Empty, $"{code}: revision keywords");
-                Assert.That(terms.Months, Has.Count.GreaterThanOrEqualTo(12), $"{code}: months");
-                if (code == "is")
+                Assert.That(terms.Months, Has.Count.EqualTo(12), $"{code}: months");
+                if (SdsHeadings.HeadingsUnavailable.Contains(code))
                 {
-                    // No quotable Icelandic Annex II text exists; the file leaves the headings empty on purpose.
-                    Assert.That(terms.Section1Title, Is.Empty, "is: no headings");
                     continue;
                 }
+                Assert.That(terms.HasHeadings, Is.True, $"{code}: has headings");
+                Assert.That(terms.SectionWord, Is.Not.Empty, $"{code}: section word");
+                Assert.That(terms.HeadingPattern, Does.Contain("{n}"), $"{code}: heading pattern");
                 Assert.That(terms.Section1Title, Is.Not.Empty, $"{code}: section 1 title");
-                Assert.That(terms.Section1Word, Does.Contain("1"), $"{code}: section 1 word");
+                Assert.That(terms.Section1Word, Does.Contain("1").And.Contain(terms.SectionWord!), $"{code}: section 1 word");
                 Assert.That(terms.Section2Word, Does.Contain("2"), $"{code}: section 2 word");
             }
         });
+
+        var cs = SdsHeadings.For("cs")!;
+        Assert.That(cs.MonthsGenitive, Has.Count.EqualTo(12), "cs: genitive months");
+        Assert.That(SdsHeadings.For("da")!.MonthsGenitive, Is.Null, "da: no genitive months");
+        Assert.That(SdsHeadings.For("hu")!.HeadingPattern, Is.EqualTo("{n}. SZAKASZ: "));
+        Assert.That(SdsHeadings.For("hu")!.SectionWord, Is.EqualTo("SZAKASZ"));
 
         var da = SdsHeadings.For("DA")!;
         Assert.That(da.Section1Word, Is.EqualTo("PUNKT 1"));
@@ -540,10 +582,12 @@ public class SdsLanguageTests
     {
         Assert.Multiple(() =>
         {
-            // Headings: every language with Annex II headings in the resource is recognised from its section-1 heading alone.
-            foreach (var (code, terms) in SdsHeadings.All.Where(kv => kv.Value.Section1Title != ""))
+            // Headings: every language with Annex II headings in the resource is recognised from its section-1 heading alone
+            // ("is" is skipped: it is headings-unavailable, see Headings_resource_loads_all_phase_languages).
+            Assert.That(SdsHeadings.All.Keys.Where(code => !SdsHeadings.All[code].HasHeadings), Is.EqualTo(new[] { "is" }));
+            foreach (var (code, terms) in SdsHeadings.All.Where(kv => kv.Value.HasHeadings))
             {
-                var heading = $"{terms.Section1Word}: {terms.Section1Title}";
+                var heading = terms.HeadingPattern!.Replace("{n}", "1") + terms.Section1Title;
                 foreach (var text in new[] { heading, heading.ToUpperInvariant(), $"Side 1 af 9\n  {heading.Replace(" ", "\n ")}" })
                 {
                     var detected = SdsLanguageDetector.Detect(text);
