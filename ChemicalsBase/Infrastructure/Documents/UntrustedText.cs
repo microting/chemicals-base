@@ -32,6 +32,9 @@ internal static class UntrustedText
     /// <summary>Per call of a regex on PDF text; callers treat a timeout as "not found".</summary>
     internal static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(250);
 
-    /// <summary>The first <see cref="MaxScanLength"/> characters.</summary>
-    internal static string Cap(string text) => text.Length > MaxScanLength ? text[..MaxScanLength] : text;
+    /// <summary>The first <see cref="MaxScanLength"/> characters, one fewer when the cut would split a surrogate pair
+    /// (a lone surrogate makes string.Normalize throw).</summary>
+    internal static string Cap(string text) =>
+        text.Length <= MaxScanLength ? text
+        : text[..(char.IsHighSurrogate(text[MaxScanLength - 1]) ? MaxScanLength - 1 : MaxScanLength)];
 }

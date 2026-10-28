@@ -49,8 +49,19 @@ public sealed record WriteResult(WriteOutcome Outcome, ChemicalDocument? Documen
 }
 
 /// <summary>The md5 matches a stored document but the SHA-256 does not: different bytes, never merged.</summary>
-public sealed class ChemicalDocumentHashCollisionException(int documentId, string md5)
-    : InvalidOperationException($"ChemicalDocument {documentId} has md5 {md5} but a different SHA-256 (hash collision).");
+public sealed class ChemicalDocumentHashCollisionException : InvalidOperationException
+{
+    public ChemicalDocumentHashCollisionException(int documentId, string md5)
+        : base($"ChemicalDocument {documentId} has md5 {md5} but a different SHA-256 (hash collision).")
+    {
+    }
+
+    /// <summary>The blob under the md5 key holds other bytes, and no row says so.</summary>
+    public ChemicalDocumentHashCollisionException(string md5)
+        : base($"The blob {DocumentHashes.BlobKey(md5)} holds bytes with a different SHA-256 (hash collision).")
+    {
+    }
+}
 
 /// <summary>
 /// The single write path for chemical documents (labels, SDS, minor-use instructions): BMD label import,
@@ -98,12 +109,15 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
             EnsureSameContent(existing, sha256);
         }
 
+        // Blob keys are global (md5 only), so other bytes under the same md5 for any chemical or type collide too.
+        var knownContent = await EnsureNoOtherContentAsync(md5, sha256);
+
         if (dryRun)
         {
             return new WriteResult(WriteOutcome.DryRun, existing, md5);
         }
 
-        await EnsureBlobAsync(doc.Pdf, md5);
+        await EnsureBlobAsync(doc.Pdf, md5, sha256, knownContent);
 
         if (existing != null)
         {
@@ -287,11 +301,39 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
         }
     }
 
-    private async Task EnsureBlobAsync(byte[] pdf, string md5)
+    /// <summary>
+    /// Throws when any row (any chemical, type or state) has this md5 with another SHA-256. True when a row already
+    /// vouches for these exact bytes, so the stored blob need not be downloaded to check it.
+    /// </summary>
+    private async Task<bool> EnsureNoOtherContentAsync(string md5, string sha256)
+    {
+        var rows = await db.ChemicalDocuments.AsNoTracking()
+            .Where(d => d.ContentMd5 == md5 && d.ContentSha256 != "")
+            .Select(d => new { d.Id, d.ContentSha256 })
+            .ToListAsync();
+        var other = rows.FirstOrDefault(row => row.ContentSha256 != sha256);
+        if (other != null)
+        {
+            throw new ChemicalDocumentHashCollisionException(other.Id, md5);
+        }
+
+        return rows.Count > 0;
+    }
+
+    /// <summary>
+    /// Stores the blob once and never overwrites it. An existing blob that no row vouches for is downloaded and must
+    /// hold our bytes.
+    /// </summary>
+    private async Task EnsureBlobAsync(byte[] pdf, string md5, string sha256, bool knownContent)
     {
         var key = DocumentHashes.BlobKey(md5);
         if (await blobs.ExistsAsync(key))
         {
+            if (!knownContent && await blobs.GetAsync(key) is { } stored && DocumentHashes.Sha256Hex(stored) != sha256)
+            {
+                throw new ChemicalDocumentHashCollisionException(md5);
+            }
+
             return;
         }
 
