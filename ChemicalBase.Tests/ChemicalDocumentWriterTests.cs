@@ -519,6 +519,70 @@ public class ChemicalDocumentWriterTests : DbTestFixture
         Assert.That(await DbContext.ChemicalDocuments.CountAsync(), Is.EqualTo(1));
     }
 
+    // One authorization gate, one test per public entry point: automation (no named reviewer) never makes a row
+    // Active and never changes a hands-off (Staff/StaffLocked) row beyond the F27 bookkeeping.
+
+    [Test]
+    public async Task WriteAsync_gate_claimed_staff_source_without_reviewer_is_automation()
+    {
+        var pdf = TestPdf.Bytes("Forkert produkt");
+        var first = (await _writer.WriteAsync(BmdLabel(pdf))).Document!;
+        await _writer.SetStatusAsync(first, ChemicalDocumentStatus.Rejected, "Anne Staff", "wrong product");
+        await first.Delete(DbContext);
+
+        await Assert.ThrowsAsync(Is.InstanceOf<ArgumentException>(), () => _writer.WriteAsync(new(ChemB,
+            ChemicalDocumentType.Label, ChemicalDocumentSource.Staff, ChemicalDocumentStatus.Active, pdf)), "create Active");
+
+        // Source=Staff alone is not a staff action: it neither revives a hands-off row nor fills its language.
+        var seen = await _writer.WriteAsync(new(ChemA, ChemicalDocumentType.Label, ChemicalDocumentSource.Staff,
+            ChemicalDocumentStatus.PendingReview, pdf, Language: "da"));
+        Assert.That(seen.Outcome, Is.EqualTo(WriteOutcome.AlreadyKnown));
+        Assert.That(seen.IsRemoved, Is.True);
+        var stored = await Stored(first.Id);
+        Assert.That(stored.WorkflowState, Is.EqualTo(WorkflowStates.Removed));
+        Assert.That(stored.Status, Is.EqualTo(ChemicalDocumentStatus.Rejected));
+        Assert.That(stored.Language, Is.Null);
+        Assert.That(stored.Source, Is.EqualTo(ChemicalDocumentSource.Bmd));
+    }
+
+    [Test]
+    public async Task SetStatusAsync_gate_blank_reviewer_is_automation()
+    {
+        var pending = (await _writer.WriteAsync(BmdLabel(TestPdf.Bytes("Afventer")))).Document!;
+        var locked = (await _writer.WriteAsync(new(ChemA, ChemicalDocumentType.Label, ChemicalDocumentSource.Bmd,
+            ChemicalDocumentStatus.Active, TestPdf.Bytes("Godkendt"), ReviewedBy: "Anne Staff"))).Document!;
+
+        await Assert.ThrowsAsync(Is.InstanceOf<ArgumentException>(),
+            () => _writer.SetStatusAsync(pending, ChemicalDocumentStatus.Active, "   ", null), "Active");
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _writer.SetStatusAsync(locked, ChemicalDocumentStatus.Rejected, "", "no"), "hands-off");
+
+        Assert.That((await Stored(pending.Id)).Status, Is.EqualTo(ChemicalDocumentStatus.PendingReview));
+        var storedLocked = await Stored(locked.Id);
+        Assert.That(storedLocked.Status, Is.EqualTo(ChemicalDocumentStatus.Active));
+        Assert.That(storedLocked.ReviewedBy, Is.EqualTo("Anne Staff"));
+        Assert.That(storedLocked.ReviewNote, Is.Null);
+    }
+
+    [Test]
+    public async Task TouchAsync_gate_changes_only_bookkeeping_on_hands_off_row()
+    {
+        var locked = (await _writer.WriteAsync(new(ChemA, ChemicalDocumentType.Label, ChemicalDocumentSource.Staff,
+            ChemicalDocumentStatus.Active, TestPdf.Bytes("Staff etiket"), ReviewedBy: "Anne Staff"))).Document!;
+        var before = await Stored(locked.Id);
+
+        _clock.Advance(TimeSpan.FromHours(1));
+        await _writer.TouchAsync(locked, @checked: true);
+
+        var after = await Stored(locked.Id);
+        Assert.That(after.LastSeenAt, Is.EqualTo(T0.AddHours(1)));
+        Assert.That(after.LastCheckedAt, Is.EqualTo(T0.AddHours(1)));
+        Assert.That((after.Status, after.Source, after.Type, after.StaffLocked, after.Language, after.ProductId),
+            Is.EqualTo((before.Status, before.Source, before.Type, before.StaffLocked, before.Language, before.ProductId)));
+        Assert.That((after.ReviewedBy, after.ReviewedAt, after.ReviewNote, after.WorkflowState),
+            Is.EqualTo((before.ReviewedBy, before.ReviewedAt, before.ReviewNote, before.WorkflowState)));
+    }
+
     private sealed class ManualClock(DateTime start) : TimeProvider
     {
         private DateTimeOffset _now = new(start, TimeSpan.Zero);
