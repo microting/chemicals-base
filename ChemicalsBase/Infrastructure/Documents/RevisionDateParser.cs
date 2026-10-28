@@ -37,6 +37,9 @@ public static class RevisionDateParser
     /// <summary>How far after a keyword its date may start.</summary>
     internal const int Window = 100;
 
+    /// <summary>Only the first this-many characters of the (normalised) text are scanned: pages 1–2 of an SDS.</summary>
+    public const int MaxScanLength = 64 * 1024;
+
     private static readonly string[] FallbackLanguages = ["da", "en"];
 
     private static readonly Lazy<IReadOnlyDictionary<string, Rules>> ByLanguage = new(() => SdsHeadings.All.Keys

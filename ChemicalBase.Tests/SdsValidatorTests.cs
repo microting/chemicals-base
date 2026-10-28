@@ -282,6 +282,40 @@ public class SdsValidatorTests
         Assert.That(Query("Produkt Alpha", "706-12").TargetLanguage, Is.EqualTo("da"));
     }
 
+    // ---- hostile input (PDF text is untrusted) ----
+
+    public static IEnumerable<TestCaseData> AdversarialTexts()
+    {
+        // Many keywords, digits and separators, never a valid date: each keyword used to rescan the rest of the text.
+        yield return new TestCaseData(string.Concat(Enumerable.Repeat("Revision 1-1-1 ", 7000))).SetName("keywords and short numbers");
+        yield return new TestCaseData(string.Concat(Enumerable.Repeat("Version 12.12.12/", 7000))).SetName("keywords and mixed separators");
+        yield return new TestCaseData("Revisionsdato " + string.Concat(Enumerable.Repeat("1-", 50000))).SetName("one keyword, 100k digit-dash run");
+        yield return new TestCaseData(new string('7', 100000)).SetName("100k digits");
+    }
+
+    [TestCaseSource(nameof(AdversarialTexts))]
+    public void Adversarial_text_returns_quickly_without_a_date(string text)
+    {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        var date = RevisionDateParser.Find(text, "da");
+        var v = SdsValidator.ValidateText(Sds("da", text), Query("Produkt Alpha", "706-12"));
+        watch.Stop();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(date, Is.Null);
+            Assert.That(v.RevisionDate, Is.Null);
+            Assert.That(watch.Elapsed, Is.LessThan(TimeSpan.FromSeconds(2)));
+        });
+    }
+
+    [Test]
+    public void Date_beyond_the_scan_cap_is_not_read()
+    {
+        var text = new string('x', RevisionDateParser.MaxScanLength) + " Revisionsdato: 01-03-2024";
+        Assert.That(RevisionDateParser.Find(text, "da"), Is.Null);
+    }
+
     // ---- helpers ----
 
     private static SdsQuery Query(string name, string registrationNo, params string[] tradeNames) =>
