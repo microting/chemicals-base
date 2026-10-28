@@ -53,6 +53,10 @@ public class DocumentInboxItem : PnBase
     [StringLength(8)]
     public string? DetectedLanguage { get; set; }
 
+    /// <summary>
+    /// SdsLanguageDetector confidence, 0..1. Only meaningful together with the detector's Uncertain flag: 0.5 can mean
+    /// "two heading languages" or "Icelandic, profile only", and a profile-only 0.7 is not a heading 1.0.
+    /// </summary>
     public double? LanguageConfidence { get; set; }
 
     public int? MatchedChemicalId { get; set; }

@@ -688,6 +688,42 @@ public class SdsLanguageTests
         Assert.That(detected.Uncertain, Is.True);
     }
 
+    [Test]
+    public void Every_profile_word_belongs_to_one_language()
+    {
+        Assert.That(SdsLanguageDetector.ProfileWords.Keys,
+            Is.EquivalentTo(SdsLanguages.Phase1.Concat(SdsLanguages.DefaultPhase2)));
+
+        var shared = SdsLanguageDetector.ProfileWords
+            .SelectMany(kv => kv.Value.Select(word => (word, code: kv.Key)))
+            .GroupBy(x => x.word)
+            .Where(g => g.Count() > 1)
+            .Select(g => $"{g.Key}: {string.Join("/", g.Select(x => x.code))}")
+            .ToList();
+        Assert.That(shared, Is.Empty, "words in two profiles");
+
+        Assert.Multiple(() =>
+        {
+            foreach (var (code, words) in SdsLanguageDetector.ProfileWords)
+            {
+                Assert.That(words, Has.Count.InRange(24, 40), $"{code}: about 30 words");
+                Assert.That(words, Is.Unique, $"{code}: no repeats");
+            }
+        });
+    }
+
+    [TestCase("da-7_1.txt", "da")]
+    [TestCase("da-52_1.txt", "da")]
+    [TestCase("de-1_1.txt", "de")]
+    [TestCase("en-1_2.txt", "en")]
+    public void Real_sds_pages_hit_no_other_language_profile(string file, string language)
+    {
+        var hits = SdsLanguageDetector.ProfileHits(Fixture(file));
+        Assert.That(hits[language], Is.GreaterThan(0));
+        Assert.That(hits.Where(kv => kv.Key != language && kv.Value > 0).Select(kv => $"{kv.Key}={kv.Value}"),
+            Is.Empty, "foreign profile hits (e.g. fr 'des' on German, it 'alle' / fi 'kun' on Danish)");
+    }
+
     private static string Fixture(string name) =>
         File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "SdsText", name));
 

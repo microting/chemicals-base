@@ -65,8 +65,10 @@ public static class SdsHeadings
     public static IReadOnlyDictionary<string, SdsLanguageTerms> All => Loaded.Value;
 
     /// <summary>Languages in the file without Annex II headings ("is"): detection can only use their word profile.</summary>
-    public static IReadOnlyList<string> HeadingsUnavailable =>
-        All.Where(kv => !kv.Value.HasHeadings).Select(kv => kv.Key).ToList();
+    public static IReadOnlyList<string> HeadingsUnavailable => Unavailable.Value;
+
+    private static readonly Lazy<IReadOnlyList<string>> Unavailable =
+        new(() => All.Where(kv => !kv.Value.HasHeadings).Select(kv => kv.Key).ToList());
 
     /// <summary>Terms for a language code (normalised first, so "DA" and "nb" work); null when not in the file.</summary>
     public static SdsLanguageTerms? For(string language)
@@ -122,6 +124,6 @@ public static class SdsHeadings
 
     private static IReadOnlyList<string>? Strings(JsonElement entry, string name) =>
         entry.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Array
-            ? value.EnumerateArray().Select(v => v.GetString()!).ToList()
+            ? value.EnumerateArray().Where(v => v.ValueKind == JsonValueKind.String).Select(v => v.GetString()!).ToList()
             : null;
 }
