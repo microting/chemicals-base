@@ -1,0 +1,142 @@
+SIKKERHEDSDATABLAD i henhold til Forordning (EF) nr. 1907/2006, med
+ændringer
+
+Profound
+
+1/13
+Revisionsdato: 19.02.2026
+Trykdato: 30.03.2026
+
+Udgave 7 / DK
+102000008022
+
+PUNKT 1: IDENTIFIKATION AF STOFFET/BLANDINGEN OG AF
+SELSKABET/VIRKSOMHEDEN
+1.1 Produktidentifikator
+Handelsnavn
+
+Profound
+
+UFI
+
+NR70-Q0VS-600J-CMH6
+
+Produktkode (UVP)
+
+05863929, 86252961
+
+1.2 Relevante identificerede anvendelser for stoffet eller blandingen samt anvendelser, der
+frarådes
+Anvendelse
+
+Svampemiddel
+
+1.3 Nærmere oplysninger om leverandøren af sikkerhedsdatabladet
+Leverandør
+Bayer A/S, Bayer CropScience
+Arne Jacobsens Allé 13
+2300 København S
+Danmark
+Telefon
+
+(+45) 45 23 50 00
+
+Ansvarlig afdeling
+
+E-mail: sds@example.com
+
+1.4 Nødtelefon
+Nødtelefon
+
+(+45) 82 12 12 12 (døgnet rundt)
+
+PUNKT 2: FAREIDENTIFIKATION
+2.1 Klassificering af stoffet eller blandingen
+Klassificering i henhold til Miljøstyrelsens godkendelsestekst
+Øjenirritation: Kategori 2
+H319
+Forårsager alvorlig øjenirritation.
+Langtidsfare (kronisk) fare for vandmiljøet: Kategori 1
+H410
+Meget giftig med langvarige virkninger for vandlevende organismer.
+2.2 Mærkningselementer
+Mærkning i henhold til Miljøstyrelsens godkendelsestekst
+Mærkningspligtig.
+Farebestemmende komponent(er) for etikettering:
+• Prothioconazol
+
+SIKKERHEDSDATABLAD i henhold til Forordning (EF) nr. 1907/2006, med
+ændringer
+
+Profound
+
+2/13
+Revisionsdato: 19.02.2026
+Trykdato: 30.03.2026
+
+Udgave 7 / DK
+102000008022
+
+Signalord: Advarsel
+Faresætninger
+H319
+H410
+EUH401
+SP 1
+
+Forårsager alvorlig øjenirritation.
+Meget giftig med langvarige virkninger for vandlevende organismer.
+Brugsanvisningen skal følges for ikke at bringe menneskers sundhed og miljøet i fare.
+Undgå forurening af vandmiljøet med produktet eller med beholdere, der har indeholdt
+produktet. (Rens ikke sprøjteudstyr nær overfladevand/Undgå forurening via dræn fra
+gårdspladser og veje).
+
+Sikkerhedssætninger
+P101
+P102
+P280
+P264
+P302 + P352
+P305 + P351
++ P338
+P337 + P313
+P501
+
+Hvis der er brug for lægehjælp, medbring da beholderen eller etiketten.
+Opbevares utilgængeligt for børn.
+Bær beskyttelseshandsker/beskyttelsestøj og øjen-/ansigtsbeskyttelse.
+Vask huden og øjen grundigt efter brug.
+VED KONTAKT MED HUDEN: Vask med rigeligt vand.
+VED KONTAKT MED ØJNENE: Skyl forsigtigt med vand i flere minutter. Fjern
+eventuelle kontaktlinser, hvis dette kan gøres let. Fortsæt skylning.
+Ved vedvarende øjenirritation: Søg lægehjælp.
+Indholdet/beholderen bortskaffes i overensstemmelse med kommunale regler for
+affaldshåndtering.
+
+2.3 Andre farer
+Ingen yderligere farer kendt ud over de nævnte.
+Prothioconazol: Dette stof anses ikke for at være persistent, bioakkumulererende og toksisk (PBT).
+Dette stof anses ikke for at være meget persistent og meget bioakkumulerende (vPvB). N,NDimethyldecanamid: Dette stof anses ikke for at være persistent, bioakkumulererende og toksisk
+(PBT). Dette stof anses ikke for at være meget persistent og meget bioakkumulerende (vPvB).
+Miljøoplysninger:
+
+Substansen/blandingen indeholder ikke komponenter, der anses at
+have egenskaber med hormonforstyrrende virkning i henhold til
+REACH Artikel 57(f) eller Kommissionens delegerede forordning (EU)
+2017/2100 eller Kommissionens forordning (EU) 2018/605 på niveauer
+på 0.1 % eller derover.
+
+Toksikologiske oplysninger:
+
+Substansen/blandingen indeholder ikke komponenter, der anses at
+have egenskaber med hormonforstyrrende virkning i henhold til
+REACH Artikel 57(f) eller Kommissionens delegerede forordning (EU)
+2017/2100 eller Kommissionens forordning (EU) 2018/605 på niveauer
+på 0.1 % eller derover.
+
+PUNKT 3: SAMMENSÆTNING AF/OPLYSNING OM INDHOLDSSTOFFER
+3.2 Blandinger
+Kemisk karakterisering
+Emulgerbart koncentrat (EC)
+
+

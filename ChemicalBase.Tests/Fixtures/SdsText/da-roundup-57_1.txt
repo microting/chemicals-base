@@ -1,0 +1,156 @@
+SIKKERHEDSDATABLAD i henhold til Forordning (EF) nr. 1907/2006, med
+ændringer
+
+Roundup Flex 500
+
+1/12
+Revisionsdato: 19.09.2026
+Trykdato: 01.10.2026
+
+Udgave 1 / DK
+102000039960
+
+PUNKT 1: IDENTIFIKATION AF STOFFET/BLANDINGEN OG AF
+SELSKABET/VIRKSOMHEDEN
+1.1 Produktidentifikator
+Handelsnavn
+
+Roundup Flex 500
+
+UFI
+
+AK82-704C-D00T-KH2E (frivillig anmeldelse)
+
+Produktkode (UVP)
+
+62289668
+
+1.2 Relevante identificerede anvendelser for stoffet eller blandingen samt anvendelser, der
+frarådes
+Anvendelse
+
+Ukrudtsmiddel
+
+1.3 Nærmere oplysninger om leverandøren af sikkerhedsdatabladet
+Leverandør
+Bayer A/S, Bayer CropScience
+Arne Jacobsens Allé 13
+2300 København S
+Danmark
+Telefon
+
+(+45) 45 23 50 00
+
+Ansvarlig afdeling
+
+E-mail: sds@example.com
+
+1.4 Nødtelefon
+Nødtelefon
+
+(+45) 82 12 12 12 (døgnet rundt)
+
+PUNKT 2: FAREIDENTIFIKATION
+2.1 Klassificering af stoffet eller blandingen
+Klassificering i henhold til Miljøstyrelsens godkendelsestekst
+Langtidsfare (kronisk) fare for vandmiljøet: Kategori 2
+H411
+Giftig for vandlevende organismer, med langvarige virkninger.
+2.2 Mærkningselementer
+Mærkning i henhold til Miljøstyrelsens godkendelsestekst
+Mærkningspligtig.
+Farebestemmende komponent(er) for etikettering:
+• Kalium salt af glyphosat
+
+SIKKERHEDSDATABLAD i henhold til Forordning (EF) nr. 1907/2006, med
+ændringer
+
+Roundup Flex 500
+
+2/12
+Revisionsdato: 19.09.2026
+Trykdato: 01.10.2026
+
+Udgave 1 / DK
+102000039960
+
+Signalord: Advarsel
+Faresætninger
+H411
+EUH401
+SP 1
+
+Giftig for vandlevende organismer, med langvarige virkninger.
+Brugsanvisningen skal følges for ikke at bringe menneskers sundhed og miljøet i fare.
+Undgå forurening af vandmiljøet med produktet eller med beholdere, der har indeholdt
+produktet. (Rens ikke sprøjteudstyr nær overfladevand/Undgå forurening via dræn fra
+gårdspladser og veje).
+
+Sikkerhedssætninger
+P102
+P501
+
+Opbevares utilgængeligt for børn.
+Indholdet/beholderen bortskaffes i henhold til lokale regler.
+
+2.3 Andre farer
+Ingen yderligere farer kendt ud over de nævnte.
+Kalium salt af glyphosat: Dette stof anses ikke for at være persistent, bioakkumulererende og toksisk
+(PBT). Dette stof anses ikke for at være meget persistent og meget bioakkumulerende (vPvB).
+Miljøoplysninger:
+
+Substansen/blandingen indeholder ikke komponenter, der anses at
+have egenskaber med hormonforstyrrende virkning i henhold til
+REACH Artikel 57(f) eller Kommissionens delegerede forordning (EU)
+2017/2100 eller Kommissionens forordning (EU) 2018/605 på niveauer
+på 0.1 % eller derover.
+
+Toksikologiske oplysninger:
+
+Substansen/blandingen indeholder ikke komponenter, der anses at
+have egenskaber med hormonforstyrrende virkning i henhold til
+REACH Artikel 57(f) eller Kommissionens delegerede forordning (EU)
+2017/2100 eller Kommissionens forordning (EU) 2018/605 på niveauer
+på 0.1 % eller derover.
+
+PUNKT 3: SAMMENSÆTNING AF/OPLYSNING OM INDHOLDSSTOFFER
+3.2 Blandinger
+Kemisk karakterisering
+Vandopløseligt koncentrat (SL)
+Potassium salt of Glyphosate 613 g/l
+Farlige komponenter
+Faresætninger i henhold til Forordning (EF) nr. 1272/2008
+Navn
+
+CAS-Nr. /
+EF-Nr. /
+REACH Reg. No.
+
+Kalium salt af glyphosat
+Amides, C6-9, N[3(dimethylamino)propyl]
+Cocoamine ethoxylate
+propoxylate, N-oxide
+
+70901-12-1
+1044764-00-2
+1416792-82-9
+
+Klassificering
+FORORDNING (EF) Nr.
+1272/2008
+Aquatic Chronic 2, H411
+Eye Dam. 1, H318
+Acute Tox. 4, H302
+Skin Irrit. 2, H315
+Eye Dam. 1, H318
+Aquatic Chronic 3, H412
+
+Konc. [%]
+
+45,7
+>= 3,0 – <
+10,0
+>= 3,0 – <
+10,0
+
+

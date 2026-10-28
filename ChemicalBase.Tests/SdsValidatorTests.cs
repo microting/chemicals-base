@@ -317,6 +317,85 @@ public class SdsValidatorTests
         Assert.That(Query("Produkt Alpha", "706-12").TargetLanguage, Is.EqualTo("da"));
     }
 
+    // ---- print dates and implausible dates (PR-1 final review I-1) ----
+
+    [TestCase("da-profound-53_1.txt", "2026-02-19")] // "Revisionsdato: 19.02.2026 Trykdato: 30.03.2026"
+    [TestCase("da-roundup-57_1.txt", "2026-09-19")] // "Revisionsdato: 19.09.2026 Trykdato: 01.10.2026"
+    [TestCase("da-algefri-43_1.txt", "2025-11-10")] // column layout
+    [TestCase("da-kvitq-35_2.txt", "2022-09-20")]
+    public void Print_date_is_not_the_revision_date_on_real_sds(string file, string expected)
+    {
+        Assert.That(SdsValidator.ValidateText(Fixture(file), Query("Produkt Alpha", "999-99")).RevisionDate,
+            Is.EqualTo(DateTime.Parse(expected, System.Globalization.CultureInfo.InvariantCulture)));
+    }
+
+    public static IEnumerable<TestCaseData> RevisionDateEdgeCases()
+    {
+        var future = DateTime.UtcNow.Date.AddYears(2).ToString("dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
+        yield return new TestCaseData($"Revisionsdato: 01-03-2024 Næste revision: {future}", "2024-03-01")
+            .SetName("a future 'next revision' date is ignored");
+        yield return new TestCaseData("Revisionsdato: 01-03-2024 Trykdato: 05-05-2025", "2024-03-01")
+            .SetName("Danish print date ends the window");
+        yield return new TestCaseData("Revisionsdato: 01-03-2024 Udskriftsdato: 05-05-2025", "2024-03-01")
+            .SetName("Danish Udskriftsdato ends the window");
+        yield return new TestCaseData("Revision date: 01-03-2024 Print date: 05-05-2025", "2024-03-01")
+            .SetName("English print date ends the window");
+        yield return new TestCaseData("Versionsnummer: 01-03-2025 Revisionsdato: 01-03-2024", "2024-03-01")
+            .SetName("a keyword must end at a word boundary");
+        yield return new TestCaseData("Revisionsdato: 01-03-1985", null).SetName("before 1990 is not a revision date");
+    }
+
+    [TestCaseSource(nameof(RevisionDateEdgeCases))]
+    public void Revision_date_edge_cases(string text, string? expected)
+    {
+        Assert.That(RevisionDateParser.Find(text, "da"),
+            Is.EqualTo(expected == null ? null : DateTime.Parse(expected, System.Globalization.CultureInfo.InvariantCulture)));
+    }
+
+    // ---- PDF byte cap (I-2) ----
+
+    [Test]
+    public void Pdf_over_the_writer_cap_reads_as_no_text()
+    {
+        var oversize = Oversize(TestPdf.Bytes(Section1("da") + " Produkt Alpha Reg.nr. 706-12"));
+        Assert.That(oversize.LongLength, Is.GreaterThan(ChemicalDocumentWriter.MaxPdfBytes));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(PdfText.Pages(oversize, 2), Is.EqualTo(""));
+            Assert.That(DocumentClassifier.Classify(oversize).Kind, Is.EqualTo(PageOneKind.NoText));
+            Assert.That(SdsValidator.Validate(oversize, Query("Produkt Alpha", "706-12")).Score, Is.EqualTo(0));
+        });
+    }
+
+    /// <summary>
+    /// A valid PDF made larger than the cap: a comment of spaces appended after it, then its own startxref trailer
+    /// again, so the xref offsets still hold and a PDF reader would open it.
+    /// </summary>
+    private static byte[] Oversize(byte[] pdf)
+    {
+        var text = System.Text.Encoding.Latin1.GetString(pdf);
+        var tail = System.Text.Encoding.Latin1.GetBytes(text[text.LastIndexOf("startxref", StringComparison.Ordinal)..]);
+        var padding = (int)(ChemicalDocumentWriter.MaxPdfBytes - pdf.Length) + 16;
+        var result = new byte[pdf.Length + 2 + padding + 1 + tail.Length];
+        pdf.CopyTo(result, 0);
+        var at = pdf.Length;
+        result[at++] = (byte)'\n';
+        result[at++] = (byte)'%';
+        Array.Fill(result, (byte)' ', at, padding);
+        at += padding;
+        result[at++] = (byte)'\n';
+        tail.CopyTo(result, at);
+        return result;
+    }
+
+    [Test]
+    public void Profile_hits_read_only_the_scan_cap()
+    {
+        var text = new string('x', RevisionDateParser.MaxScanLength) + " af mod uden mellem gennem øjne vand brug";
+        Assert.That(SdsLanguageDetector.ProfileHits(text)["da"], Is.Zero);
+    }
+
     // ---- hostile input (PDF text is untrusted) ----
 
     public static IEnumerable<TestCaseData> AdversarialTexts()

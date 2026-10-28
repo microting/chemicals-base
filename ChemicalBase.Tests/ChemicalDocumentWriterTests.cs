@@ -476,6 +476,53 @@ public class ChemicalDocumentWriterTests : DbTestFixture
     }
 
     [Test]
+    public async Task Failed_version_row_after_the_row_saved_throws_and_is_not_retried_later()
+    {
+        // PnBase.Create saves the row, then the version row. When the second save fails (a Galera certification or
+        // deadlock error), the row is ours: no AlreadyKnown, and nothing failed may be retried by a later save.
+        var fault = new FailNextVersionInsert();
+        var options = new DbContextOptionsBuilder<ChemicalsBase.Infrastructure.ChemicalsDbContext>()
+            .UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString))
+            .AddInterceptors(fault)
+            .Options;
+        await using var faultyDb = new ChemicalsBase.Infrastructure.ChemicalsDbContext(options);
+        var writer = new ChemicalDocumentWriter(faultyDb, new InMemoryBlobStore(), _clock);
+
+        await Assert.ThrowsAsync<DbUpdateException>(() => writer.WriteAsync(BmdLabel(TestPdf.Bytes("Bumper 25 EC etiket"))));
+        Assert.That(fault.Failed, Is.True, "the injected fault fired");
+
+        // A later, unrelated save in the same context: it must not write the failed version row.
+        var next = await writer.WriteAsync(BmdLabel(TestPdf.Bytes("Roundup etiket")));
+        Assert.That(next.Outcome, Is.EqualTo(WriteOutcome.Created));
+
+        var bumper = await DbContext.ChemicalDocuments.AsNoTracking().SingleAsync(d => d.Id != next.Document!.Id);
+        Assert.That(await DbContext.ChemicalDocumentVersions.CountAsync(v => v.ChemicalDocumentId == bumper.Id), Is.Zero);
+        Assert.That(await DbContext.ChemicalDocumentVersions.CountAsync(v => v.ChemicalDocumentId == next.Document!.Id),
+            Is.EqualTo(1));
+    }
+
+    /// <summary>Fails the first SaveChanges that inserts a ChemicalDocumentVersion, once.</summary>
+    private sealed class FailNextVersionInsert : Microsoft.EntityFrameworkCore.Diagnostics.SaveChangesInterceptor
+    {
+        public bool Failed { get; private set; }
+
+        public override ValueTask<Microsoft.EntityFrameworkCore.Diagnostics.InterceptionResult<int>> SavingChangesAsync(
+            Microsoft.EntityFrameworkCore.Diagnostics.DbContextEventData eventData,
+            Microsoft.EntityFrameworkCore.Diagnostics.InterceptionResult<int> result,
+            CancellationToken cancellationToken = default)
+        {
+            if (!Failed && eventData.Context!.ChangeTracker.Entries<ChemicalDocumentVersion>()
+                    .Any(e => e.State == EntityState.Added))
+            {
+                Failed = true;
+                throw new DbUpdateException("injected: version row insert failed");
+            }
+
+            return base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
+    }
+
+    [Test]
     public async Task Overlong_text_is_rejected_before_the_database()
     {
         var pdf = TestPdf.Bytes("Bumper 25 EC etiket");

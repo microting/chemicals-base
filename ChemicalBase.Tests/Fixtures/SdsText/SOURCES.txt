@@ -32,3 +32,14 @@ da-algefri-43_1.txt  ECOstyle "AlgeFri N" concentrate, Danish, "MST Reg nr. 364-
 da-kvitq-35_2.txt    SBM "Kvit Q Myrelokkedåse", Danish, "Godkendelsesnummer 579-14", revised 20-09-2022 (spike id 35:
                      the sibling Kvit I 579-13 was rejected).
                      https://cdn.lomax.dk/image/upload/dokumenter/80207820_1.pdf
+
+Added for the print-date rule (SdsValidatorTests, PR-1 final review I-1): two more spike PDFs already downloaded in the
+2026-10-27 SDS search spike (no new fetch), `pdftotext -l 2`, e-mail addresses → sds@example.com, nothing else
+changed. Both print "Revisionsdato" next to a later "Trykdato" (print date) in the page header.
+da-profound-53_1.txt  Bayer "Profound", Danish, Revisionsdato 19.02.2026, Trykdato 30.03.2026 (spike id 53). The spike
+                      found this copy via SEGES Middeldatabasen (an aggregator, excluded as a harvest source; used here
+                      only as test text).
+                      https://middeldatabasenpdf.dlbr.dk/MSDS/Profound_18-664_MSDS_20260330.PDF
+da-roundup-57_1.txt   Bayer "Roundup Flex 500", Danish, Revisionsdato 19.09.2026, Trykdato 01.10.2026 (spike id 57),
+                      from Bayer DK's own site.
+                      https://www.cropscience.bayer.dk/-/media/bayer%20cropscience/scandinavia/denmark/filer/produkter/sikkerhedsdatablade-dk/roundup-flex-500-sds-dk.pdf
