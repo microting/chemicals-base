@@ -35,11 +35,11 @@ namespace ChemicalsBase.Infrastructure.Documents;
 /// (F36).</item>
 /// <item><b>Language:</b> <see cref="SdsLanguageDetector.Detect"/>; note token <c>lang-uncertain</c> when Uncertain.</item>
 /// <item><b>IdentityMatch</b>, in the section-1 slice (the detected language's section 1 up to its section-2
-/// heading, else 1500 characters from section 1, else the first 1500 characters): the exact reg.nr. (any hyphen or
-/// dash, spaces around it allowed) → <c>regno</c>; every token of the name (case-folded, ™®© and punctuation
-/// dropped) in the slice → <c>name</c>; the same for a trade name → <c>trade:&lt;trade name&gt;</c>; a reg.nr. with
-/// the same first two segments ("364-73-1-1" for "364-73-2-2", "734-8" for "734-8-18-2") → <c>regno-family</c>,
-/// never an exact match (spike §2).</item>
+/// heading, else 1500 characters from section 1, else the first 1500 characters), first hit wins: the exact reg.nr.
+/// (any hyphen or dash, spaces around it allowed) → <c>regno</c>; a reg.nr. with the same first two segments
+/// ("364-73-1-1" for "364-73-2-2", "734-8" for "734-8-18-2") → <c>regno-family</c>, never an exact match and never
+/// "name" (spike §2); every token of the name (case-folded, ™®© and punctuation dropped) in the slice → <c>name</c>;
+/// the same for a trade name → <c>trade:&lt;trade name as given, without ";"&gt;</c>.</item>
 /// <item><b>RevisionDate:</b> <see cref="RevisionDateParser"/>.</item>
 /// <item><b>Score:</b> IsSds 30 + round(25 × confidence) when the language is the target + regno 35 / name 25 /
 /// trade 20 / regno-family 15 + revision date 10, at most 100 (F37). No text layer → 0.</item>
@@ -57,10 +57,10 @@ public static class SdsValidator
     // Any hyphen or dash between two digits, optionally spaced: "706–12", "706 - 12" → "706-12".
     private static readonly Regex DashBetweenDigits =
         new(@"(?<=[0-9])\s?[\-‐‑‒–—−]\s?(?=[0-9])", RegexOptions.Compiled,
-            RevisionDateParser.MatchTimeout);
+            UntrustedText.MatchTimeout);
 
     private static readonly Regex Token = new(@"[\p{L}\p{M}\p{Nd}]+", RegexOptions.Compiled,
-        RevisionDateParser.MatchTimeout);
+        UntrustedText.MatchTimeout);
 
     public static SdsValidation Validate(byte[] pdf, SdsQuery q) => ValidateText(PdfText.Pages(pdf, MaxPages), q);
 
@@ -69,7 +69,7 @@ public static class SdsValidator
     {
         ArgumentNullException.ThrowIfNull(text);
         ArgumentNullException.ThrowIfNull(q);
-        text = RevisionDateParser.Cap(text); // pages 1–2; PDF text is untrusted, capped before any regex runs
+        text = UntrustedText.Cap(text); // pages 1–2; PDF text is untrusted, capped before any regex runs
 
         var classification = DocumentClassifier.ClassifyText(text);
         if (classification.Kind == PageOneKind.NoText)
@@ -109,44 +109,41 @@ public static class SdsValidator
             : normalized.Substring(start, Math.Min(FallbackSliceLength, normalized.Length - start));
     }
 
+    /// <summary>regno → regno-family → name → trade: a sibling's SDS with only a same-family reg.nr. is never "name".</summary>
     private static (string? Match, int Points) Identity(string slice, SdsQuery q)
     {
         try
         {
-            return IdentityOrThrow(slice, q);
+            var expected = string.IsNullOrWhiteSpace(q.RegistrationNo)
+                ? null
+                : DashBetweenDigits.Replace(q.RegistrationNo.Trim(), "-");
+            // A superset (CAS/EC numbers, fragments, 2-digit dates): only "expected ∈ found" counts.
+            var found = DocumentClassifier.RegistrationNumbers(DashBetweenDigits.Replace(slice, "-"));
+            if (expected != null && found.Contains(expected))
+            {
+                return ("regno", 35);
+            }
+
+            var family = expected != null ? Family(expected) : null;
+            if (family != null && found.Any(number => Family(number) == family))
+            {
+                return ("regno-family", 15);
+            }
+
+            var tokens = Tokens(slice);
+            if (NameIn(q.Name, tokens))
+            {
+                return ("name", 25);
+            }
+
+            var trade = (q.TradeNames ?? []).FirstOrDefault(name => NameIn(name, tokens));
+            // Notes is "; "-delimited: no ";" in the emitted trade name.
+            return trade != null ? ($"trade:{trade.Replace(";", "").Trim()}", 20) : (null, 0);
         }
         catch (RegexMatchTimeoutException)
         {
             return (null, 0); // pathological text: no identity rather than a stalled caller
         }
-    }
-
-    private static (string? Match, int Points) IdentityOrThrow(string slice, SdsQuery q)
-    {
-        var expected = string.IsNullOrWhiteSpace(q.RegistrationNo)
-            ? null
-            : DashBetweenDigits.Replace(q.RegistrationNo.Trim(), "-");
-        // A superset (CAS/EC numbers, fragments, 2-digit dates): only "expected ∈ found" counts.
-        var found = DocumentClassifier.RegistrationNumbers(DashBetweenDigits.Replace(slice, "-"));
-        if (expected != null && found.Contains(expected))
-        {
-            return ("regno", 35);
-        }
-
-        var tokens = Tokens(slice);
-        if (NameIn(q.Name, tokens))
-        {
-            return ("name", 25);
-        }
-
-        var trade = (q.TradeNames ?? []).FirstOrDefault(name => NameIn(name, tokens));
-        if (trade != null)
-        {
-            return ($"trade:{trade.Trim()}", 20);
-        }
-
-        var family = expected != null ? Family(expected) : null;
-        return family != null && found.Any(number => Family(number) == family) ? ("regno-family", 15) : (null, 0);
     }
 
     /// <summary>The first two segments: "364-73-1-1" → "364-73"; null for a number without a hyphen.</summary>

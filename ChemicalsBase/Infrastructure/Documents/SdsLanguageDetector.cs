@@ -96,7 +96,7 @@ public static class SdsLanguageDetector
 
     public static DetectedLanguage Detect(string text)
     {
-        var normalized = Normalize(text);
+        var normalized = Normalize(UntrustedText.Cap(text));
         if (normalized == "")
         {
             return new DetectedLanguage(null, 0, true);
@@ -123,7 +123,7 @@ public static class SdsLanguageDetector
     }
 
     /// <summary>Profile hits per language in the text (every language present, 0 when none).</summary>
-    public static IReadOnlyDictionary<string, int> ProfileHits(string text) => CountHits(Normalize(text));
+    public static IReadOnlyDictionary<string, int> ProfileHits(string text) => CountHits(Normalize(UntrustedText.Cap(text)));
 
     private static Dictionary<string, int> CountHits(string normalizedText)
     {

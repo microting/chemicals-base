@@ -88,6 +88,7 @@ public static class DocumentClassifier
     public static Classification ClassifyText(string pageOne)
     {
         ArgumentNullException.ThrowIfNull(pageOne);
+        pageOne = UntrustedText.Cap(pageOne);
 
         var registrationNumbers = RegistrationNumbers(pageOne);
         if (pageOne.Count(char.IsLetter) < MinLetters)

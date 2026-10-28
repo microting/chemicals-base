@@ -26,8 +26,8 @@ using System.Text.RegularExpressions;
 namespace ChemicalsBase.Infrastructure.Documents;
 
 /// <summary>
-/// Finds an SDS revision date: the first date within <see cref="Window"/> characters after a revision keyword
-/// (keywords taken in text order). Keywords are the language's <c>RevisionKeywords</c> from the headings file; when
+/// Finds an SDS revision date: the latest valid date starting within <see cref="Window"/> characters after any
+/// revision keyword (ruling (b): issue and superseded dates are never later than the revision). Keywords are the language's <c>RevisionKeywords</c> from the headings file; when
 /// those find no date, the da and en keywords are tried (F38). Formats: <c>dd-MM-yyyy</c>, <c>dd.MM.yyyy</c>,
 /// <c>dd/MM/yyyy</c> (day and month may have one digit), <c>yyyy-MM-dd</c>, and <c>d. &lt;month&gt; yyyy</c> (the dot
 /// optional) with the language's <c>Months</c> or <c>MonthsGenitive</c>, or a da/en month name (F68).
@@ -40,11 +40,8 @@ public static class RevisionDateParser
     // The longest date text: "dd. <month name> yyyy" with the longest month name stays well under this.
     private const int MaxDateLength = 40;
 
-    /// <summary>Per regex call; PDF text is untrusted. A timeout counts as "no date".</summary>
-    internal static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(250);
-
-    /// <summary>Only the first this-many characters of the (normalised) text are scanned: pages 1–2 of an SDS.</summary>
-    public const int MaxScanLength = 64 * 1024;
+    /// <summary>Only the first this-many characters of the text are scanned: pages 1–2 of an SDS.</summary>
+    public const int MaxScanLength = UntrustedText.MaxScanLength;
 
     private static readonly string[] FallbackLanguages = ["da", "en"];
 
@@ -57,12 +54,12 @@ public static class RevisionDateParser
     public static DateTime? Find(string text, string? language)
     {
         ArgumentNullException.ThrowIfNull(text);
-        return FindNormalized(SdsLanguageDetector.Normalize(Cap(text)), language);
+        return FindNormalized(SdsLanguageDetector.Normalize(UntrustedText.Cap(text)), language);
     }
 
     internal static DateTime? FindNormalized(string normalizedText, string? language)
     {
-        normalizedText = Cap(normalizedText);
+        normalizedText = UntrustedText.Cap(normalizedText);
         var code = SdsLanguages.Normalize(language);
         var own = code != null && ByLanguage.Value.TryGetValue(code, out var rules)
             ? rules.Find(normalizedText)
@@ -91,18 +88,22 @@ public static class RevisionDateParser
             }
 
             return new Rules(
-                new Regex($@"(?<![\p{{L}}\p{{M}}])(?:{Alternation(keywords)})", RegexOptions.Compiled | RegexOptions.CultureInvariant, MatchTimeout),
+                new Regex($@"(?<![\p{{L}}\p{{M}}])(?:{Alternation(keywords)})", RegexOptions.Compiled | RegexOptions.CultureInvariant, UntrustedText.MatchTimeout),
                 new Regex(
                     $@"(?<![0-9])(?:(?<iy>[0-9]{{4}})-(?<im>[0-9]{{1,2}})-(?<id>[0-9]{{1,2}})" +
                     $@"|(?<nd>[0-9]{{1,2}})(?<sep>[-./])(?<nm>[0-9]{{1,2}})\k<sep>(?<ny>[0-9]{{4}})" +
                     $@"|(?<md>[0-9]{{1,2}})\.?\s?(?<mn>{Alternation(months.Keys)})(?![\p{{L}}\p{{M}}])\s?(?<my>[0-9]{{4}}))(?![0-9])",
-                    RegexOptions.Compiled | RegexOptions.CultureInvariant, MatchTimeout),
+                    RegexOptions.Compiled | RegexOptions.CultureInvariant, UntrustedText.MatchTimeout),
                 months);
         }
 
-        /// <summary>Linear in the text: each keyword searches only its own window, never the rest of the text.</summary>
+        /// <summary>
+        /// The latest valid date in any keyword's window (ruling (b)): an issue date or a superseded version's date is
+        /// never later than the revision, in row and in column layout. Linear: each keyword searches only its window.
+        /// </summary>
         internal DateTime? Find(string text)
         {
+            DateTime? latest = null;
             try
             {
                 for (var keyword = keywords.Match(text); keyword.Success; keyword = keyword.NextMatch())
@@ -112,19 +113,19 @@ public static class RevisionDateParser
                     for (var date = dates.Match(text, end, length); date.Success && date.Index - end <= Window;
                          date = date.NextMatch())
                     {
-                        if (ToDate(date) is { } found)
+                        if (ToDate(date) is { } found && (latest == null || found > latest))
                         {
-                            return found;
+                            latest = found;
                         }
                     }
                 }
             }
             catch (RegexMatchTimeoutException)
             {
-                // Hostile or pathological text: no date rather than a stalled harvester.
+                return null; // hostile or pathological text: no date rather than a stalled harvester
             }
 
-            return null;
+            return latest;
         }
 
         private DateTime? ToDate(Match m)
@@ -142,9 +143,6 @@ public static class RevisionDateParser
 
         private static int Int(Match m, string group) => int.Parse(m.Groups[group].Value);
     }
-
-    /// <summary>The first <see cref="MaxScanLength"/> characters: applied before any regex runs.</summary>
-    internal static string Cap(string text) => text.Length > MaxScanLength ? text[..MaxScanLength] : text;
 
     private static string Alternation(IEnumerable<string> words) => string.Join("|", words
         .Select(SdsLanguageDetector.Normalize)

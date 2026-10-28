@@ -60,7 +60,7 @@ internal sealed class SdsSectionHeading
         Language = language;
         _heading = new Regex(HeadingRegex(terms, 1), RegexOptions.Compiled | RegexOptions.CultureInvariant);
         _section2 = new Regex(HeadingRegex(terms, 2), RegexOptions.Compiled | RegexOptions.CultureInvariant,
-            RevisionDateParser.MatchTimeout);
+            UntrustedText.MatchTimeout);
         _title = SdsLanguageDetector.Normalize(terms.Section1Title!);
         _titleStart = TitleStart(_title);
     }
