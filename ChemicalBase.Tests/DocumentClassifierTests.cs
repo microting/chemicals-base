@@ -126,6 +126,7 @@ public class DocumentClassifierTests
         Assert.That(DocumentClassifier.ClassifyText(text).Kind, Is.EqualTo(PageOneKind.Sds));
     }
 
+    [TestCase("Se punkt 10 om stabilitet og reaktivitet for Produkt Alpha.")]
     [TestCase("Read section 12 before use and keep the product out of reach of children.")]
     [TestCase("See section 1.4 on the back for the emergency number of the supplier.")]
     [TestCase("Dosering: 10 ml pr. liter vand, 1 sektion pr. kvadratmeter overflade.")]
@@ -159,6 +160,35 @@ public class DocumentClassifierTests
     public void Label_sentence_mentioning_sds_stays_label(string text)
     {
         Assert.That(DocumentClassifier.ClassifyText(text).Kind, Is.EqualTo(PageOneKind.LabelOrInstructions));
+    }
+
+    // A label's cross-reference to its own numbered steps is not the SDS section-1 heading (review Important 1).
+    [TestCase("Brugsanvisning: Må kun anvendes som ukrudtsmiddel. Se punkt 1 og gentag punkt 1-3 efter 14 dage. Læs nærmere i det eventuelt lovpligtige sikkerhedsdatablad.")]
+    [TestCase("Må kun anvendes som insektmiddel. Dosering, se punkt 1 på bagsiden.")]
+    [TestCase("Se brugsanvisningen, punkt 1: Identifikation af skadedyret før behandling.")]
+    public void Label_cross_reference_to_punkt_1_stays_label(string text)
+    {
+        Assert.That(DocumentClassifier.ClassifyText(text).Kind, Is.EqualTo(PageOneKind.LabelOrInstructions));
+    }
+
+    // Heading followed by the start of the section-1 title is an SDS even when a label-marker word occurs.
+    [TestCase("PUNKT 1: Identifikation af stoffet/blandingen og af selskabet/virksomheden. Produktet må kun anvendes som angivet i brugsanvisningen.")]
+    [TestCase("PUNKT 1. IDENTIFIKATION AF STOFFET/ PRÆPARATET Må kun anvendes erhvervsmæssigt, se brugsanvisning.")]
+    public void Section_1_heading_with_its_title_is_sds_despite_label_markers(string text)
+    {
+        Assert.That(DocumentClassifier.ClassifyText(text).Kind, Is.EqualTo(PageOneKind.Sds));
+    }
+
+    [TestCase("da-7_1.txt")]
+    [TestCase("da-52_1.txt")]
+    [TestCase("de-1_1.txt")]
+    [TestCase("en-1_2.txt")]
+    [TestCase("sv-10_1.txt")]
+    [TestCase("no-mapei_1.txt")]
+    public void Real_sds_text_with_a_label_marker_is_still_sds(string file)
+    {
+        var text = FixtureText("SdsText", file) + "\nMå kun anvendes i henhold til brugsanvisningen.";
+        Assert.That(DocumentClassifier.ClassifyText(text).Kind, Is.EqualTo(PageOneKind.Sds));
     }
 
     [Test]

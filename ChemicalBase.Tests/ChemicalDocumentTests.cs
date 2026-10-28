@@ -657,6 +657,27 @@ public class SdsLanguageTests
         Assert.That(detected.Uncertain, Is.False);
     }
 
+    // The detector and the classifier share one section-1 heading rule (review Important 2): separators are
+    // tolerated ("1.szakasz", "punkt1") and "punkt 10" is not section 1.
+    [TestCase("1.SZAKASZ: Az anyag/keverék azonosítója", "hu")]
+    [TestCase("Punkt1 - Identifikation af stoffet", "da")]
+    [TestCase("1 SKIRSNIS. Medžiagos arba mišinio identifikatorius", "lt")]
+    public void Heading_rule_tolerates_separators(string text, string language)
+    {
+        var detected = SdsLanguageDetector.Detect(text);
+        Assert.That(detected.Language, Is.EqualTo(language));
+        Assert.That(detected.Confidence, Is.EqualTo(1.0));
+        Assert.That(detected.Uncertain, Is.False);
+    }
+
+    [Test]
+    public void Section_10_is_not_the_section_1_heading()
+    {
+        var detected = SdsLanguageDetector.Detect("PUNKT 10: Identifikation af stoffet");
+        Assert.That(detected.Confidence, Is.Not.EqualTo(1.0), "punkt 10 must not count as the section-1 heading");
+        Assert.That(detected.Language, Is.Null);
+    }
+
     // Real page 1-2 text (Fixtures/SdsText/SOURCES.txt says where each comes from).
     [TestCase("da-7_1.txt", "da")]
     [TestCase("da-52_1.txt", "da")]
