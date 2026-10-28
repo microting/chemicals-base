@@ -293,20 +293,40 @@ public class SdsValidatorTests
         yield return new TestCaseData(new string('7', 100000)).SetName("100k digits");
     }
 
+    // Each public entry point on its own clock, 1 s each (CI machines are slow; a quadratic scan takes far longer).
     [TestCaseSource(nameof(AdversarialTexts))]
     public void Adversarial_text_returns_quickly_without_a_date(string text)
     {
-        var watch = System.Diagnostics.Stopwatch.StartNew();
-        var date = RevisionDateParser.Find(text, "da");
-        var v = SdsValidator.ValidateText(Sds("da", text), Query("Produkt Alpha", "706-12"));
-        watch.Stop();
+        var limit = TimeSpan.FromSeconds(1);
+        // Warm up: the first call loads the headings file and compiles the regexes.
+        SdsValidator.Validate(TestPdf.Bytes(Section1("da")), Query("Produkt Alpha", "706-12"));
+        RevisionDateParser.Find("Revisionsdato: 01-03-2024", "da");
+        var pdf = TestPdf.Pages(Section1("da"), text);
+        var extraction = Time(() => PdfText.Pages(pdf, 2)); // PdfPig's own cost, not the validator's
+
+        DateTime? date = null;
+        SdsValidation? fromText = null, fromPdf = null;
+        var find = Time(() => date = RevisionDateParser.Find(text, "da"));
+        var validateText = Time(() => fromText = SdsValidator.ValidateText(Sds("da", text), Query("Produkt Alpha", "706-12")));
+        var validate = Time(() => fromPdf = SdsValidator.Validate(pdf, Query("Produkt Alpha", "706-12")));
 
         Assert.Multiple(() =>
         {
             Assert.That(date, Is.Null);
-            Assert.That(v.RevisionDate, Is.Null);
-            Assert.That(watch.Elapsed, Is.LessThan(TimeSpan.FromSeconds(2)));
+            Assert.That(fromText!.RevisionDate, Is.Null);
+            Assert.That(fromPdf!.RevisionDate, Is.Null);
+            Assert.That(find, Is.LessThan(limit), "RevisionDateParser.Find");
+            Assert.That(validateText, Is.LessThan(limit), "SdsValidator.ValidateText");
+            Assert.That(validate - extraction, Is.LessThan(limit), "SdsValidator.Validate beyond text extraction");
         });
+    }
+
+    [Test]
+    public void Text_is_capped_before_it_is_normalised()
+    {
+        // 100k spaces collapse to one when normalised; the cap applies to the raw text first, so the date is not read.
+        var text = "Revisionsdato:" + new string(' ', 100000) + "01-03-2024";
+        Assert.That(RevisionDateParser.Find(text, "da"), Is.Null);
     }
 
     [Test]
@@ -317,6 +337,13 @@ public class SdsValidatorTests
     }
 
     // ---- helpers ----
+
+    private static TimeSpan Time(Action action)
+    {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        action();
+        return watch.Elapsed;
+    }
 
     private static SdsQuery Query(string name, string registrationNo, params string[] tradeNames) =>
         new(1, name, registrationNo, tradeNames, null);
