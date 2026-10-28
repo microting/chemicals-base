@@ -24,6 +24,7 @@ SOFTWARE.
 
 using ChemicalsBase.Infrastructure.Data.Entities;
 using ChemicalsBase.Infrastructure.Data.Enums;
+using ChemicalsBase.Infrastructure.Documents;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -245,5 +246,362 @@ public class ChemicalDocumentTests : DbTestFixture
 
         var duplicate = new HolderSdsSite { AuthorisationHolderId = 5, Domain = "cidlines.com" };
         Assert.ThrowsAsync<DbUpdateException>(async () => await duplicate.Create(DbContext));
+    }
+    [Test]
+    public async Task Soft_deleted_document_still_blocks_a_second_create_with_same_content()
+    {
+        var document = BmdLabel();
+        await document.Create(DbContext);
+        await document.Delete(DbContext);
+
+        var stored = await DbContext.ChemicalDocuments.AsNoTracking().SingleAsync();
+        Assert.That(stored.WorkflowState, Is.EqualTo(ChemicalsBase.Infrastructure.Constants.Constants.WorkflowStates.Removed));
+
+        // The unique index is not filtered on WorkflowState: a removed row is revived by Update, never re-created.
+        Assert.ThrowsAsync<DbUpdateException>(async () => await BmdLabel().Create(DbContext));
+    }
+
+    [Test]
+    public async Task Language_roundtrips_and_is_versioned()
+    {
+        var document = BmdLabel();
+        document.Type = ChemicalDocumentType.Sds;
+        document.Language = "da";
+        await document.Create(DbContext);
+
+        document.Language = "en";
+        await document.Update(DbContext);
+
+        var stored = await DbContext.ChemicalDocuments.AsNoTracking().SingleAsync();
+        Assert.That(stored.Language, Is.EqualTo("en"));
+
+        var versions = await DbContext.ChemicalDocumentVersions.AsNoTracking()
+            .Where(v => v.ChemicalDocumentId == stored.Id).OrderBy(v => v.Version).ToListAsync();
+        Assert.That(versions.Select(v => v.Language), Is.EqualTo(new[] { "da", "en" }));
+
+        // null = unknown language.
+        var unknown = BmdLabel(md5: "fedcba9876543210fedcba9876543210");
+        await unknown.Create(DbContext);
+        var storedUnknown = await DbContext.ChemicalDocuments.AsNoTracking().SingleAsync(d => d.Id == unknown.Id);
+        Assert.That(storedUnknown.Language, Is.Null);
+
+        var index = DbContext.Model.FindEntityType(typeof(ChemicalDocument))!.GetIndexes()
+            .SingleOrDefault(i => i.Properties.Select(p => p.Name)
+                .SequenceEqual(new[] { "ChemicalId", "Type", "Language", "Status" }));
+        Assert.That(index, Is.Not.Null, "index (ChemicalId, Type, Language, Status)");
+    }
+
+    [Test]
+    public async Task SdsDocuments_not_mapped()
+    {
+        var entityType = DbContext.Model.FindEntityType(typeof(Chemical))!;
+        Assert.That(entityType.FindProperty("SdsDocuments"), Is.Null);
+        Assert.That(entityType.FindNavigation("SdsDocuments"), Is.Null);
+
+        var chemical = NewChemical();
+        chemical.SdsDocuments = new List<ChemicalSdsFeedItem>
+        {
+            new()
+            {
+                Language = "da",
+                FileName = Md5,
+                RevisionDate = new DateTime(2024, 3, 1, 0, 0, 0, DateTimeKind.Utc),
+                ProductName = "Testmiddel 5 L",
+            },
+            new() { Language = "en", FileName = "fedcba9876543210fedcba9876543210" },
+        };
+        await chemical.Create(DbContext);
+
+        var versions = await DbContext.ChemicalVersions.AsNoTracking()
+            .Where(v => v.ChemicalId == chemical.Id).ToListAsync();
+        Assert.That(versions, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task SdsHarvestAttempt_language_roundtrips_and_is_indexed()
+    {
+        DbContext.SdsHarvestAttempts.Add(new SdsHarvestAttempt
+        {
+            ChemicalId = 42,
+            Language = "de",
+            AttemptedAt = new DateTime(2026, 10, 27, 12, 0, 0, DateTimeKind.Utc),
+            Outcome = "no-hit",
+        });
+        await DbContext.SaveChangesAsync();
+
+        var stored = await DbContext.SdsHarvestAttempts.AsNoTracking().SingleAsync();
+        Assert.That(stored.Language, Is.EqualTo("de"));
+
+        var indexes = DbContext.Model.FindEntityType(typeof(SdsHarvestAttempt))!.GetIndexes()
+            .Select(i => string.Join(",", i.Properties.Select(p => p.Name))).ToList();
+        Assert.That(indexes, Does.Contain("ChemicalId,Language,AttemptedAt"));
+        Assert.That(indexes, Does.Not.Contain("ChemicalId,AttemptedAt"));
+    }
+
+    [Test]
+    public async Task HolderSdsSite_languages_roundtrip_and_are_versioned()
+    {
+        var site = new HolderSdsSite
+        {
+            AuthorisationHolderId = 5,
+            Domain = "cidlines.com",
+            LanguagesOffered = "da,en",
+            LanguageUrlPattern = "/{lang}/",
+        };
+        await site.Create(DbContext);
+
+        site.LanguagesOffered = "da,en,de";
+        await site.Update(DbContext);
+
+        var stored = await DbContext.HolderSdsSites.AsNoTracking().SingleAsync();
+        Assert.That(stored.LanguagesOffered, Is.EqualTo("da,en,de"));
+        Assert.That(stored.LanguageUrlPattern, Is.EqualTo("/{lang}/"));
+
+        var versions = await DbContext.HolderSdsSiteVersions.AsNoTracking()
+            .Where(v => v.HolderSdsSiteId == stored.Id).OrderBy(v => v.Version).ToListAsync();
+        Assert.That(versions.Select(v => v.LanguagesOffered), Is.EqualTo(new[] { "da,en", "da,en,de" }));
+        Assert.That(versions.Select(v => v.LanguageUrlPattern), Is.All.EqualTo("/{lang}/"));
+    }
+
+    [Test]
+    public async Task DocumentInboxItem_roundtrips_and_is_versioned()
+    {
+        var item = new DocumentInboxItem
+        {
+            BatchId = "6f1c2a9e-3b4d-4e5f-8a7b-9c0d1e2f3a4b",
+            OriginalFileName = "Rodalon_SDS_DK.pdf",
+            ContentMd5 = Md5,
+            SizeBytes = 204800,
+            DetectedType = ChemicalDocumentType.Sds,
+            DetectedLanguage = "da",
+            LanguageConfidence = 0.92,
+            MatchedChemicalId = 42,
+            ChemicalDocumentId = 77,
+            MatchScore = 85,
+            MatchNotes = "regno=yes; name=yes; sugg=12,57,903",
+            Status = DocumentInboxStatus.Unmatched,
+            UploadedBy = "producer@example.com",
+        };
+        await item.Create(DbContext);
+
+        item.Status = DocumentInboxStatus.Matched;
+        item.ResolvedBy = "Anne Staff";
+        item.ResolvedAt = new DateTime(2026, 10, 27, 14, 0, 0, DateTimeKind.Utc);
+        await item.Update(DbContext);
+
+        var stored = await DbContext.DocumentInboxItems.AsNoTracking().SingleAsync();
+        Assert.That(stored.BatchId, Is.EqualTo("6f1c2a9e-3b4d-4e5f-8a7b-9c0d1e2f3a4b"));
+        Assert.That(stored.OriginalFileName, Is.EqualTo("Rodalon_SDS_DK.pdf"));
+        Assert.That(stored.ContentMd5, Is.EqualTo(Md5));
+        Assert.That(stored.SizeBytes, Is.EqualTo(204800));
+        Assert.That(stored.DetectedType, Is.EqualTo(ChemicalDocumentType.Sds));
+        Assert.That(stored.DetectedLanguage, Is.EqualTo("da"));
+        Assert.That(stored.LanguageConfidence, Is.EqualTo(0.92).Within(1e-9));
+        Assert.That(stored.MatchedChemicalId, Is.EqualTo(42));
+        Assert.That(stored.ChemicalDocumentId, Is.EqualTo(77));
+        Assert.That(stored.MatchScore, Is.EqualTo(85));
+        Assert.That(stored.MatchNotes, Is.EqualTo("regno=yes; name=yes; sugg=12,57,903"));
+        Assert.That(stored.Status, Is.EqualTo(DocumentInboxStatus.Matched));
+        Assert.That(stored.UploadedBy, Is.EqualTo("producer@example.com"));
+        Assert.That(stored.ResolvedBy, Is.EqualTo("Anne Staff"));
+        Assert.That(stored.ResolvedAt, Is.EqualTo(new DateTime(2026, 10, 27, 14, 0, 0)));
+
+        var versions = await DbContext.DocumentInboxItemVersions.AsNoTracking()
+            .Where(v => v.DocumentInboxItemId == stored.Id).OrderBy(v => v.Version).ToListAsync();
+        Assert.That(versions.Select(v => v.Status),
+            Is.EqualTo(new[] { DocumentInboxStatus.Unmatched, DocumentInboxStatus.Matched }));
+        Assert.That(versions.Select(v => v.ContentMd5), Is.All.EqualTo(Md5));
+        Assert.That(versions[1].ResolvedBy, Is.EqualTo("Anne Staff"));
+
+        // A NotPdf entry has no blob: empty md5, no detection.
+        var notPdf = new DocumentInboxItem
+        {
+            BatchId = item.BatchId,
+            OriginalFileName = "readme.txt",
+            Status = DocumentInboxStatus.NotPdf,
+            UploadedBy = "producer@example.com",
+        };
+        await notPdf.Create(DbContext);
+        var storedNotPdf = await DbContext.DocumentInboxItems.AsNoTracking().SingleAsync(i => i.Id == notPdf.Id);
+        Assert.That(storedNotPdf.ContentMd5, Is.EqualTo(""));
+        Assert.That(storedNotPdf.DetectedType, Is.Null);
+
+        var indexes = DbContext.Model.FindEntityType(typeof(DocumentInboxItem))!.GetIndexes()
+            .Select(i => string.Join(",", i.Properties.Select(p => p.Name))).ToList();
+        Assert.That(indexes, Does.Contain("Status,BatchId"));
+        Assert.That(indexes, Does.Contain("ContentMd5"));
+    }
+
+    [Test]
+    public void DocumentInboxStatus_values_are_pinned()
+    {
+        Assert.That((int)DocumentInboxStatus.Unmatched, Is.EqualTo(1));
+        Assert.That((int)DocumentInboxStatus.Matched, Is.EqualTo(2));
+        Assert.That((int)DocumentInboxStatus.Duplicate, Is.EqualTo(3));
+        Assert.That((int)DocumentInboxStatus.Rejected, Is.EqualTo(4));
+        Assert.That((int)DocumentInboxStatus.NotPdf, Is.EqualTo(5));
+    }
+}
+
+/// <summary>Pure logic (no database): language codes, Annex II headings, detection, SDS file names.</summary>
+[TestFixture]
+public class SdsLanguageTests
+{
+    private const string DanishProse =
+        "Produktet skal opbevares utilgængeligt for børn. Undgå kontakt med øjne og hud. Ved indånding: flyt personen ud i frisk luft. " +
+        "Ved indtagelse: skyl munden med vand og kontakt omgående en læge. Brug beskyttelseshandsker og øjenbeskyttelse. " +
+        "Blandingen indeholder ingen stoffer, der er nødvendigt at angive. Oplysninger om fysiske og kemiske egenskaber findes i punkt 9. " +
+        "Opbevares i original emballage, uden adgang for uvedkommende, mellem 5 og 25 grader. Nogle af indholdsstofferne kan være skadelige for sundhed. " +
+        "Virksomheden er ansvarlig for oplysninger i dette sikkerhedsdatablad. Hvad skal man gøre ved uheld? Skyl gennem længere tid med vand. " +
+        "Hænder vaskes efter brug. Beskyt mod frost.";
+
+    private const string EnglishProse =
+        "Keep out of the reach of children. Avoid contact with eyes and skin. If inhaled, remove the person to fresh air. " +
+        "If swallowed, rinse mouth with water and call a doctor. Wear protective gloves. The mixture does not contain any substances " +
+        "which are required to be listed. This product should be stored in the original container and has been classified by the supplier. " +
+        "Wash hands after handling. Other information may be found in section 16. Storage: keep away from heat. " +
+        "Such handling of the product is not recommended.";
+
+    private const string IcelandicProse =
+        "Geymist þar sem börn ná ekki til. Forðist snertingu við augu og húð. Við innöndun: flytjið viðkomandi í ferskt loft. " +
+        "Ef efnið er gleypt skal skola munninn með vatni og hafa samband við lækni. Notið hlífðarhanska. " +
+        "Blöndu þessa skal geyma í upprunalegum umbúðum. Upplýsingar um hættu eru fyrir hendi í þessu öryggisblað. " +
+        "Fyrirtækið hefur samsetning efnisins skráða. Notkun: aðeins fyrir fagmenn. Það getur verið hættulegt að anda að sér gufum frá efninu. " +
+        "Eftir notkun skal þvo hendur. Varúðarráðstafanir eru taldar upp þegar efnið er flutt eða meðhöndlað.";
+
+    [TestCase("DA", "da")]
+    [TestCase("da", "da")]
+    [TestCase(" en ", "en")]
+    [TestCase("nb", "no")]
+    [TestCase("nn", "no")]
+    [TestCase("nb-NO", "no")]
+    [TestCase("pt-BR", "pt")]
+    [TestCase("de_AT", "de")]
+    [TestCase("xx", null)]
+    [TestCase("", null)]
+    [TestCase(null, null)]
+    public void Normalize_cases(string? code, string? expected)
+    {
+        Assert.That(SdsLanguages.Normalize(code), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Language_lists_and_attempt_default_are_pinned()
+    {
+        Assert.That(SdsLanguages.Phase1, Is.EqualTo(new[] { "da", "en" }));
+        Assert.That(SdsLanguages.DefaultPhase2, Is.EqualTo(new[]
+        {
+            "bg", "cs", "de", "el", "es", "et", "fi", "fr", "hr", "hu", "is", "it", "lt", "lv", "nl", "no", "pl", "pt", "ro", "sk", "sl", "sv",
+        }));
+        Assert.That(SdsLanguages.DefaultAttemptsBeforeExhausted, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void Headings_resource_loads_all_phase_languages()
+    {
+        var wanted = SdsLanguages.Phase1.Concat(SdsLanguages.DefaultPhase2).ToList();
+        var missing = wanted.Where(code => SdsHeadings.For(code) == null).ToList();
+        Assert.That(missing, Is.Empty, $"languages missing from annex-ii-headings.json: {string.Join(", ", missing)}");
+        Assert.That(SdsHeadings.All.Keys, Is.SubsetOf(wanted));
+
+        Assert.Multiple(() =>
+        {
+            foreach (var (code, terms) in SdsHeadings.All)
+            {
+                Assert.That(terms.SdsTerms, Is.Not.Empty, $"{code}: sds terms");
+                Assert.That(terms.RevisionKeywords, Is.Not.Empty, $"{code}: revision keywords");
+                Assert.That(terms.Months, Has.Count.GreaterThanOrEqualTo(12), $"{code}: months");
+                if (code == "is")
+                {
+                    // No quotable Icelandic Annex II text exists; the file leaves the headings empty on purpose.
+                    Assert.That(terms.Section1Title, Is.Empty, "is: no headings");
+                    continue;
+                }
+                Assert.That(terms.Section1Title, Is.Not.Empty, $"{code}: section 1 title");
+                Assert.That(terms.Section1Word, Does.Contain("1"), $"{code}: section 1 word");
+                Assert.That(terms.Section2Word, Does.Contain("2"), $"{code}: section 2 word");
+            }
+        });
+
+        var da = SdsHeadings.For("DA")!;
+        Assert.That(da.Section1Word, Is.EqualTo("PUNKT 1"));
+        Assert.That(da.Section2Word, Is.EqualTo("PUNKT 2"));
+        Assert.That(da.Section1Title, Is.EqualTo("Identifikation af stoffet/blandingen og af selskabet/virksomheden"));
+        Assert.That(da.SdsTerms, Does.Contain("Sikkerhedsdatablad"));
+        Assert.That(da.Months, Does.Contain("marts"));
+        Assert.That(SdsHeadings.For("hu")!.Section1Word, Is.EqualTo("1. SZAKASZ"));
+        Assert.That(SdsHeadings.For("sv")!.Section1Word, Is.EqualTo("AVSNITT 1"));
+        Assert.That(SdsHeadings.For("no")!.Section1Word, Is.EqualTo("AVSNITT 1"));
+        Assert.That(SdsHeadings.For("xx"), Is.Null);
+    }
+
+    [Test]
+    public void Language_detection_cases()
+    {
+        Assert.Multiple(() =>
+        {
+            // Headings: every language with Annex II headings in the resource is recognised from its section-1 heading alone.
+            foreach (var (code, terms) in SdsHeadings.All.Where(kv => kv.Value.Section1Title != ""))
+            {
+                var heading = $"{terms.Section1Word}: {terms.Section1Title}";
+                foreach (var text in new[] { heading, heading.ToUpperInvariant(), $"Side 1 af 9\n  {heading.Replace(" ", "\n ")}" })
+                {
+                    var detected = SdsLanguageDetector.Detect(text);
+                    Assert.That(detected.Language, Is.EqualTo(code), $"{code}: {text}");
+                    Assert.That(detected.Confidence, Is.EqualTo(1.0), $"{code}: confidence");
+                    Assert.That(detected.Uncertain, Is.False, $"{code}: uncertain");
+                }
+            }
+
+            // sv and no share "AVSNITT"; the title words after it tell them apart, also for supplier variants of the title.
+            Assert.That(SdsLanguageDetector.Detect("AVSNITT 1: Namnet på ämnet/blandningen och företaget").Language, Is.EqualTo("sv"));
+            Assert.That(SdsLanguageDetector.Detect("AVSNITT 1: Identifikasjon av stoffet/stoffblandingen og av leverandøren").Language, Is.EqualTo("no"));
+            Assert.That(SdsLanguageDetector.Detect("AVSNITT 1 Namnet på ämnet/blandningen och bolaget/företaget").Language, Is.EqualTo("sv"));
+            Assert.That(SdsLanguageDetector.Detect("AVSNITT 1 Identifikasjon av stoffet/stoffblandingen og av selskapet/foretaket").Language, Is.EqualTo("no"));
+
+            // No headings: stop-word profiles.
+            var danish = SdsLanguageDetector.Detect(DanishProse);
+            Assert.That(danish.Language, Is.EqualTo("da"));
+            Assert.That(danish.Confidence, Is.GreaterThanOrEqualTo(0.6));
+            Assert.That(danish.Uncertain, Is.False);
+
+            var english = SdsLanguageDetector.Detect(EnglishProse);
+            Assert.That(english.Language, Is.EqualTo("en"));
+            Assert.That(english.Uncertain, Is.False);
+
+            // Bilingual da/en: the top language is still reported, but flagged.
+            var bilingual = SdsLanguageDetector.Detect(DanishProse + " " + EnglishProse);
+            Assert.That(bilingual.Language, Is.AnyOf("da", "en"));
+            Assert.That(bilingual.Uncertain, Is.True, "bilingual");
+
+            // A label-like short text has too few profile hits.
+            var label = SdsLanguageDetector.Detect(
+                "Rodalon Indendørs 1 L. Indeholder benzalkoniumchlorid. Fare: Kan forårsage øjenirritation. Reg.nr. 1-234.");
+            Assert.That(label.Language, Is.Null);
+            Assert.That(label.Confidence, Is.EqualTo(0));
+            Assert.That(label.Uncertain, Is.True);
+
+            Assert.That(SdsLanguageDetector.Detect("").Language, Is.Null);
+        });
+    }
+
+    [Test]
+    public void Icelandic_has_no_headings_so_detection_falls_back_to_profile_and_is_uncertain()
+    {
+        var detected = SdsLanguageDetector.Detect(IcelandicProse);
+        Assert.That(detected.Language, Is.EqualTo("is"));
+        Assert.That(detected.Confidence, Is.LessThan(0.6));
+        Assert.That(detected.Uncertain, Is.True);
+    }
+
+    [TestCase(null, true)]
+    [TestCase("", true)]
+    [TestCase("  ", true)]
+    [TestCase("d41d8cd98f00b204e9800998ecf8427e", true)]
+    [TestCase("0cc175b9c0f1b6a831c399e269772661", false)]
+    public void SdsFileNames_is_missing_cases(string? fileName, bool missing)
+    {
+        Assert.That(SdsFileNames.IsMissing(fileName), Is.EqualTo(missing));
+        Assert.That(SdsFileNames.EmptyContentMd5, Is.EqualTo("d41d8cd98f00b204e9800998ecf8427e"));
     }
 }

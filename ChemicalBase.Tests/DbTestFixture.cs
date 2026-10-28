@@ -105,6 +105,8 @@ namespace ChemicalBase.Tests
                 "SdsHarvestAttempts",
                 "HolderSdsSites",
                 "HolderSdsSiteVersions",
+                "DocumentInboxItems",
+                "DocumentInboxItemVersions",
             };
 
             var firstRunNotDone = true;
