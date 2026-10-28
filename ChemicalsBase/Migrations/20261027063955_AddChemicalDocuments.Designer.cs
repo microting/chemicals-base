@@ -1389,6 +1389,9 @@ namespace ChemicalsBase.Migrations
                     b.Property<int?>("DetectedType")
                         .HasColumnType("int");
 
+                    b.Property<int?>("DuplicateOfInboxItemId")
+                        .HasColumnType("int");
+
                     b.Property<double?>("LanguageConfidence")
                         .HasColumnType("double");
 
@@ -1402,8 +1405,16 @@ namespace ChemicalsBase.Migrations
                     b.Property<int?>("MatchedChemicalId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Note")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ResolutionNote")
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
@@ -1485,6 +1496,9 @@ namespace ChemicalsBase.Migrations
                     b.Property<int>("DocumentInboxItemId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("DuplicateOfInboxItemId")
+                        .HasColumnType("int");
+
                     b.Property<double?>("LanguageConfidence")
                         .HasColumnType("double");
 
@@ -1498,8 +1512,16 @@ namespace ChemicalsBase.Migrations
                     b.Property<int?>("MatchedChemicalId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Note")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ResolutionNote")
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 

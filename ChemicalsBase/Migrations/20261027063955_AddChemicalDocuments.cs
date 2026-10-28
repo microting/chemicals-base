@@ -171,6 +171,11 @@ namespace ChemicalsBase.Migrations
                     ResolvedBy = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ResolvedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Note = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResolutionNote = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    DuplicateOfInboxItemId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     WorkflowState = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
@@ -214,6 +219,11 @@ namespace ChemicalsBase.Migrations
                     ResolvedBy = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ResolvedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Note = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResolutionNote = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    DuplicateOfInboxItemId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     WorkflowState = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)

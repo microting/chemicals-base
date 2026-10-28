@@ -74,4 +74,15 @@ public class DocumentInboxItemVersion : PnBase
     public string? ResolvedBy { get; set; }
 
     public DateTime? ResolvedAt { get; set; }
+
+    /// <summary>Staff note entered with the upload.</summary>
+    [StringLength(255)]
+    public string? Note { get; set; }
+
+    /// <summary>Why the item was rejected or how it was resolved.</summary>
+    [StringLength(255)]
+    public string? ResolutionNote { get; set; }
+
+    /// <summary>The earlier inbox row with the same content, when Status is Duplicate.</summary>
+    public int? DuplicateOfInboxItemId { get; set; }
 }

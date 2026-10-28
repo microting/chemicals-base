@@ -34,17 +34,19 @@ public sealed record DetectedLanguage(string? Language, double Confidence, bool 
 
 /// <summary>
 /// Detects the language of an SDS from the text of its first pages (pages 1–2). The one shared copy of the
-/// algorithm (F31) for the service and the plugin:
+/// algorithm (F31): chemicals-base itself (Tasks 5 and 9), the service (Task 8) and the plugin (Task 12g backfill)
+/// all call this copy:
 /// <list type="number">
-/// <item>Headings first: the text contains a language's Annex II section-1 title, or its section-1 word
-/// followed within 200 characters by the title's first three words → that language, confidence 1.0.
+/// <item>Headings first: the text contains a language's Annex II section-1 title, or its section-1 heading
+/// (the language's HeadingPattern for n = 1, e.g. "punkt 1", "1. szakasz") followed within 200 characters by the
+/// title's first three words → that language, confidence 1.0.
 /// This is what separates "sv" and "no", which share the word "AVSNITT".</item>
 /// <item>Otherwise stop-word profiles: about 30 high-frequency words per language; confidence = hits of the
 /// top language / all profile hits.</item>
 /// <item>Uncertain = confidence &lt; 0.6, or a second language has more than 0.3 of the hits.</item>
 /// <item>Fewer than 20 profile hits → (null, 0, uncertain).</item>
 /// </list>
-/// A language without Annex II headings in the resource ("is") can only be found by its profile; it is then
+/// A language listed in SdsHeadings.HeadingsUnavailable ("is") can only be found by its profile; it is then
 /// always uncertain and its confidence is capped at 0.5.
 /// </summary>
 public static class SdsLanguageDetector
@@ -89,8 +91,8 @@ public static class SdsLanguageDetector
     };
 
     private static readonly Lazy<IReadOnlyList<Heading>> Headings = new(() => SdsHeadings.All
-        .Where(kv => kv.Value.Section1Title != "")
-        .Select(kv => new Heading(kv.Key, Normalize(kv.Value.Section1Word), Normalize(kv.Value.Section1Title)))
+        .Where(kv => kv.Value.HasHeadings)
+        .Select(kv => new Heading(kv.Key, Normalize(kv.Value.Section1Word!), Normalize(kv.Value.Section1Title!)))
         .ToList());
 
     public static DetectedLanguage Detect(string text)
@@ -146,7 +148,7 @@ public static class SdsLanguageDetector
         var confidence = (double)top.Value / total;
         var uncertain = confidence < MinConfidence || (double)ranked[1].Value / total > MaxSecondShare;
 
-        if (Headings.Value.All(h => h.Language != top.Key))
+        if (SdsHeadings.For(top.Key)?.HasHeadings != true)
         {
             return new DetectedLanguage(top.Key, Math.Min(confidence, NoHeadingsConfidenceCap), true);
         }

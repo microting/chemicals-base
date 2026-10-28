@@ -27,16 +27,33 @@ using System.Text.Json;
 namespace ChemicalsBase.Infrastructure.Documents;
 
 /// <summary>
-/// Per-language SDS vocabulary. Section words and titles are verbatim Annex II Part B headings
-/// (Regulation (EU) 2020/878); a language without quotable headings ("is") has them as "".
+/// Per-language SDS vocabulary from the vendored annex-ii-headings.json. Section words and titles are verbatim
+/// Annex II Part B headings (Regulation (EU) 2020/878). A language without quotable headings ("is") has every
+/// heading field null and is listed in <see cref="SdsHeadings.HeadingsUnavailable"/>.
 /// </summary>
+/// <param name="SectionWord">"PUNKT", "AVSNITT", "SZAKASZ", …</param>
+/// <param name="HeadingPattern">How a heading is written, "{n}" being the number: "PUNKT {n}: ", "{n}. SZAKASZ: "
+/// (hu, et, lv, lt put the number first; separators vary).</param>
+/// <param name="Section1Word">HeadingPattern for section 1 without its separator: "PUNKT 1", "1. SZAKASZ".</param>
+/// <param name="Section1Title">sections["1"].</param>
+/// <param name="Section2Word">As Section1Word, for section 2.</param>
+/// <param name="SdsTerms">title[]: "Sikkerhedsdatablad", "Safety data sheet", "SDS", …</param>
+/// <param name="RevisionKeywords">revision_terms[].</param>
+/// <param name="Months">months[] (nominative).</param>
+/// <param name="MonthsGenitive">months_genitive[] where dates use another case (cs, el, fi, hr, lt, pl); else null.</param>
 public sealed record SdsLanguageTerms(
-    string Section1Word,
-    string Section1Title,
-    string Section2Word,
+    string? SectionWord,
+    string? HeadingPattern,
+    string? Section1Word,
+    string? Section1Title,
+    string? Section2Word,
     IReadOnlyList<string> SdsTerms,
     IReadOnlyList<string> RevisionKeywords,
-    IReadOnlyList<string> Months);
+    IReadOnlyList<string> Months,
+    IReadOnlyList<string>? MonthsGenitive)
+{
+    public bool HasHeadings => !string.IsNullOrEmpty(Section1Title) && !string.IsNullOrEmpty(Section1Word);
+}
 
 /// <summary>Loads the vendored annex-ii-headings.json (embedded resource) once.</summary>
 public static class SdsHeadings
@@ -46,6 +63,10 @@ public static class SdsHeadings
     private static readonly Lazy<IReadOnlyDictionary<string, SdsLanguageTerms>> Loaded = new(Load);
 
     public static IReadOnlyDictionary<string, SdsLanguageTerms> All => Loaded.Value;
+
+    /// <summary>Languages in the file without Annex II headings ("is"): detection can only use their word profile.</summary>
+    public static IReadOnlyList<string> HeadingsUnavailable =>
+        All.Where(kv => !kv.Value.HasHeadings).Select(kv => kv.Key).ToList();
 
     /// <summary>Terms for a language code (normalised first, so "DA" and "nb" work); null when not in the file.</summary>
     public static SdsLanguageTerms? For(string language)
@@ -64,35 +85,43 @@ public static class SdsHeadings
         foreach (var language in document.RootElement.GetProperty("languages").EnumerateObject())
         {
             var entry = language.Value;
+            var sectionWord = String(entry, "section_word");
             var pattern = String(entry, "heading_pattern");
             result[language.Name] = new SdsLanguageTerms(
-                SectionWord(pattern, 1),
+                sectionWord,
+                pattern,
+                SectionHeading(pattern, sectionWord, 1),
                 Section(entry, "1"),
-                SectionWord(pattern, 2),
-                Strings(entry, "title"),
-                Strings(entry, "revision_terms"),
-                // Genitive month forms (cs, el, fi, hr, lt, pl) are what dates in running text use.
-                Strings(entry, "months").Concat(Strings(entry, "months_genitive")).Distinct().ToList());
+                SectionHeading(pattern, sectionWord, 2),
+                Strings(entry, "title") ?? [],
+                Strings(entry, "revision_terms") ?? [],
+                Strings(entry, "months") ?? [],
+                Strings(entry, "months_genitive"));
         }
 
         return result;
     }
 
-    /// <summary>"PUNKT {n}: " → "PUNKT 1"; "{n}. SZAKASZ: " → "1. SZAKASZ"; no pattern → "".</summary>
-    private static string SectionWord(string pattern, int n) =>
-        pattern.Replace("{n}", n.ToString()).Trim().TrimEnd(':', '.', '—', ' ');
+    /// <summary>
+    /// "PUNKT {n}: " → "PUNKT 1"; "{n}. SZAKASZ: " → "1. SZAKASZ". Without a pattern, "&lt;word&gt; n";
+    /// without either, null.
+    /// </summary>
+    private static string? SectionHeading(string? pattern, string? sectionWord, int n) =>
+        pattern != null ? pattern.Replace("{n}", n.ToString()).Trim().TrimEnd(':', '.', '—', ' ')
+        : sectionWord != null ? $"{sectionWord} {n}"
+        : null;
 
-    private static string Section(JsonElement entry, string number) =>
+    private static string? Section(JsonElement entry, string number) =>
         entry.TryGetProperty("sections", out var sections) && sections.ValueKind == JsonValueKind.Object
-            && sections.TryGetProperty(number, out var title)
-            ? title.GetString() ?? ""
-            : "";
+            && sections.TryGetProperty(number, out var title) && title.ValueKind == JsonValueKind.String
+            ? title.GetString()
+            : null;
 
-    private static string String(JsonElement entry, string name) =>
-        entry.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString()! : "";
+    private static string? String(JsonElement entry, string name) =>
+        entry.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
 
-    private static IReadOnlyList<string> Strings(JsonElement entry, string name) =>
+    private static IReadOnlyList<string>? Strings(JsonElement entry, string name) =>
         entry.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Array
             ? value.EnumerateArray().Select(v => v.GetString()!).ToList()
-            : [];
+            : null;
 }
