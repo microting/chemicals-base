@@ -33,12 +33,31 @@ namespace ChemicalBase.Tests;
 public static class TestPdf
 {
     /// <summary>A one-page A4 PDF carrying <paramref name="text"/> in Helvetica.</summary>
-    public static byte[] Bytes(string text)
+    public static byte[] Bytes(string text) => Pages(text);
+
+    /// <summary>An A4 PDF with one page per entry, each carrying its text in Helvetica.</summary>
+    public static byte[] Pages(params string[] pageTexts)
+    {
+        var builder = new PdfDocumentBuilder();
+        var font = builder.AddStandard14Font(Standard14Font.Helvetica);
+        foreach (var text in pageTexts)
+        {
+            builder.AddPage(PageSize.A4).AddText(text, 12, new PdfPoint(40, 780), font);
+        }
+
+        return builder.Build();
+    }
+
+    /// <summary>A one-page A4 PDF holding only an image (a scan without a text layer).</summary>
+    public static byte[] ImageOnly()
     {
         var builder = new PdfDocumentBuilder();
         var page = builder.AddPage(PageSize.A4);
-        var font = builder.AddStandard14Font(Standard14Font.Helvetica);
-        page.AddText(text, 12, new PdfPoint(40, 780), font);
+        page.AddPng(Convert.FromBase64String(GreyPng2X2), new PdfRectangle(40, 400, 555, 800));
         return builder.Build();
     }
+
+    // A valid 2x2 grey RGB PNG.
+    private const string GreyPng2X2 =
+        "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAADklEQVR4nGNoAAMGCAUAKg4GARWeQtcAAAAASUVORK5CYII=";
 }

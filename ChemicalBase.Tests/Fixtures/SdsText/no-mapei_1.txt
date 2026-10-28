@@ -1,0 +1,219 @@
+Sikkerhetsdatablad
+MAPECOAT UNIVERSAL /A
+Sikkerhetsdatablad for: 07/05/2026 - Revisjon 7
+
+AVSNITT 1: Identifikasjon av stoffet/stoffblandingen og av selskapet/foretaket
+1.1. Produktidentifikator
+Identifisering av preparatet:
+Handelsnavn: MAPECOAT UNIVERSAL /A
+Handelskode: 9016648
+UFI: 5HA8-W0ST-V00U-DYMG
+1.2. Relevante identifiserte bruksområder for stoffet eller stoffblandingen og bruk som frarådes
+Anbefalt bruk: Epoxyresiner.
+Frarådet bruk: Data ikke tilgjengelig
+1.3. Opplysninger om leverandøren av sikkerhetsdatabladet
+Leverandør. MAPEI S.p.A. - Via Cafiero, 22 - 20158 Milano
+Tel. +(39)02376731 (office hours) - Fax: +39-02-37673.214 - www.mapei.it
+Ansvarlig: sds@example.com
+1.4. Nødtelefonnummer
+Centro antiveleni, Azienda ospedaliera "Antonio Cardarelli", III Servizio di anestesia e rianimazione, via Antonio Cardarelli 9, Napoli - Tel. 081
+5453333
+Centro antiveleni, Azienda ospedaliera universitaria Careggi, U.O. Tossicologia medica, via Largo Brambilla 3, Firenze - Tel. 055 7947819
+Centro antiveleni, Centro nazionale d'informazione tossicologica, IRCCS Fondazione Salvatore Maugeri Clinica del lavoro e della riabilitazione,
+via Salvatore Maugeri 10, Pavia - Tel. 0382 24444
+Centro antiveleni, Azienda ospedaliera Niguarda Ca' Granda, piazza Ospedale Maggiore 3, Milano - Tel. 02 66101029
+Centro antiveleni, Azienda ospedaliera "Papa Giovanni XXIII", Tossicologia clinica, Dipartimento di farmacia clinica e farmacologia, piazza
+OMS 1, Bergamo - Tel. 800 883300
+Centro antiveleni Policlinico "Umberto I", PRGM tossicologia d'urgenza, viale del Policlinico 155, Roma - Tel. 06 49978000
+Centro antiveleni del Policlinico "Agostino Gemelli", Servizio di tossicologia clinica, largo Agostino Gemelli 8, Roma - Tel. 06 3054343
+Centro antiveleni, Azienda ospedaliera universitaria Riuniti, viale Luigi Pinto 1, Foggia - Tel. 800 183459
+Centro antiveleni, Ospedale pediatrico Bambino Gesù, Dipartimento emergenza e accettazione DEA, piazza Sant'Onofrio 4, Roma - Tel. 06
+68593726
+Centro antiveleni dell'Azienda ospedaliera universitaria integrata (AOUI) di Verona sede di Borgo Trento, piazzale Aristide Stefani, 1 - 37126
+Verona - Tel. 800 011858
+
+AVSNITT 2: Fareidentifikasjon
+
+2.1. Klassifisering av stoffet eller stoffblandingen
+Forordning (EF) nr. 1272/2008 (CLP)
+Skin Irrit. 2
+
+Irriterer huden.
+
+Eye Irrit. 2
+
+Gir alvorlig øyeirritasjon.
+
+Skin Sens. 1B
+
+Kan utløse en allergisk hudreaksjon.
+
+Aquatic Chronic 2
+
+Giftig, med langtidsvirkning, for liv i vann.
+
+Uheldige fysiske og kjemiske virkninger på menneskelig helse og på miljøet:
+Ingen andre farer
+2.2. Merkingselementer
+Regulering (EF) nr. 1272/2008 (CLP)
+Piktogrammer og Signalord
+
+Advarsel
+
+Fareindikasjoner:
+H315
+
+Irriterer huden.
+
+H317
+
+Kan utløse en allergisk hudreaksjon.
+
+H319
+
+Gir alvorlig øyeirritasjon.
+
+H411
+
+Giftig, med langtidsvirkning, for liv i vann.
+
+Utskriftsdato
+
+16/05/2026
+
+Produktnavn
+
+MAPECOAT UNIVERSAL /A
+
+Side n:
+
+1 av
+
+10
+
+Forholdsregler:
+P261
+
+Unngå innånding av tåke/damp/aerosoler.
+
+P264
+
+Vask huden grundig etter håndtering.
+
+P273
+
+Unngå utslipp til miljøet.
+
+P280
+
+Benytt vernehansker / verneklær og vernebriller / ansiktsskjerm.
+
+P333+P313
+
+Ved hudirritasjon eller utslett: Søk legehjelp.
+
+P391
+
+Samle opp spill.
+
+Særlige bestemmelser:
+EUH205
+
+Inneholder epoksyforbindelser. Kan gi en allergisk reaksjon.
+
+Inneholder:
+Oksiran, (klorometyl)-, polymer med alfahydro-omega-hydroksy-poly(oksy(metyl1,2-etandiyl))
+2,2-bis[4-(2,3epoksypropoksy)fenyl]propan
+Formaldehyd, oligomere
+reaksjonsprodukter med 1-klor-2,3epoksypropan og fenol
+Spesialtiltak i henhold til vedlegg XVII av REACH og påfølgende endringer:
+Ingen
+2.3. Andre farer
+Ingen PBT-, vPvB- eller hormonforstyrrende substanser til stede i konsentrasjoner >= 0,1 %.
+Andre farer: Ingen andre farer
+Produktet inneholder epoksyresiner med lav molekylvekt. Kryss-sensibilisering med andre epoksyforbindelser er mulig. Unngå også
+eksponering av sprøytetåke og damp.
+
+AVSNITT 3: Sammensetning / opplysninger om bestanddeler
+3.1. Stoffer
+Ikke relevant
+3.2. Stoffblandinger
+Identifisering av preparatet: MAPECOAT UNIVERSAL /A
+Farlige stoffer i henhold til CLP-regulering og tilhørende klassifisering:
+Konsentrasjon Navn
+(% w/w)
+≥60 - <70 %
+2,2-bis[4-(2,3epoksypropoksy)fenyl]propan
+
+ID-nr.
+
+Klassifisering
+
+CAS:1675-54-3, 2508599-8
+EC:216-823-5
+Index:603-073-00-2
+
+Skin Irrit. 2, H315; Skin Sens. 1,
+H317; Eye Irrit. 2, H319; Aquatic
+Chronic 2, H411
+
+Registreringsn
+ummer
+01-211945661926-XXXX
+
+Særlige konsentrasjonsgrenser:
+C ≥ 5%: Skin Irrit. 2 H315
+C ≥ 5%: Eye Irrit. 2 H319
+≥30 - <36 %
+
+Formaldehyd, oligomere
+reaksjonsprodukter med 1-klor-2,3epoksypropan og fenol
+
+CAS:9003-36-5
+EC:701-263-0
+
+Skin Irrit. 2, H315; Aquatic
+Chronic 2, H411; Skin Sens. 1,
+H317
+
+01-211945439240-XXXX
+
+≥5 - <10 %
+
+Oksiran, (klorometyl)-, polymer med
+alfa-hydro-omega-hydroksypoly(oksy(metyl-1,2-etandiyl))
+
+CAS:9072-62-2
+EC:618-635-2
+
+Eye Irrit. 2, H319; STOT SE 3,
+H335; Skin Sens. 1B, H317;
+Aquatic Chronic 3, H412
+
+EXEMPT
+
+AVSNITT 4: Førstehjelpstiltak
+4.1. Beskrivelse av førstehjelpstiltak
+Ved hudkontakt:
+Fjern straks de tilsølete plaggene
+Deler av kroppen som har, eller kun er mistenkt å ha, vært i kontakt med produktet må straks skylles med rikelige mengder
+rennende vann og om mulig med såpe.
+Vask hele kroppen grundig (dusj eller bad).
+Fjern tilsølte klær umiddelbart og kast dem på en sikker måte.
+Etter hudkontakt vask umiddelbart med såpe og rikelige mengder vann.
+Ved øyekontakt:
+Utskriftsdato
+
+16/05/2026
+
+Produktnavn
+
+MAPECOAT UNIVERSAL /A
+
+Side n:
+
+2 av
+
+10
+
+

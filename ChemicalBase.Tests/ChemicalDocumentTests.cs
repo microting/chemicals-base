@@ -662,6 +662,8 @@ public class SdsLanguageTests
     [TestCase("da-52_1.txt", "da")]
     [TestCase("de-1_1.txt", "de")]
     [TestCase("en-1_2.txt", "en")]
+    [TestCase("sv-10_1.txt", "sv")]
+    [TestCase("no-mapei_1.txt", "no")]
     public void Real_sds_text_is_detected_by_its_heading(string file, string language)
     {
         var detected = SdsLanguageDetector.Detect(Fixture(file));

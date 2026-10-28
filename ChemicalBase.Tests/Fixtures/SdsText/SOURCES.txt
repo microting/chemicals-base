@@ -14,3 +14,11 @@ en-1_2.txt   AkzoNobel (Sikkens), English (UK); section-1 title wraps after "com
 
 Redaction: supplier e-mail addresses were replaced with sds@example.com. Nothing else was changed; no e-mail
 token is a profile word, so detection is unaffected.
+
+Added for the page-1 classifier (DocumentClassifierTests, Task 5), fetched 2026-10-28 with one GET each straight from
+the producer (User-Agent sds-fixture-fetch/0.1), same extraction and redaction:
+sv-10_1.txt      Jotun "NonStop VK", Swedish (Sweden), spike id 10. Jotun's own document portal.
+                 https://www.jotun.com/api-b2b/v1/datasheets/download/merged?selectedFiles=9243
+no-mapei_1.txt   Mapei "MAPECOAT UNIVERSAL /A", Norwegian (bokmål), revision 7 of 07/05/2026. Mapei's own CDN; page 1
+                 also carries Italian poison-centre lines (as published).
+                 https://cdnmedia.mapei.com/docs/librariesprovider2/products-documents/2_9016648_no_eef3e01e3e38428da28d9fe024b37344.pdf?sfvrsn=b5fc82e9_0
