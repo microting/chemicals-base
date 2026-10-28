@@ -33,8 +33,17 @@ public sealed class InMemoryBlobStore : IChemicalBlobStore
 
     public int PutCount { get; private set; }
 
+    /// <summary>Runs once, at the start of the next PutAsync: lets a test act between a writer's lookup and insert.</summary>
+    public Func<Task>? BeforeNextPut { get; set; }
+
     public async Task PutAsync(Stream content, string key)
     {
+        if (BeforeNextPut is { } hook)
+        {
+            BeforeNextPut = null;
+            await hook();
+        }
+
         using var buffer = new MemoryStream();
         await content.CopyToAsync(buffer);
         Blobs[key] = buffer.ToArray();

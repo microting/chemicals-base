@@ -38,6 +38,9 @@ namespace ChemicalBase.Tests
     {
         private ChemicalsDbContext? _dbContext;
         protected ChemicalsDbContext DbContext => _dbContext!;
+
+        /// <summary>For a second, independent context on the same database (e.g. a concurrent writer).</summary>
+        protected string ConnectionString => _mariadbTestcontainer.GetConnectionString();
         private const string DatabaseName = "chemical-base-tests";
 
         private readonly MariaDbContainer _mariadbTestcontainer = new MariaDbBuilder()
