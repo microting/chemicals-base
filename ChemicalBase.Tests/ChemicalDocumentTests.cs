@@ -24,6 +24,7 @@ SOFTWARE.
 
 using ChemicalsBase.Infrastructure.Data.Entities;
 using ChemicalsBase.Infrastructure.Data.Enums;
+using System.Text.RegularExpressions;
 using ChemicalsBase.Infrastructure.Documents;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -247,6 +248,7 @@ public class ChemicalDocumentTests : DbTestFixture
         var duplicate = new HolderSdsSite { AuthorisationHolderId = 5, Domain = "cidlines.com" };
         await Assert.ThrowsAsync<DbUpdateException>(async () => await duplicate.Create(DbContext));
     }
+
     [Test]
     public async Task Soft_deleted_document_still_blocks_a_second_create_with_same_content()
     {
@@ -636,6 +638,66 @@ public class SdsLanguageTests
         Assert.That(detected.Language, Is.EqualTo("is"));
         Assert.That(detected.Confidence, Is.LessThan(0.6));
         Assert.That(detected.Uncertain, Is.True);
+    }
+
+    [TestCase("PUNKT 1: Identifikation af stoffet/ blandingen og af selskabet/ virksomheden", "da")]
+    [TestCase("PUNKT 1: Identifikation af stoffet / præparatet og af selskabet/virksomheden", "da")]
+    [TestCase("AVSNITT 1: Identifikasjon av stoffet/ blandingen og av selskapet", "no")]
+    [TestCase("AVSNITT 1: Namnet på ämnet/ beredningen och bolaget", "sv")]
+    [TestCase("SECTION 1: Identification of the substance/ preparation and of the company/ undertaking", "en")]
+    public void Heading_rule_tolerates_spacing_around_slash_and_older_titles(string text, string language)
+    {
+        var detected = SdsLanguageDetector.Detect(text);
+        Assert.That(detected.Language, Is.EqualTo(language));
+        Assert.That(detected.Confidence, Is.EqualTo(1.0));
+        Assert.That(detected.Uncertain, Is.False);
+    }
+
+    // Real page 1-2 text (Fixtures/SdsText/SOURCES.txt says where each comes from).
+    [TestCase("da-7_1.txt", "da")]
+    [TestCase("da-52_1.txt", "da")]
+    [TestCase("de-1_1.txt", "de")]
+    [TestCase("en-1_2.txt", "en")]
+    public void Real_sds_text_is_detected_by_its_heading(string file, string language)
+    {
+        var detected = SdsLanguageDetector.Detect(Fixture(file));
+        Assert.That(detected.Language, Is.EqualTo(language));
+        Assert.That(detected.Confidence, Is.EqualTo(1.0), "1.0 only comes from the heading rule");
+        Assert.That(detected.Uncertain, Is.False);
+    }
+
+    // Without the section-1 heading line the profiles must carry it alone, with no other language's words on the page.
+    [TestCase("da-7_1.txt", "da")]
+    [TestCase("de-1_1.txt", "de")]
+    [TestCase("en-1_2.txt", "en")]
+    public void Real_sds_text_without_heading_is_detected_by_profile(string file, string language)
+    {
+        var detected = SdsLanguageDetector.Detect(WithoutSection1Heading(Fixture(file), language));
+        Assert.That(detected.Language, Is.EqualTo(language));
+        Assert.That(detected.Confidence, Is.EqualTo(1.0), "no other language's profile words on these pages");
+        Assert.That(detected.Uncertain, Is.False);
+    }
+
+    [Test]
+    public void Real_short_upper_case_page_without_heading_is_unknown()
+    {
+        // 52_1's first pages hold fewer than 20 profile words: without its heading the language is unknown (safe).
+        var detected = SdsLanguageDetector.Detect(WithoutSection1Heading(Fixture("da-52_1.txt"), "da"));
+        Assert.That(detected.Language, Is.Null);
+        Assert.That(detected.Confidence, Is.EqualTo(0));
+        Assert.That(detected.Uncertain, Is.True);
+    }
+
+    private static string Fixture(string name) =>
+        File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "SdsText", name));
+
+    private static string WithoutSection1Heading(string text, string language)
+    {
+        var heading = new Regex($@"^\s*{Regex.Escape(SdsHeadings.For(language)!.Section1Word!)}(?!\d)", RegexOptions.IgnoreCase);
+        var lines = text.Split('\n');
+        var kept = lines.Where(line => !heading.IsMatch(line)).ToList();
+        Assert.That(kept, Has.Count.EqualTo(lines.Length - 1), "exactly one section-1 heading line removed");
+        return string.Join("\n", kept);
     }
 
     [TestCase(null, true)]

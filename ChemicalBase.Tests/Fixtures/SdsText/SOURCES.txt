@@ -1,0 +1,16 @@
+Page 1-2 text of real, publicly downloadable supplier SDS PDFs, extracted with `pdftotext -l 2 <pdf> <txt>`
+(poppler) and kept verbatim. Used by SdsLanguageTests (fixture cases). Collected in the 2026-10-27 SDS search
+spike (evidence/sdsspike/downloads.tsv); the PDFs themselves are not in the repo.
+
+da-7_1.txt   Ecolab "DrySan Oxy", Danish. Heading written "STOFFET/ BLANDINGEN ... SELSKABET/ VIRKSOMHEDEN"
+             (space after "/").
+             https://assets.pim.ecolab.com/media/Original/10026/DK-DA-116525E-DRYSAN%20OXY.PDF
+da-52_1.txt  Borup Kemi "Borup ECO UkrudtNIX", Danish, headings in upper case, short first pages.
+             https://media.jemogfix.dk/prod-mediafiles/dk/pdf/2191_9076658_015.pdf
+de-1_1.txt   AkzoNobel (Sikkens), German (Austria).
+             https://media.hornbach.at/hb/document/as.187061982.pdf
+en-1_2.txt   AkzoNobel (Sikkens), English (UK); section-1 title wraps after "company/".
+             https://decoratingwarehouse.co.uk/media/attachments/sik_HLS_H_S_Sheet.pdf
+
+Redaction: supplier e-mail addresses were replaced with sds@example.com. Nothing else was changed; no e-mail
+token is a profile word, so detection is unaffected.

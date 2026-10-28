@@ -1,0 +1,188 @@
+SIKKERHEDSDATABLAD i henhold til Forordning (EF) nr.
+1907/2006, med ændringer
+
+DrySan Oxy
+PUNKT 1. IDENTIFIKATION AF STOFFET/ BLANDINGEN OG AF SELSKABET/ VIRKSOMHEDEN
+1.1 Produktidentifikator
+Produktnavn
+
+:
+
+DrySan Oxy
+
+UFI
+
+:
+
+963N-5XYV-KA0T-7GNJ
+
+Produktkode
+
+:
+
+116525E
+
+Anvendelse af stoffet/det
+kemiske produkt
+
+:
+
+Biocid
+
+Stoftype
+
+:
+
+Blanding
+AL - Opløsning til brug ufortyndet
+
+Kun til erhvervsmæssig brug.
+Information om fortyndning
+
+:
+
+Ingen information om fortyndning angivet.
+
+1.2 Relevante identificerede anvendelser for stoffet eller blandingen samt anvendelser, der
+frarådes
+Identificerede anvendelser
+
+:
+
+Biocid. Manuel proces
+
+Anbefalede begrænsninger i
+brugen
+
+:
+
+Forbeholdt industriel og erhvervsmæssig brug.
+
+1.3 Nærmere oplysninger om leverandøren af sikkerhedsdatabladet
+Firma
+
+:
+
+Ecolab ApS
+Valby Maskinfabriksvej 4, 2
+2500 Valby, Danmark Tel +45 36 15 85 85
+sds@example.com
+
+Nødtelefon
+
+:
+
++4578746855
++32-(0)3-575-5555 Transeuropæisk
+
+Giftinformationen tlf. nr.
+
+:
+
+82 12 12 12
+
+1.4 Nødtelefon
+
+Udstedelse-/revisionsdato
+Udgave
+
+:
+:
+
+05.02.2026
+1.12
+
+PUNKT 2. FAREIDENTIFIKATION
+2.1 Klassificering af stoffet eller blandingen
+Klassificering (FORORDNING (EF) Nr. 1272/2008)
+
+Ikke et farligt stof eller blanding.
+2.2 Mærkningselementer
+116525E
+
+1 / 13
+
+SIKKERHEDSDATABLAD i henhold til Forordning (EF) nr. 1907/2006, med ændringer
+DrySan Oxy
+
+Etikettering (FORORDNING (EF) Nr. 1272/2008)
+Der kræves hverken farepiktogram, signalord, faresætninger eller sikkerhedssætninger.
+
+Tillægsmærkning:
+Særlig mærkning af visse
+blandinger
+
+: Sikkerhedsdatablad kan på anmodning rekvireres.
+
+2.3 Andre farer
+Bland ej med blegemiddel eller andre klorerede produkter - der dannes klorgas.
+PUNKT 3. SAMMENSÆTNING AF/ OPLYSNING OM INDHOLDSSTOFFER
+3.2 Blandinger
+Farlige komponenter
+Kemisk betegnelse
+
+Hydrogenperoxid
+
+CAS-Nr.
+EF-Nr.
+REACH No.
+7722-84-1
+231-765-0
+01-2119485845-22
+
+Klassificering
+
+FORORDNING (EF) Nr. 1272/2008
+Nota B Brandnærende væsker Kategori 1;
+H271
+Akut toksicitet Kategori 4; H302
+Akut toksicitet Kategori 4; H332
+Hudætsning Under-kategori 1A; H314
+Alvorlig øjenskade Kategori 1; H318
+Specifik målorgantoksicitet - enkelt
+eksponering Kategori 3; H335
+Langtidsfare (kronisk) fare for vandmiljøet
+Kategori 3; H412
+
+Koncentration
+[%]
+>= 1 - < 2.5
+
+Brandnærende væsker Kategori 1
+H271 >= 70 %
+Brandnærende væsker Kategori 2
+H272 50 - < 70 %
+Hudætsning Kategori 1A
+H314 >= 70 %
+Hudætsning Kategori 1B
+H314 50 - < 70 %
+Hudirritation Kategori 2
+H315 35 - < 50 %
+Alvorlig øjenskade Kategori 1
+H318 8 - < 50 %
+Øjenirritation Kategori 2
+H319 5 - < 8 %
+Specifik målorgantoksicitet - enkelt
+eksponering Kategori 3
+H335 >= 35 %
+Salicylsyre
+
+69-72-7
+200-712-3
+01-2119486984-17
+
+Akut toksicitet Kategori 4; H302
+Alvorlig øjenskade Kategori 1; H318
+Giftig for forplantningsevnen Kategori 2;
+H361d
+
+For den fuldstændige tekst af faresætningerne nævnt i dette punkt, se punkt 16.
+PUNKT 4. FØRSTEHJÆLPSFORANSTALTNINGER
+4.1 Beskrivelse af førstehjælpsforanstaltninger
+116525E
+
+2 / 13
+
+>= 0.1 - < 1
+
+

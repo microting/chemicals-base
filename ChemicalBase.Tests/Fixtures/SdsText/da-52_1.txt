@@ -1,0 +1,119 @@
+I overensstemmelse med Forordning (EF) nr. 1907/2006 (REACH), bilag II, med senere tilpasning i henhold til Forordning (EU) nr.
+2020/878
+
+SIKKERHEDSDATABLAD
+
+Borup ECO UkrudtNIX
+PUNKT 1: IDENTIFIKATION AF STOFFET/BLANDINGEN OG AF SELSKABET/VIRKSOMHEDEN
+1.1.
+
+Produktidentifikator
+Handelsnavn:
+Borup ECO UkrudtNIX
+Produkt nr.:
+322510001,322510002,322511002,322512001,322512002,322511001
+
+1.2.
+
+Relevante identificerede anvendelser for stoffet eller blandingen samt
+anvendelser, der frarådes
+Relevante identificerede anvendelser for stoffet eller blandingen:
+UkrudtNix er et ikke selektivt ukrudts- og mosmiddel, som er aktivt mod de fleste bløde
+plantedele, som det kommer i kontakt med.
+Liste over use descriptorer (REACH):
+Anvendelsessektor Beskrivelse
+LCS "C"
+
+Forbrugermæssige anvendelser: Private husholdninger (= den almindelige
+offentlighed = forbrugerne)
+
+Proceskategori
+
+Beskrivelse
+
+PROC 19
+
+Manuel blanding med tæt kontakt, hvor der kun er personlige værnemidler til
+rådighed.
+
+Miljøudledningskategori
+
+Beskrivelse
+
+ERC 8d
+
+Udbredt udendørs anvendelse af proceshjælpemidler i åbne systemer
+
+EuPCS:
+PP-PRD-10 / Plantevækstreguleringsmidler
+Anvendelser der frarådes :
+Produktet bør kun bruges til anvendelser beskrevet i punkt 15.1
+
+1.3.
+
+Nærmere oplysninger om leverandøren af sikkerhedsdatabladet
+Firmanavn og adresse:
+Borup ECO
+Bækgårdsvej 53
+4140 Borup
+Danmark
+5756 0020
+
+Borup ECO UkrudtNIX
+Side 1 af 15
+
+I overensstemmelse med Forordning (EF) nr. 1907/2006 (REACH), bilag II, med senere tilpasning i henhold til Forordning (EU) nr.
+2020/878
+
+www.borup-kemi.dk
+E-mail:
+sds@example.com
+Revision:
+14.11.2025
+SDS Version:
+3.0
+Dato for forrige udgave:
+27.01.2025 (2.0)
+
+1.4.
+
+Nødtelefon
+
+Kontakt Giftlinjen på telefon +45 82 12 12 12 (åbent 24 timer i døgnet).
+Se punkt 4 om førstehjælpsforanstaltninger.
+
+PUNKT 2: FAREIDENTIFIKATION
+2.1.
+
+Klassificering af stoffet eller blandingen
+Ikke klassificeret i henhold til Europa-Parlamentets og Rådets forordning (EF) nr. 1272/2008
+(CLP).
+
+2.2.
+
+Mærkningselementer
+Farepiktogram:
+Ikke relevant.
+Signalord:
+Ikke relevant.
+Faresætninger:
+Ikke relevant.
+Sikkerhedssætning(er):
+▼Generelt:
+Opbevares utilgængeligt for børn. (P102)
+▼Forebyggelse:
+Ikke relevant.
+▼Reaktion:
+Ikke relevant.
+▼Opbevaring:
+Ikke relevant.
+▼Bortskaffelse:
+Indholdet/beholderen bortskaffes i overensstemmelse med lokale regler. (P501)
+▼Oplysningspligtige indholdsstoffer:
+Indeholder ingen oplysningspligtige stoffer
+Anden mærkning:
+
+Borup ECO UkrudtNIX
+Side 2 af 15
+
+
