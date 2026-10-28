@@ -23,6 +23,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="Infrastructure\Documents\annex-ii-headings.json"
+                        LogicalName="ChemicalsBase.Infrastructure.Documents.annex-ii-headings.json" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="images\icon.png">
             <Pack>true</Pack>
             <PackagePath>\</PackagePath>

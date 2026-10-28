@@ -135,7 +135,7 @@ public class ChemicalDocumentTests : DbTestFixture
         duplicate.Source = ChemicalDocumentSource.Staff;
         duplicate.Status = ChemicalDocumentStatus.PendingReview;
 
-        Assert.ThrowsAsync<DbUpdateException>(async () => await duplicate.Create(DbContext));
+        await Assert.ThrowsAsync<DbUpdateException>(async () => await duplicate.Create(DbContext));
     }
 
     [Test]
@@ -245,7 +245,7 @@ public class ChemicalDocumentTests : DbTestFixture
         await new HolderSdsSite { AuthorisationHolderId = 6, Domain = "cidlines.com" }.Create(DbContext);
 
         var duplicate = new HolderSdsSite { AuthorisationHolderId = 5, Domain = "cidlines.com" };
-        Assert.ThrowsAsync<DbUpdateException>(async () => await duplicate.Create(DbContext));
+        await Assert.ThrowsAsync<DbUpdateException>(async () => await duplicate.Create(DbContext));
     }
     [Test]
     public async Task Soft_deleted_document_still_blocks_a_second_create_with_same_content()
@@ -258,7 +258,7 @@ public class ChemicalDocumentTests : DbTestFixture
         Assert.That(stored.WorkflowState, Is.EqualTo(ChemicalsBase.Infrastructure.Constants.Constants.WorkflowStates.Removed));
 
         // The unique index is not filtered on WorkflowState: a removed row is revived by Update, never re-created.
-        Assert.ThrowsAsync<DbUpdateException>(async () => await BmdLabel().Create(DbContext));
+        await Assert.ThrowsAsync<DbUpdateException>(async () => await BmdLabel().Create(DbContext));
     }
 
     [Test]

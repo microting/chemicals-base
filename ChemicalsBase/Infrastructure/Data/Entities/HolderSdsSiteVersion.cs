@@ -60,6 +60,14 @@ public class HolderSdsSiteVersion : PnBase
     [StringLength(255)]
     public string? LinkSelector { get; set; }
 
+    /// <summary>Comma list of ISO 639-1 codes the site publishes SDS in, e.g. "da,en,de".</summary>
+    [StringLength(255)]
+    public string? LanguagesOffered { get; set; }
+
+    /// <summary>How the language appears in the site's URLs, e.g. "/{lang}/".</summary>
+    [StringLength(255)]
+    public string? LanguageUrlPattern { get; set; }
+
     public DateTime? LastCrawledAt { get; set; }
 
     public int CandidatesFound { get; set; }

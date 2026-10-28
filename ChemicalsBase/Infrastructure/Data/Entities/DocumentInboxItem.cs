@@ -1,0 +1,78 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2007 - 2026 Microting A/S
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+using System.ComponentModel.DataAnnotations;
+using ChemicalsBase.Infrastructure.Data.Enums;
+
+namespace ChemicalsBase.Infrastructure.Data.Entities;
+
+/// <summary>
+/// One file a producer sent in (many PDFs or one zip per upload batch), waiting to be matched to a register
+/// chemical. Every change is versioned.
+/// </summary>
+public class DocumentInboxItem : PnBase
+{
+    /// <summary>One upload (many PDFs or one zip).</summary>
+    [StringLength(36)]
+    public string BatchId { get; set; } = "";
+
+    /// <summary>Entry name with any path stripped.</summary>
+    [StringLength(255)]
+    public string OriginalFileName { get; set; } = "";
+
+    /// <summary>Blob key is "&lt;md5&gt;.pdf"; "" when NotPdf.</summary>
+    [StringLength(32)]
+    public string ContentMd5 { get; set; } = "";
+
+    public long SizeBytes { get; set; }
+
+    /// <summary>Sds / Label from the classifier.</summary>
+    public ChemicalDocumentType? DetectedType { get; set; }
+
+    [StringLength(8)]
+    public string? DetectedLanguage { get; set; }
+
+    public double? LanguageConfidence { get; set; }
+
+    public int? MatchedChemicalId { get; set; }
+
+    /// <summary>The PendingReview document created on match/assign.</summary>
+    public int? ChemicalDocumentId { get; set; }
+
+    public int? MatchScore { get; set; }
+
+    /// <summary>Validator tokens plus top-3 suggestions, e.g. "sugg=12,57,903".</summary>
+    [StringLength(1024)]
+    public string? MatchNotes { get; set; }
+
+    public DocumentInboxStatus Status { get; set; }
+
+    [StringLength(255)]
+    public string UploadedBy { get; set; } = "";
+
+    [StringLength(255)]
+    public string? ResolvedBy { get; set; }
+
+    public DateTime? ResolvedAt { get; set; }
+}

@@ -49,5 +49,9 @@ public class Chemical : PnBase
     [NotMapped]
     public List<ChemicalLabelFeedItem>? Labels { get; set; }
 
+    /// <summary>Feed only (Active SDS per language); never stored or versioned.</summary>
+    [NotMapped]
+    public List<ChemicalSdsFeedItem>? SdsDocuments { get; set; }
+
 
 }

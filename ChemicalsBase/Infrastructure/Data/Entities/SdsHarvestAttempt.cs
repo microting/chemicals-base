@@ -34,6 +34,10 @@ public class SdsHarvestAttempt
 
     public int ChemicalId { get; set; }
 
+    /// <summary>ISO 639-1 language the attempt searched for.</summary>
+    [StringLength(8)]
+    public string Language { get; set; } = "";
+
     public DateTime AttemptedAt { get; set; }
 
     /// <summary>"candidates" | "no-hit" | "error".</summary>

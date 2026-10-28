@@ -794,6 +794,10 @@ namespace ChemicalsBase.Migrations
                     b.Property<int>("CreatedByUserId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Language")
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)");
+
                     b.Property<DateTime?>("LastCheckedAt")
                         .HasColumnType("datetime(6)");
 
@@ -894,6 +898,8 @@ namespace ChemicalsBase.Migrations
                     b.HasIndex("ChemicalId", "Type", "ContentMd5")
                         .IsUnique();
 
+                    b.HasIndex("ChemicalId", "Type", "Language", "Status");
+
                     b.ToTable("ChemicalDocuments");
                 });
 
@@ -926,6 +932,10 @@ namespace ChemicalsBase.Migrations
 
                     b.Property<int>("CreatedByUserId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)");
 
                     b.Property<DateTime?>("LastCheckedAt")
                         .HasColumnType("datetime(6)");
@@ -1342,6 +1352,193 @@ namespace ChemicalsBase.Migrations
                     b.ToTable("DpdVersions");
                 });
 
+            modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.DocumentInboxItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BatchId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)");
+
+                    b.Property<int?>("ChemicalDocumentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContentMd5")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DetectedLanguage")
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)");
+
+                    b.Property<int?>("DetectedType")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("LanguageConfidence")
+                        .HasColumnType("double");
+
+                    b.Property<string>("MatchNotes")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
+                    b.Property<int?>("MatchScore")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MatchedChemicalId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ResolvedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UpdatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UploadedBy")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WorkflowState")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentMd5");
+
+                    b.HasIndex("Status", "BatchId");
+
+                    b.ToTable("DocumentInboxItems");
+                });
+
+            modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.DocumentInboxItemVersion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BatchId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)");
+
+                    b.Property<int?>("ChemicalDocumentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContentMd5")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DetectedLanguage")
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)");
+
+                    b.Property<int?>("DetectedType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DocumentInboxItemId")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("LanguageConfidence")
+                        .HasColumnType("double");
+
+                    b.Property<string>("MatchNotes")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
+                    b.Property<int?>("MatchScore")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MatchedChemicalId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ResolvedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UpdatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UploadedBy")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WorkflowState")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentInboxItemId");
+
+                    b.ToTable("DocumentInboxItemVersions");
+                });
+
             modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.HazardStatement", b =>
                 {
                     b.Property<int>("Id")
@@ -1464,6 +1661,14 @@ namespace ChemicalsBase.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("LanguageUrlPattern")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("LanguagesOffered")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<DateTime?>("LastCrawledAt")
                         .HasColumnType("datetime(6)");
 
@@ -1542,6 +1747,14 @@ namespace ChemicalsBase.Migrations
 
                     b.Property<int>("HolderSdsSiteId")
                         .HasColumnType("int");
+
+                    b.Property<string>("LanguageUrlPattern")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("LanguagesOffered")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime?>("LastCrawledAt")
                         .HasColumnType("datetime(6)");
@@ -1860,6 +2073,11 @@ namespace ChemicalsBase.Migrations
                     b.Property<int>("ChemicalId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)");
+
                     b.Property<string>("Outcome")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -1867,7 +2085,7 @@ namespace ChemicalsBase.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChemicalId", "AttemptedAt");
+                    b.HasIndex("ChemicalId", "Language", "AttemptedAt");
 
                     b.ToTable("SdsHarvestAttempts");
                 });

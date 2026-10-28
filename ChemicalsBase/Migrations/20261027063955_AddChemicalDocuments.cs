@@ -37,6 +37,8 @@ namespace ChemicalsBase.Migrations
                     Type = table.Column<int>(type: "int", nullable: false),
                     Source = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
+                    Language = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     ContentMd5 = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ContentSha256 = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false)
@@ -94,6 +96,8 @@ namespace ChemicalsBase.Migrations
                     Type = table.Column<int>(type: "int", nullable: false),
                     Source = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
+                    Language = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     ContentMd5 = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ContentSha256 = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false)
@@ -140,6 +144,91 @@ namespace ChemicalsBase.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "DocumentInboxItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    BatchId = table.Column<string>(type: "varchar(36)", maxLength: 36, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OriginalFileName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ContentMd5 = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    SizeBytes = table.Column<long>(type: "bigint", nullable: false),
+                    DetectedType = table.Column<int>(type: "int", nullable: true),
+                    DetectedLanguage = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LanguageConfidence = table.Column<double>(type: "double", nullable: true),
+                    MatchedChemicalId = table.Column<int>(type: "int", nullable: true),
+                    ChemicalDocumentId = table.Column<int>(type: "int", nullable: true),
+                    MatchScore = table.Column<int>(type: "int", nullable: true),
+                    MatchNotes = table.Column<string>(type: "varchar(1024)", maxLength: 1024, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    UploadedBy = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResolvedBy = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResolvedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    WorkflowState = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedByUserId = table.Column<int>(type: "int", nullable: false),
+                    UpdatedByUserId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DocumentInboxItems", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "DocumentInboxItemVersions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    DocumentInboxItemId = table.Column<int>(type: "int", nullable: false),
+                    BatchId = table.Column<string>(type: "varchar(36)", maxLength: 36, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OriginalFileName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ContentMd5 = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    SizeBytes = table.Column<long>(type: "bigint", nullable: false),
+                    DetectedType = table.Column<int>(type: "int", nullable: true),
+                    DetectedLanguage = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LanguageConfidence = table.Column<double>(type: "double", nullable: true),
+                    MatchedChemicalId = table.Column<int>(type: "int", nullable: true),
+                    ChemicalDocumentId = table.Column<int>(type: "int", nullable: true),
+                    MatchScore = table.Column<int>(type: "int", nullable: true),
+                    MatchNotes = table.Column<string>(type: "varchar(1024)", maxLength: 1024, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    UploadedBy = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResolvedBy = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResolvedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    WorkflowState = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedByUserId = table.Column<int>(type: "int", nullable: false),
+                    UpdatedByUserId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DocumentInboxItemVersions", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "HolderSdsSites",
                 columns: table => new
                 {
@@ -157,6 +246,10 @@ namespace ChemicalsBase.Migrations
                     SiteSearchUrlTemplate = table.Column<string>(type: "varchar(1024)", maxLength: 1024, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LinkSelector = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LanguagesOffered = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LanguageUrlPattern = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LastCrawledAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CandidatesFound = table.Column<int>(type: "int", nullable: false),
@@ -196,6 +289,10 @@ namespace ChemicalsBase.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LinkSelector = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    LanguagesOffered = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LanguageUrlPattern = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     LastCrawledAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CandidatesFound = table.Column<int>(type: "int", nullable: false),
                     Note = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
@@ -221,6 +318,8 @@ namespace ChemicalsBase.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ChemicalId = table.Column<int>(type: "int", nullable: false),
+                    Language = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     AttemptedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Outcome = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -237,6 +336,11 @@ namespace ChemicalsBase.Migrations
                 table: "ChemicalDocuments",
                 columns: new[] { "ChemicalId", "Type", "ContentMd5" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChemicalDocuments_ChemicalId_Type_Language_Status",
+                table: "ChemicalDocuments",
+                columns: new[] { "ChemicalId", "Type", "Language", "Status" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ChemicalDocuments_ContentMd5",
@@ -259,6 +363,21 @@ namespace ChemicalsBase.Migrations
                 column: "ChemicalDocumentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DocumentInboxItems_ContentMd5",
+                table: "DocumentInboxItems",
+                column: "ContentMd5");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentInboxItems_Status_BatchId",
+                table: "DocumentInboxItems",
+                columns: new[] { "Status", "BatchId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentInboxItemVersions_DocumentInboxItemId",
+                table: "DocumentInboxItemVersions",
+                column: "DocumentInboxItemId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_HolderSdsSites_AuthorisationHolderId_Domain",
                 table: "HolderSdsSites",
                 columns: new[] { "AuthorisationHolderId", "Domain" },
@@ -270,9 +389,9 @@ namespace ChemicalsBase.Migrations
                 column: "HolderSdsSiteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SdsHarvestAttempts_ChemicalId_AttemptedAt",
+                name: "IX_SdsHarvestAttempts_ChemicalId_Language_AttemptedAt",
                 table: "SdsHarvestAttempts",
-                columns: new[] { "ChemicalId", "AttemptedAt" });
+                columns: new[] { "ChemicalId", "Language", "AttemptedAt" });
         }
 
         /// <inheritdoc />
@@ -283,6 +402,12 @@ namespace ChemicalsBase.Migrations
 
             migrationBuilder.DropTable(
                 name: "ChemicalDocumentVersions");
+
+            migrationBuilder.DropTable(
+                name: "DocumentInboxItems");
+
+            migrationBuilder.DropTable(
+                name: "DocumentInboxItemVersions");
 
             migrationBuilder.DropTable(
                 name: "HolderSdsSites");

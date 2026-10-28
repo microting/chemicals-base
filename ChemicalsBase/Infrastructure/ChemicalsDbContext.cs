@@ -41,6 +41,8 @@ public class ChemicalsDbContext: DbContext
     public DbSet<SdsHarvestAttempt> SdsHarvestAttempts { get; set; }
     public DbSet<HolderSdsSite> HolderSdsSites { get; set; }
     public DbSet<HolderSdsSiteVersion> HolderSdsSiteVersions { get; set; }
+    public DbSet<DocumentInboxItem> DocumentInboxItems { get; set; }
+    public DbSet<DocumentInboxItemVersion> DocumentInboxItemVersions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -216,9 +218,13 @@ public class ChemicalsDbContext: DbContext
         modelBuilder.Entity<ChemicalDocument>().HasIndex(d => d.SourceFileId);
         modelBuilder.Entity<ChemicalDocument>().HasIndex(d => d.ContentMd5);
         modelBuilder.Entity<ChemicalDocument>().HasIndex(d => new { d.Type, d.Status });
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => new { d.ChemicalId, d.Type, d.Language, d.Status });
         modelBuilder.Entity<ChemicalDocumentVersion>().HasIndex(x => x.ChemicalDocumentId);
-        modelBuilder.Entity<SdsHarvestAttempt>().HasIndex(a => new { a.ChemicalId, a.AttemptedAt });
+        modelBuilder.Entity<SdsHarvestAttempt>().HasIndex(a => new { a.ChemicalId, a.Language, a.AttemptedAt });
         modelBuilder.Entity<HolderSdsSite>().HasIndex(s => new { s.AuthorisationHolderId, s.Domain }).IsUnique();
         modelBuilder.Entity<HolderSdsSiteVersion>().HasIndex(x => x.HolderSdsSiteId);
+        modelBuilder.Entity<DocumentInboxItem>().HasIndex(i => new { i.Status, i.BatchId });
+        modelBuilder.Entity<DocumentInboxItem>().HasIndex(i => i.ContentMd5);
+        modelBuilder.Entity<DocumentInboxItemVersion>().HasIndex(x => x.DocumentInboxItemId);
     }
 }

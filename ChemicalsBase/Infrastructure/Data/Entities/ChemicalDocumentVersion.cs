@@ -43,6 +43,10 @@ public class ChemicalDocumentVersion : PnBase
 
     public ChemicalDocumentStatus Status { get; set; }
 
+    /// <summary>ISO 639-1, lower case (SdsLanguages.Normalize); null = unknown.</summary>
+    [StringLength(8)]
+    public string? Language { get; set; }
+
     /// <summary>S3 key is "&lt;md5&gt;.pdf", as for SDS today.</summary>
     [StringLength(32)]
     public string ContentMd5 { get; set; } = "";
