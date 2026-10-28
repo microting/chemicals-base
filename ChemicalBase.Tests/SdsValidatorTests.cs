@@ -42,7 +42,7 @@ public class SdsValidatorTests
                 Assert.That(v.LanguageConfidence, Is.EqualTo(1.0));
                 Assert.That(v.MatchesTargetLanguage, Is.True);
                 Assert.That(v.IdentityMatch, Is.EqualTo("regno"));
-                Assert.That(v.RevisionDate, Is.Not.Null);
+                Assert.That(v.RevisionDate, Is.EqualTo(new DateTime(2025, 11, 10)), "latest date, column layout");
                 Assert.That(v.Score, Is.EqualTo(100));
             });
 
@@ -123,6 +123,9 @@ public class SdsValidatorTests
                      ("de", "Überarbeitet am 3. März 2024"),
                      ("fr", "Date de révision : 12 janvier 2024"),
                      ("pl", "Data aktualizacji: 5 marca 2024"),
+                     // Ruling (b): the latest date across all keyword windows, not the first one.
+                     ("da", "Udstedelsesdato: 01-01-2019 Revisionsdato: 01-03-2024"),
+                     ("da", "Revisionsdato: 01-03-2024 Erstatter: 01-01-2020"),
                  })
         {
             var expected = code switch
@@ -163,6 +166,8 @@ public class SdsValidatorTests
     [Test]
     public void Revision_terms_of_case_7_come_from_the_json()
     {
+        Assert.That(SdsHeadings.For("de")!.RevisionKeywords, Does.Not.Contain("Druckdatum"),
+            "a print date is not a revision date, and under the latest-date rule it would always win");
         Assert.That(SdsHeadings.For("de")!.RevisionKeywords, Does.Contain("Überarbeitet am"));
         Assert.That(SdsHeadings.For("de")!.Months, Does.Contain("März"));
         Assert.That(SdsHeadings.For("fr")!.RevisionKeywords, Does.Contain("Date de révision"));
@@ -220,6 +225,36 @@ public class SdsValidatorTests
             Assert.That(v.Notes, Does.Contain("lang=da(0.50)"));
             Assert.That(v.Notes, Does.Contain("lang-uncertain"));
             Assert.That(v.Score, Is.EqualTo(30 + 13 + 25), "round(25 × 0.5) language points");
+        });
+    }
+
+    [Test]
+    public void Family_reg_no_beats_a_name_match()
+    {
+        // The concentrate's own name is in its section 1, but its reg.nr. is a sibling's: a family match, never "name".
+        var v = SdsValidator.ValidateText(Fixture("da-algefri-43_1.txt"), Query("ECOstyle AlgeFri N", "364-73-2-2"));
+        Assert.That(v.IdentityMatch, Is.EqualTo("regno-family"));
+    }
+
+    [Test]
+    public void Semicolon_is_stripped_from_the_trade_name()
+    {
+        var v = SdsValidator.ValidateText(Fixture("da-7_1.txt"), Query("Ecolab Peroxide Spray", "999-99", "DrySan; Oxy"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(v.IdentityMatch, Is.EqualTo("trade:DrySan Oxy"));
+            Assert.That(v.Notes, Does.Contain("; id=trade:DrySan Oxy; "));
+        });
+    }
+
+    [Test]
+    public void Classifier_and_detector_read_only_the_scan_cap()
+    {
+        var text = new string('x', RevisionDateParser.MaxScanLength) + " " + Sds("da", "Produkt Alpha");
+        Assert.Multiple(() =>
+        {
+            Assert.That(DocumentClassifier.ClassifyText(text).Kind, Is.EqualTo(PageOneKind.LabelOrInstructions));
+            Assert.That(SdsLanguageDetector.Detect(text).Language, Is.Null);
         });
     }
 
