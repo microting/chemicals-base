@@ -36,6 +36,13 @@ public class ChemicalsDbContext: DbContext
     public DbSet<AddressVersion> AddressVersions { get; set; }
     public DbSet<BarcodeSuggestion> BarcodeSuggestions { get; set; }
     public DbSet<BarcodeSuggestionVersion> BarcodeSuggestionVersions { get; set; }
+    public DbSet<ChemicalDocument> ChemicalDocuments { get; set; }
+    public DbSet<ChemicalDocumentVersion> ChemicalDocumentVersions { get; set; }
+    public DbSet<SdsHarvestAttempt> SdsHarvestAttempts { get; set; }
+    public DbSet<HolderSdsSite> HolderSdsSites { get; set; }
+    public DbSet<HolderSdsSiteVersion> HolderSdsSiteVersions { get; set; }
+    public DbSet<DocumentInboxItem> DocumentInboxItems { get; set; }
+    public DbSet<DocumentInboxItemVersion> DocumentInboxItemVersions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -205,5 +212,22 @@ public class ChemicalsDbContext: DbContext
         modelBuilder.Entity<BarcodeSuggestion>().HasIndex(x => x.Barcode);
         modelBuilder.Entity<BarcodeSuggestion>().HasIndex(x => new { x.Status, x.ChemicalId });
         modelBuilder.Entity<BarcodeSuggestionVersion>().HasIndex(x => x.BarcodeSuggestionId);
+
+        // Not filtered on WorkflowState: a soft-deleted document is revived by Update, never re-created.
+        // PnBase increments Version on every update: as a concurrency token, a stale load cannot overwrite a staff
+        // decision saved in between (the writer re-runs its gate on the fresh row). No schema change.
+        modelBuilder.Entity<ChemicalDocument>().Property(d => d.Version).IsConcurrencyToken();
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => new { d.ChemicalId, d.Type, d.ContentMd5 }).IsUnique();
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => d.SourceFileId);
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => d.ContentMd5);
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => new { d.Type, d.Status });
+        modelBuilder.Entity<ChemicalDocument>().HasIndex(d => new { d.ChemicalId, d.Type, d.Language, d.Status });
+        modelBuilder.Entity<ChemicalDocumentVersion>().HasIndex(x => x.ChemicalDocumentId);
+        modelBuilder.Entity<SdsHarvestAttempt>().HasIndex(a => new { a.ChemicalId, a.Language, a.AttemptedAt });
+        modelBuilder.Entity<HolderSdsSite>().HasIndex(s => new { s.AuthorisationHolderId, s.Domain }).IsUnique();
+        modelBuilder.Entity<HolderSdsSiteVersion>().HasIndex(x => x.HolderSdsSiteId);
+        modelBuilder.Entity<DocumentInboxItem>().HasIndex(i => new { i.Status, i.BatchId });
+        modelBuilder.Entity<DocumentInboxItem>().HasIndex(i => i.ContentMd5);
+        modelBuilder.Entity<DocumentInboxItemVersion>().HasIndex(x => x.DocumentInboxItemId);
     }
 }

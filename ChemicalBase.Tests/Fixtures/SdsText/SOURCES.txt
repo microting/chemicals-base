@@ -1,0 +1,45 @@
+Page 1-2 text of real, publicly downloadable supplier SDS PDFs, extracted with `pdftotext -l 2 <pdf> <txt>`
+(poppler) and kept verbatim. Used by SdsLanguageTests and DocumentClassifierTests (fixture cases). Collected in the 2026-10-27 SDS search
+spike (evidence/sdsspike/downloads.tsv); the PDFs themselves are not in the repo.
+
+da-7_1.txt   Ecolab "DrySan Oxy", Danish. Heading written "STOFFET/ BLANDINGEN ... SELSKABET/ VIRKSOMHEDEN"
+             (space after "/").
+             https://assets.pim.ecolab.com/media/Original/10026/DK-DA-116525E-DRYSAN%20OXY.PDF
+da-52_1.txt  Borup Kemi "Borup ECO UkrudtNIX", Danish, headings in upper case, short first pages.
+             https://media.jemogfix.dk/prod-mediafiles/dk/pdf/2191_9076658_015.pdf
+de-1_1.txt   AkzoNobel (Sikkens), German (Austria).
+             https://media.hornbach.at/hb/document/as.187061982.pdf
+en-1_2.txt   AkzoNobel (Sikkens), English (UK); section-1 title wraps after "company/".
+             https://decoratingwarehouse.co.uk/media/attachments/sik_HLS_H_S_Sheet.pdf
+
+Redaction: supplier e-mail addresses were replaced with sds@example.com. Nothing else was changed; no e-mail
+token is a profile word, so detection is unaffected.
+
+Added for the page-1 classifier (DocumentClassifierTests, Task 5), fetched 2026-10-28 with one GET each straight from
+the producer (User-Agent sds-fixture-fetch/0.1), same extraction and redaction:
+sv-10_1.txt      Jotun "NonStop VK", Swedish (Sweden), spike id 10. Jotun's own document portal.
+                 https://www.jotun.com/api-b2b/v1/datasheets/download/merged?selectedFiles=9243
+no-mapei_1.txt   Mapei "MAPECOAT UNIVERSAL /A", Norwegian (bokmål), revision 7 of 07/05/2026. Mapei's own CDN; page 1
+                 also carries Italian poison-centre lines (as published).
+                 https://cdnmedia.mapei.com/docs/librariesprovider2/products-documents/2_9016648_no_eef3e01e3e38428da28d9fe024b37344.pdf?sfvrsn=b5fc82e9_0
+
+Added for the SDS validator (SdsValidatorTests, Task 9): the two spike PDFs behind the reg.nr. lessons (spike §2),
+already downloaded in the 2026-10-27 SDS search spike (no new fetch), same extraction (`pdftotext -l 2`). Redaction:
+e-mail addresses → sds@example.com, and the contact person's name in da-algefri-43_1.txt → "N.N.". Nothing else changed.
+da-algefri-43_1.txt  ECOstyle "AlgeFri N" concentrate, Danish, "MST Reg nr. 364-73-1-1", revision 10-11-2025 (spike id 43:
+                     offered for the ready-to-use 364-73-2-2, same family).
+                     https://webassets.silvan.dk/resources/Assets/2353630_Sikkerhedsdatablad.pdf
+da-kvitq-35_2.txt    SBM "Kvit Q Myrelokkedåse", Danish, "Godkendelsesnummer 579-14", revised 20-09-2022 (spike id 35:
+                     the sibling Kvit I 579-13 was rejected).
+                     https://cdn.lomax.dk/image/upload/dokumenter/80207820_1.pdf
+
+Added for the print-date rule (SdsValidatorTests, PR-1 final review I-1): two more spike PDFs already downloaded in the
+2026-10-27 SDS search spike (no new fetch), `pdftotext -l 2`, e-mail addresses → sds@example.com, nothing else
+changed. Both print "Revisionsdato" next to a later "Trykdato" (print date) in the page header.
+da-profound-53_1.txt  Bayer "Profound", Danish, Revisionsdato 19.02.2026, Trykdato 30.03.2026 (spike id 53). The spike
+                      found this copy via SEGES Middeldatabasen (an aggregator, excluded as a harvest source; used here
+                      only as test text).
+                      https://middeldatabasenpdf.dlbr.dk/MSDS/Profound_18-664_MSDS_20260330.PDF
+da-roundup-57_1.txt   Bayer "Roundup Flex 500", Danish, Revisionsdato 19.09.2026, Trykdato 01.10.2026 (spike id 57),
+                      from Bayer DK's own site.
+                      https://www.cropscience.bayer.dk/-/media/bayer%20cropscience/scandinavia/denmark/filer/produkter/sikkerhedsdatablade-dk/roundup-flex-500-sds-dk.pdf

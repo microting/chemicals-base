@@ -1,0 +1,1238 @@
+{
+  "source": "Regulation (EU) 2020/878 Annex II Part B",
+  "retrieved": "2026-10-27",
+  "notes": [
+    "sections: verbatim Part B headings from the EUR-Lex HTML of CELEX:32020R0878, with the 'section_word N:' prefix removed (see section_word / heading_pattern for how the prefix appears in that language version). Trailing closing quote/period of the amending text removed from section 16 (FI, LT).",
+    "title: each EU term was confirmed to occur in that language's 2020/878 text (case-insensitive). Common SDS variants/abbreviations added.",
+    "revision_terms and months are NOT in the regulation; they are common SDS / general-language vocabulary and are provided as detection aids, not as quotations.",
+    "Several languages put the number before the word (hu, et, lv, lt) and the separator varies (':', '.', '—', '.:'); real SDSs often also use 'SECTION 1.' or '1.' forms."
+  ],
+  "languages": {
+    "da": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/DA/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Sikkerhedsdatablad"
+      ],
+      "section_word": "PUNKT",
+      "heading_pattern": "PUNKT {n}: ",
+      "sections": {
+        "1": "Identifikation af stoffet/blandingen og af selskabet/virksomheden",
+        "2": "Fareidentifikation",
+        "3": "Sammensætning af/oplysning om indholdsstoffer",
+        "4": "Førstehjælpsforanstaltninger",
+        "5": "Brandbekæmpelse",
+        "6": "Forholdsregler over for udslip ved uheld",
+        "7": "Håndtering og opbevaring",
+        "8": "Eksponeringskontrol/personlige værnemidler",
+        "9": "Fysiske og kemiske egenskaber",
+        "10": "Stabilitet og reaktivitet",
+        "11": "Toksikologiske oplysninger",
+        "12": "Miljøoplysninger",
+        "13": "Bortskaffelse",
+        "14": "Transportoplysninger",
+        "15": "Oplysninger om regulering",
+        "16": "Andre oplysninger"
+      },
+      "revision_terms": [
+        "Revision",
+        "Revisionsdato",
+        "Udstedelsesdato",
+        "Dato for udstedelse",
+        "Udgave",
+        "Version",
+        "Erstatter"
+      ],
+      "months": [
+        "januar",
+        "februar",
+        "marts",
+        "april",
+        "maj",
+        "juni",
+        "juli",
+        "august",
+        "september",
+        "oktober",
+        "november",
+        "december"
+      ]
+    },
+    "en": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Safety data sheet",
+        "Safety Data Sheet",
+        "SDS"
+      ],
+      "section_word": "SECTION",
+      "heading_pattern": "SECTION {n}: ",
+      "sections": {
+        "1": "Identification of the substance/mixture and of the company/undertaking",
+        "2": "Hazards identification",
+        "3": "Composition/information on ingredients",
+        "4": "First aid measures",
+        "5": "Firefighting measures",
+        "6": "Accidental release measures",
+        "7": "Handling and storage",
+        "8": "Exposure controls/personal protection",
+        "9": "Physical and chemical properties",
+        "10": "Stability and reactivity",
+        "11": "Toxicological information",
+        "12": "Ecological information",
+        "13": "Disposal considerations",
+        "14": "Transport information",
+        "15": "Regulatory information",
+        "16": "Other information"
+      },
+      "revision_terms": [
+        "Revision",
+        "Revision date",
+        "Date of issue",
+        "Issue date",
+        "Version",
+        "Supersedes"
+      ],
+      "months": [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ]
+    },
+    "bg": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/BG/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Информационен лист за безопасност"
+      ],
+      "section_word": "РАЗДЕЛ",
+      "heading_pattern": "РАЗДЕЛ {n}: ",
+      "sections": {
+        "1": "Идентификация на веществото/сместа и на дружеството/предприятието",
+        "2": "Описание на опасностите",
+        "3": "Състав/информация за съставките",
+        "4": "Мерки за първа помощ",
+        "5": "Противопожарни мерки",
+        "6": "Мерки при аварийно изпускане",
+        "7": "Обработка и съхранение",
+        "8": "Контрол на експозицията/лични предпазни средства",
+        "9": "Физични и химични свойства",
+        "10": "Стабилност и реактивност",
+        "11": "Токсикологична информация",
+        "12": "Екологична информация",
+        "13": "Обезвреждане на отпадъците",
+        "14": "Информация относно транспортирането",
+        "15": "Информация относно нормативната уредба",
+        "16": "Друга информация"
+      },
+      "revision_terms": [
+        "Преразглеждане",
+        "Дата на преразглеждане",
+        "Дата на издаване",
+        "Версия",
+        "Ревизия"
+      ],
+      "months": [
+        "януари",
+        "февруари",
+        "март",
+        "април",
+        "май",
+        "юни",
+        "юли",
+        "август",
+        "септември",
+        "октомври",
+        "ноември",
+        "декември"
+      ]
+    },
+    "cs": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/CS/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Bezpečnostní list"
+      ],
+      "section_word": "ODDÍL",
+      "heading_pattern": "ODDÍL {n}: ",
+      "sections": {
+        "1": "Identifikace látky/směsi a společnosti/podniku",
+        "2": "Identifikace nebezpečnosti",
+        "3": "Složení/informace o složkách",
+        "4": "Pokyny pro první pomoc",
+        "5": "Opatření pro hašení požáru",
+        "6": "Opatření v případě náhodného úniku",
+        "7": "Zacházení a skladování",
+        "8": "Omezování expozice/osobní ochranné prostředky",
+        "9": "Fyzikální a chemické vlastnosti",
+        "10": "Stálost a reaktivita",
+        "11": "Toxikologické informace",
+        "12": "Ekologické informace",
+        "13": "Pokyny pro odstraňování",
+        "14": "Informace pro přepravu",
+        "15": "Informace o předpisech",
+        "16": "Další informace"
+      },
+      "revision_terms": [
+        "Revize",
+        "Datum revize",
+        "Datum vydání",
+        "Verze"
+      ],
+      "months": [
+        "leden",
+        "únor",
+        "březen",
+        "duben",
+        "květen",
+        "červen",
+        "červenec",
+        "srpen",
+        "září",
+        "říjen",
+        "listopad",
+        "prosinec"
+      ],
+      "months_genitive": [
+        "ledna",
+        "února",
+        "března",
+        "dubna",
+        "května",
+        "června",
+        "července",
+        "srpna",
+        "září",
+        "října",
+        "listopadu",
+        "prosince"
+      ]
+    },
+    "de": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/DE/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Sicherheitsdatenblatt"
+      ],
+      "section_word": "ABSCHNITT",
+      "heading_pattern": "ABSCHNITT {n}: ",
+      "sections": {
+        "1": "Bezeichnung des Stoffs beziehungsweise des Gemischs und des Unternehmens",
+        "2": "Mögliche Gefahren",
+        "3": "Zusammensetzung/Angaben zu Bestandteilen",
+        "4": "Erste-Hilfe-Maßnahmen",
+        "5": "Maßnahmen zur Brandbekämpfung",
+        "6": "Maßnahmen bei unbeabsichtigter Freisetzung",
+        "7": "Handhabung und Lagerung",
+        "8": "Begrenzung und Überwachung der Exposition/Persönliche Schutzausrüstungen",
+        "9": "Physikalische und chemische Eigenschaften",
+        "10": "Stabilität und Reaktivität",
+        "11": "Toxikologische Angaben",
+        "12": "Umweltbezogene Angaben",
+        "13": "Hinweise zur Entsorgung",
+        "14": "Angaben zum Transport",
+        "15": "Rechtsvorschriften",
+        "16": "Sonstige Angaben"
+      },
+      "revision_terms": [
+        "Überarbeitet am",
+        "Überarbeitungsdatum",
+        "Revision",
+        "Ausgabedatum",
+        "Datum der Ausstellung",
+        "Version"
+      ],
+      "months": [
+        "Januar",
+        "Februar",
+        "März",
+        "April",
+        "Mai",
+        "Juni",
+        "Juli",
+        "August",
+        "September",
+        "Oktober",
+        "November",
+        "Dezember"
+      ]
+    },
+    "el": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/EL/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Δελτίο δεδομένων ασφαλείας",
+        "Δελτίο Δεδομένων Ασφαλείας"
+      ],
+      "section_word": "ΤΜΗΜΑ",
+      "heading_pattern": "ΤΜΗΜΑ {n}: ",
+      "sections": {
+        "1": "Προσδιορισμός ουσίας/μείγματος και εταιρείας/επιχείρησης",
+        "2": "Προσδιορισμός επικινδυνότητας",
+        "3": "Σύνθεση/πληροφορίες για τα συστατικά",
+        "4": "Μέτρα πρώτων βοηθειών",
+        "5": "Μέτρα για την καταπολέμηση της πυρκαγιάς",
+        "6": "Μέτρα σε περίπτωση ακούσιας έκλυσης",
+        "7": "Χειρισμός και αποθήκευση",
+        "8": "Έλεγχος της έκθεσης/ατομική προστασία",
+        "9": "Φυσικές και χημικές ιδιότητες",
+        "10": "Σταθερότητα και αντιδραστικότητα",
+        "11": "Τοξικολογικές πληροφορίες",
+        "12": "Οικολογικές πληροφορίες",
+        "13": "Στοιχεία σχετικά με τη διάθεση",
+        "14": "Πληροφορίες σχετικά με τη μεταφορά",
+        "15": "Στοιχεία νομοθετικού χαρακτήρα",
+        "16": "Λοιπές πληροφορίες"
+      },
+      "revision_terms": [
+        "Αναθεώρηση",
+        "Ημερομηνία αναθεώρησης",
+        "Ημερομηνία έκδοσης",
+        "Έκδοση"
+      ],
+      "months": [
+        "Ιανουάριος",
+        "Φεβρουάριος",
+        "Μάρτιος",
+        "Απρίλιος",
+        "Μάιος",
+        "Ιούνιος",
+        "Ιούλιος",
+        "Αύγουστος",
+        "Σεπτέμβριος",
+        "Οκτώβριος",
+        "Νοέμβριος",
+        "Δεκέμβριος"
+      ],
+      "months_genitive": [
+        "Ιανουαρίου",
+        "Φεβρουαρίου",
+        "Μαρτίου",
+        "Απριλίου",
+        "Μαΐου",
+        "Ιουνίου",
+        "Ιουλίου",
+        "Αυγούστου",
+        "Σεπτεμβρίου",
+        "Οκτωβρίου",
+        "Νοεμβρίου",
+        "Δεκεμβρίου"
+      ]
+    },
+    "es": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/ES/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Ficha de datos de seguridad"
+      ],
+      "section_word": "SECCIÓN",
+      "heading_pattern": "SECCIÓN {n}. ",
+      "sections": {
+        "1": "Identificación de la sustancia o la mezcla y de la sociedad o la empresa",
+        "2": "Identificación de los peligros",
+        "3": "Composición/información sobre los componentes",
+        "4": "Primeros auxilios",
+        "5": "Medidas de lucha contra incendios",
+        "6": "Medidas en caso de vertido accidental",
+        "7": "Manipulación y almacenamiento",
+        "8": "Controles de exposición/protección individual",
+        "9": "Propiedades físicas y químicas",
+        "10": "Estabilidad y reactividad",
+        "11": "Información toxicológica",
+        "12": "Información ecológica",
+        "13": "Consideraciones relativas a la eliminación",
+        "14": "Información relativa al transporte",
+        "15": "Información reglamentaria",
+        "16": "Otra información"
+      },
+      "revision_terms": [
+        "Revisión",
+        "Fecha de revisión",
+        "Fecha de emisión",
+        "Fecha de expedición",
+        "Versión"
+      ],
+      "months": [
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre"
+      ]
+    },
+    "et": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/ET/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Ohutuskaart"
+      ],
+      "section_word": "JAGU",
+      "heading_pattern": "{n}. JAGU. ",
+      "sections": {
+        "1": "Aine/segu ning äriühingu/ettevõtja identifitseerimine",
+        "2": "Ohtude identifitseerimine",
+        "3": "Koostis / teave koostisainete kohta",
+        "4": "Esmaabimeetmed",
+        "5": "Tulekustutusmeetmed",
+        "6": "Meetmed juhusliku sattumise korral keskkonda",
+        "7": "Käitlemine ja ladustamine",
+        "8": "Kokkupuute ohjamine/isikukaitse",
+        "9": "Füüsikalised ja keemilised omadused",
+        "10": "Püsivus ja reaktsioonivõime",
+        "11": "Teave toksilisuse kohta",
+        "12": "Ökoloogiline teave",
+        "13": "Jäätmekäitlus",
+        "14": "Veonõuded",
+        "15": "Reguleerivad õigusaktid",
+        "16": "Muu teave"
+      },
+      "revision_terms": [
+        "Läbivaatamine",
+        "Läbivaatamise kuupäev",
+        "Muutmise kuupäev",
+        "Väljaandmise kuupäev",
+        "Versioon"
+      ],
+      "months": [
+        "jaanuar",
+        "veebruar",
+        "märts",
+        "aprill",
+        "mai",
+        "juuni",
+        "juuli",
+        "august",
+        "september",
+        "oktoober",
+        "november",
+        "detsember"
+      ]
+    },
+    "fi": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/FI/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Käyttöturvallisuustiedote"
+      ],
+      "section_word": "KOHTA",
+      "heading_pattern": "KOHTA {n}: ",
+      "sections": {
+        "1": "Aineen tai seoksen ja yhtiön tai yrityksen tunnistetiedot",
+        "2": "Vaaran yksilöinti",
+        "3": "Koostumus ja tiedot aineosista",
+        "4": "Ensiaputoimenpiteet",
+        "5": "Palontorjuntatoimenpiteet",
+        "6": "Toimenpiteet onnettomuuspäästöissä",
+        "7": "Käsittely ja varastointi",
+        "8": "Altistumisen ehkäiseminen ja henkilönsuojaimet",
+        "9": "Fysikaaliset ja kemialliset ominaisuudet",
+        "10": "Stabiilisuus ja reaktiivisuus",
+        "11": "Myrkyllisyyteen liittyvät tiedot",
+        "12": "Tiedot vaarallisuudesta ympäristölle",
+        "13": "Jätteiden käsittelyyn liittyvät näkökohdat",
+        "14": "Kuljetustiedot",
+        "15": "Lainsäädäntöä koskevat tiedot",
+        "16": "Muut tiedot"
+      },
+      "revision_terms": [
+        "Tarkistus",
+        "Muutettu viimeksi",
+        "Päiväys",
+        "Laatimispäivämäärä",
+        "Julkaisupäivämäärä",
+        "Versio"
+      ],
+      "months": [
+        "tammikuu",
+        "helmikuu",
+        "maaliskuu",
+        "huhtikuu",
+        "toukokuu",
+        "kesäkuu",
+        "heinäkuu",
+        "elokuu",
+        "syyskuu",
+        "lokakuu",
+        "marraskuu",
+        "joulukuu"
+      ],
+      "months_genitive": [
+        "tammikuuta",
+        "helmikuuta",
+        "maaliskuuta",
+        "huhtikuuta",
+        "toukokuuta",
+        "kesäkuuta",
+        "heinäkuuta",
+        "elokuuta",
+        "syyskuuta",
+        "lokakuuta",
+        "marraskuuta",
+        "joulukuuta"
+      ]
+    },
+    "fr": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Fiche de données de sécurité",
+        "FDS"
+      ],
+      "section_word": "RUBRIQUE",
+      "heading_pattern": "RUBRIQUE {n} — ",
+      "sections": {
+        "1": "Identification de la substance/du mélange et de la société/de l’entreprise",
+        "2": "Identification des dangers",
+        "3": "Composition/informations sur les composants",
+        "4": "Premiers secours",
+        "5": "Mesures de lutte contre l’incendie",
+        "6": "Mesures à prendre en cas de dispersion accidentelle",
+        "7": "Manipulation et stockage",
+        "8": "Contrôles de l’exposition/protection individuelle",
+        "9": "Propriétés physiques et chimiques",
+        "10": "Stabilité et réactivité",
+        "11": "Informations toxicologiques",
+        "12": "Informations écologiques",
+        "13": "Considérations relatives à l’élimination",
+        "14": "Informations relatives au transport",
+        "15": "Informations relatives à la réglementation",
+        "16": "Autres informations"
+      },
+      "revision_terms": [
+        "Révision",
+        "Date de révision",
+        "Date d'émission",
+        "Date de publication",
+        "Version"
+      ],
+      "months": [
+        "janvier",
+        "février",
+        "mars",
+        "avril",
+        "mai",
+        "juin",
+        "juillet",
+        "août",
+        "septembre",
+        "octobre",
+        "novembre",
+        "décembre"
+      ]
+    },
+    "hr": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/HR/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Sigurnosno-tehnički list"
+      ],
+      "section_word": "ODJELJAK",
+      "heading_pattern": "ODJELJAK {n}.: ",
+      "sections": {
+        "1": "Identifikacija tvari/smjese i podaci o društvu/poduzeću",
+        "2": "Identifikacija opasnosti",
+        "3": "Sastav/informacije o sastojcima",
+        "4": "Mjere prve pomoći",
+        "5": "Mjere za suzbijanje požara",
+        "6": "Mjere kod slučajnog ispuštanja",
+        "7": "Rukovanje i skladištenje",
+        "8": "Nadzor nad izloženošću/osobna zaštita",
+        "9": "Fizikalna i kemijska svojstva",
+        "10": "Stabilnost i reaktivnost",
+        "11": "Toksikološke informacije",
+        "12": "Ekološke informacije",
+        "13": "Zbrinjavanje",
+        "14": "Informacije o prijevozu",
+        "15": "Informacije o propisima",
+        "16": "Ostale informacije"
+      },
+      "revision_terms": [
+        "Revizija",
+        "Datum revizije",
+        "Datum izdavanja",
+        "Verzija"
+      ],
+      "months": [
+        "siječanj",
+        "veljača",
+        "ožujak",
+        "travanj",
+        "svibanj",
+        "lipanj",
+        "srpanj",
+        "kolovoz",
+        "rujan",
+        "listopad",
+        "studeni",
+        "prosinac"
+      ],
+      "months_genitive": [
+        "siječnja",
+        "veljače",
+        "ožujka",
+        "travnja",
+        "svibnja",
+        "lipnja",
+        "srpnja",
+        "kolovoza",
+        "rujna",
+        "listopada",
+        "studenoga",
+        "prosinca"
+      ]
+    },
+    "hu": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/HU/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Biztonsági adatlap"
+      ],
+      "section_word": "SZAKASZ",
+      "heading_pattern": "{n}. SZAKASZ: ",
+      "sections": {
+        "1": "Az anyag/keverék és a vállalat/vállalkozás azonosítása",
+        "2": "A veszély azonosítása",
+        "3": "Összetétel vagy az összetevőkre vonatkozó adatok",
+        "4": "Elsősegély-nyújtási intézkedések",
+        "5": "Tűzoltási intézkedések",
+        "6": "Intézkedések véletlenszerű környezetbe jutás esetén",
+        "7": "Kezelés és tárolás",
+        "8": "Az expozíció elleni védekezés/egyéni védelem",
+        "9": "Fizikai és kémiai tulajdonságok",
+        "10": "Stabilitás és reakciókészség",
+        "11": "Toxikológiai adatok",
+        "12": "Ökológiai adatok",
+        "13": "Ártalmatlanítási szempontok",
+        "14": "Szállításra vonatkozó információk",
+        "15": "Szabályozással kapcsolatos információk",
+        "16": "Egyéb információk"
+      },
+      "revision_terms": [
+        "Felülvizsgálat",
+        "Felülvizsgálat dátuma",
+        "Kiadás dátuma",
+        "Verzió",
+        "Változat"
+      ],
+      "months": [
+        "január",
+        "február",
+        "március",
+        "április",
+        "május",
+        "június",
+        "július",
+        "augusztus",
+        "szeptember",
+        "október",
+        "november",
+        "december"
+      ]
+    },
+    "is": {
+      "source": "unavailable",
+      "url": null,
+      "note": "Not in EUR-Lex; no Icelandic official translation or real Icelandic SDS could be fetched to quote headings from, so sections are left empty rather than invented. title/revision_terms/months are general Icelandic vocabulary (not quoted from a source).",
+      "title": [
+        "Öryggisblað"
+      ],
+      "section_word": null,
+      "heading_pattern": null,
+      "sections": {},
+      "revision_terms": [
+        "Endurskoðun",
+        "Dagsetning endurskoðunar",
+        "Útgáfudagur",
+        "Útgáfa"
+      ],
+      "months": [
+        "janúar",
+        "febrúar",
+        "mars",
+        "apríl",
+        "maí",
+        "júní",
+        "júlí",
+        "ágúst",
+        "september",
+        "október",
+        "nóvember",
+        "desember"
+      ]
+    },
+    "it": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/IT/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Scheda di dati di sicurezza",
+        "Scheda dati di sicurezza"
+      ],
+      "section_word": "SEZIONE",
+      "heading_pattern": "SEZIONE {n}: ",
+      "sections": {
+        "1": "identificazione della sostanza/miscela e della società/impresa",
+        "2": "identificazione dei pericoli",
+        "3": "composizione/informazioni sugli ingredienti",
+        "4": "misure di primo soccorso",
+        "5": "misure di lotta antincendio",
+        "6": "misure in caso di rilascio accidentale",
+        "7": "manipolazione e immagazzinamento",
+        "8": "controlli dell’esposizione/della protezione individuale",
+        "9": "proprietà fisiche e chimiche",
+        "10": "stabilità e reattività",
+        "11": "informazioni tossicologiche",
+        "12": "informazioni ecologiche",
+        "13": "considerazioni sullo smaltimento",
+        "14": "informazioni sul trasporto",
+        "15": "informazioni sulla regolamentazione",
+        "16": "altre informazioni"
+      },
+      "revision_terms": [
+        "Revisione",
+        "Data di revisione",
+        "Data di emissione",
+        "Data di compilazione",
+        "Versione"
+      ],
+      "months": [
+        "gennaio",
+        "febbraio",
+        "marzo",
+        "aprile",
+        "maggio",
+        "giugno",
+        "luglio",
+        "agosto",
+        "settembre",
+        "ottobre",
+        "novembre",
+        "dicembre"
+      ]
+    },
+    "lt": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/LT/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Saugos duomenų lapas"
+      ],
+      "section_word": "SKIRSNIS",
+      "heading_pattern": "{n} SKIRSNIS. ",
+      "sections": {
+        "1": "Medžiagos arba mišinio ir bendrovės arba įmonės identifikavimas",
+        "2": "Galimi pavojai",
+        "3": "Sudėtis arba informacija apie sudedamąsias dalis",
+        "4": "Pirmosios pagalbos priemonės",
+        "5": "Priešgaisrinės priemonės",
+        "6": "Avarijų likvidavimo priemonės",
+        "7": "Tvarkymas ir sandėliavimas",
+        "8": "Poveikio kontrolė / asmens apsauga",
+        "9": "Fizikinės ir cheminės savybės",
+        "10": "Stabilumas ir reaktyvumas",
+        "11": "Toksikologinė informacija",
+        "12": "Ekologinė informacija",
+        "13": "Atliekų tvarkymas",
+        "14": "Informacija apie vežimą",
+        "15": "Informacija apie reglamentavimą",
+        "16": "Kita informacija"
+      },
+      "revision_terms": [
+        "Peržiūra",
+        "Peržiūrėjimo data",
+        "Išleidimo data",
+        "Parengimo data",
+        "Versija"
+      ],
+      "months": [
+        "sausis",
+        "vasaris",
+        "kovas",
+        "balandis",
+        "gegužė",
+        "birželis",
+        "liepa",
+        "rugpjūtis",
+        "rugsėjis",
+        "spalis",
+        "lapkritis",
+        "gruodis"
+      ],
+      "months_genitive": [
+        "sausio",
+        "vasario",
+        "kovo",
+        "balandžio",
+        "gegužės",
+        "birželio",
+        "liepos",
+        "rugpjūčio",
+        "rugsėjo",
+        "spalio",
+        "lapkričio",
+        "gruodžio"
+      ]
+    },
+    "lv": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/LV/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Drošības datu lapa"
+      ],
+      "section_word": "IEDAĻA",
+      "heading_pattern": "{n}. IEDAĻA. ",
+      "sections": {
+        "1": "Vielas/maisījuma un uzņēmējsabiedrības/uzņēmuma identificēšana",
+        "2": "Bīstamības apzināšana",
+        "3": "Sastāvs/informācija par sastāvdaļām",
+        "4": "Pirmās palīdzības pasākumi",
+        "5": "Ugunsdzēsības pasākumi",
+        "6": "Pasākumi nejaušas noplūdes gadījumos",
+        "7": "Apiešanās un glabāšana",
+        "8": "Ekspozīcijas kontrole/individuālā aizsardzība",
+        "9": "Fizikālās un ķīmiskās īpašības",
+        "10": "Stabilitāte un reaģētspēja",
+        "11": "Toksikoloģiskā informācija",
+        "12": "Ekoloģiskā informācija",
+        "13": "Apsaimniekošanas apsvērumi",
+        "14": "Informācija par transportēšanu",
+        "15": "Informācija par regulējumu",
+        "16": "Cita informācija"
+      },
+      "revision_terms": [
+        "Pārskatīšana",
+        "Pārskatīšanas datums",
+        "Izdošanas datums",
+        "Versija"
+      ],
+      "months": [
+        "janvāris",
+        "februāris",
+        "marts",
+        "aprīlis",
+        "maijs",
+        "jūnijs",
+        "jūlijs",
+        "augusts",
+        "septembris",
+        "oktobris",
+        "novembris",
+        "decembris"
+      ]
+    },
+    "nl": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/NL/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Veiligheidsinformatieblad"
+      ],
+      "section_word": "RUBRIEK",
+      "heading_pattern": "RUBRIEK {n}: ",
+      "sections": {
+        "1": "Identificatie van de stof of het mengsel en van de vennootschap/onderneming",
+        "2": "Identificatie van de gevaren",
+        "3": "Samenstelling en informatie over de bestanddelen",
+        "4": "Eerstehulpmaatregelen",
+        "5": "Brandbestrijdingsmaatregelen",
+        "6": "Maatregelen bij het accidenteel vrijkomen van de stof of het mengsel",
+        "7": "Hantering en opslag",
+        "8": "Maatregelen ter beheersing van blootstelling/persoonlijke bescherming",
+        "9": "Fysische en chemische eigenschappen",
+        "10": "Stabiliteit en reactiviteit",
+        "11": "Toxicologische informatie",
+        "12": "Ecologische informatie",
+        "13": "Instructies voor verwijdering",
+        "14": "Informatie met betrekking tot het vervoer",
+        "15": "Regelgeving",
+        "16": "Overige informatie"
+      },
+      "revision_terms": [
+        "Herziening",
+        "Herzieningsdatum",
+        "Datum van uitgifte",
+        "Uitgiftedatum",
+        "Versie"
+      ],
+      "months": [
+        "januari",
+        "februari",
+        "maart",
+        "april",
+        "mei",
+        "juni",
+        "juli",
+        "augustus",
+        "september",
+        "oktober",
+        "november",
+        "december"
+      ]
+    },
+    "no": {
+      "source": "eea-usage",
+      "url": "https://www.msd.com/docs/product/safety-data-sheets/ah-sds/300000047917_ERD_NO_NO.pdf",
+      "note": "Not in EUR-Lex. Headings quoted from a real Norwegian 2020/878-format SDS (MSD). Usage varies between suppliers, e.g. 13 'Disponering', 6 'Tiltak ved utilsiktet utslipp', 8 'Eksponeringskontroll/personlig beskyttelse'.",
+      "title": [
+        "Sikkerhetsdatablad"
+      ],
+      "section_word": "AVSNITT",
+      "heading_pattern": "AVSNITT {n}: ",
+      "sections": {
+        "1": "Identifikasjon av stoffet/stoffblandingen og av selskapet/foretaket",
+        "2": "Fareidentifikasjon",
+        "3": "Sammensetning/opplysninger om bestanddeler",
+        "4": "Førstehjelpstiltak",
+        "5": "Brannslokkingstiltak",
+        "6": "Tiltak ved utilsiktede utslipp",
+        "7": "Håndtering og lagring",
+        "8": "Eksponeringskontroll / personlig verneutstyr",
+        "9": "Fysiske og kjemiske egenskaper",
+        "10": "Stabilitet og reaktivitet",
+        "11": "Toksikologiske opplysninger",
+        "12": "Økologiske opplysninger",
+        "13": "Sluttbehandling",
+        "14": "Transportopplysninger",
+        "15": "Opplysninger om regelverk",
+        "16": "Andre opplysninger"
+      },
+      "revision_terms": [
+        "Revisjon",
+        "Revisjonsdato",
+        "Utgave",
+        "Utgivelsesdato",
+        "Dato for siste utgave",
+        "Versjon"
+      ],
+      "months": [
+        "januar",
+        "februar",
+        "mars",
+        "april",
+        "mai",
+        "juni",
+        "juli",
+        "august",
+        "september",
+        "oktober",
+        "november",
+        "desember"
+      ]
+    },
+    "pl": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/PL/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Karta charakterystyki"
+      ],
+      "section_word": "SEKCJA",
+      "heading_pattern": "SEKCJA {n}: ",
+      "sections": {
+        "1": "Identyfikacja substancji/mieszaniny i identyfikacja przedsiębiorstwa",
+        "2": "Identyfikacja zagrożeń",
+        "3": "Skład/informacja o składnikach",
+        "4": "Środki pierwszej pomocy",
+        "5": "Postępowanie w przypadku pożaru",
+        "6": "Postępowanie w przypadku niezamierzonego uwolnienia do środowiska",
+        "7": "Postępowanie z substancjami i mieszaninami oraz ich magazynowanie",
+        "8": "Kontrola narażenia/środki ochrony indywidualnej",
+        "9": "Właściwości fizyczne i chemiczne",
+        "10": "Stabilność i reaktywność",
+        "11": "Informacje toksykologiczne",
+        "12": "Informacje ekologiczne",
+        "13": "Postępowanie z odpadami",
+        "14": "Informacje dotyczące transportu",
+        "15": "Informacje dotyczące przepisów prawnych",
+        "16": "Inne informacje"
+      },
+      "revision_terms": [
+        "Aktualizacja",
+        "Data aktualizacji",
+        "Data wydania",
+        "Data sporządzenia",
+        "Wersja"
+      ],
+      "months": [
+        "styczeń",
+        "luty",
+        "marzec",
+        "kwiecień",
+        "maj",
+        "czerwiec",
+        "lipiec",
+        "sierpień",
+        "wrzesień",
+        "październik",
+        "listopad",
+        "grudzień"
+      ],
+      "months_genitive": [
+        "stycznia",
+        "lutego",
+        "marca",
+        "kwietnia",
+        "maja",
+        "czerwca",
+        "lipca",
+        "sierpnia",
+        "września",
+        "października",
+        "listopada",
+        "grudnia"
+      ]
+    },
+    "pt": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/PT/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Ficha de dados de segurança"
+      ],
+      "section_word": "SECÇÃO",
+      "heading_pattern": "SECÇÃO {n}: ",
+      "sections": {
+        "1": "Identificação da substância/mistura e da sociedade/empresa",
+        "2": "Identificação dos perigos",
+        "3": "Composição/informação sobre os componentes",
+        "4": "Medidas de primeiros socorros",
+        "5": "Medidas de combate a incêndios",
+        "6": "Medidas em caso de fuga acidental",
+        "7": "Manuseamento e armazenagem",
+        "8": "Controlo da exposição/Proteção individual",
+        "9": "Propriedades físico-químicas",
+        "10": "Estabilidade e reatividade",
+        "11": "Informação toxicológica",
+        "12": "Informação ecológica",
+        "13": "Considerações relativas à eliminação",
+        "14": "Informações relativas ao transporte",
+        "15": "Informação sobre regulamentação",
+        "16": "Outras informações"
+      },
+      "revision_terms": [
+        "Revisão",
+        "Data de revisão",
+        "Data de emissão",
+        "Versão"
+      ],
+      "months": [
+        "janeiro",
+        "fevereiro",
+        "março",
+        "abril",
+        "maio",
+        "junho",
+        "julho",
+        "agosto",
+        "setembro",
+        "outubro",
+        "novembro",
+        "dezembro"
+      ]
+    },
+    "ro": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/RO/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Fișa cu date de securitate",
+        "Fişa cu date de securitate"
+      ],
+      "section_word": "SECȚIUNEA",
+      "heading_pattern": "SECȚIUNEA {n}: ",
+      "sections": {
+        "1": "Identificarea substanței/amestecului și a societății/întreprinderii",
+        "2": "Identificarea pericolelor",
+        "3": "Compoziție/informații privind componenții",
+        "4": "Măsuri de prim ajutor",
+        "5": "Măsuri de combatere a incendiilor",
+        "6": "Măsuri împotriva pierderilor accidentale",
+        "7": "Manipulare și depozitare",
+        "8": "Controale ale expunerii/protecția personală",
+        "9": "Proprietățile fizice și chimice",
+        "10": "Stabilitate și reactivitate",
+        "11": "Informații toxicologice",
+        "12": "Informații ecologice",
+        "13": "Considerații privind eliminarea",
+        "14": "Informații referitoare la transport",
+        "15": "Informații de reglementare",
+        "16": "Alte informații"
+      },
+      "revision_terms": [
+        "Revizie",
+        "Data revizuirii",
+        "Data emiterii",
+        "Versiune"
+      ],
+      "months": [
+        "ianuarie",
+        "februarie",
+        "martie",
+        "aprilie",
+        "mai",
+        "iunie",
+        "iulie",
+        "august",
+        "septembrie",
+        "octombrie",
+        "noiembrie",
+        "decembrie"
+      ]
+    },
+    "sk": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/SK/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Karta bezpečnostných údajov"
+      ],
+      "section_word": "ODDIEL",
+      "heading_pattern": "ODDIEL {n}: ",
+      "sections": {
+        "1": "Identifikácia látky/zmesi a spoločnosti/podniku",
+        "2": "Identifikácia nebezpečnosti",
+        "3": "Zloženie/informácie o zložkách",
+        "4": "Opatrenia prvej pomoci",
+        "5": "Protipožiarne opatrenia",
+        "6": "Opatrenia pri náhodnom uvoľnení",
+        "7": "Zaobchádzanie a skladovanie",
+        "8": "Kontroly expozície/osobná ochrana",
+        "9": "Fyzikálne a chemické vlastnosti",
+        "10": "Stabilita a reaktivita",
+        "11": "Toxikologické informácie",
+        "12": "Ekologické informácie",
+        "13": "Opatrenia pri zneškodňovaní",
+        "14": "Informácie o doprave",
+        "15": "Regulačné informácie",
+        "16": "Iné informácie"
+      },
+      "revision_terms": [
+        "Revízia",
+        "Dátum revízie",
+        "Dátum vydania",
+        "Verzia"
+      ],
+      "months": [
+        "január",
+        "február",
+        "marec",
+        "apríl",
+        "máj",
+        "jún",
+        "júl",
+        "august",
+        "september",
+        "október",
+        "november",
+        "december"
+      ]
+    },
+    "sl": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/SL/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Varnostni list"
+      ],
+      "section_word": "ODDELEK",
+      "heading_pattern": "ODDELEK {n}: ",
+      "sections": {
+        "1": "Identifikacija snovi/zmesi in družbe/podjetja",
+        "2": "Določitev nevarnosti",
+        "3": "Sestava/podatki o sestavinah",
+        "4": "Ukrepi za prvo pomoč",
+        "5": "Protipožarni ukrepi",
+        "6": "Ukrepi o nenamernih izpustih",
+        "7": "Ravnanje in skladiščenje",
+        "8": "Nadzor izpostavljenosti/osebna zaščita",
+        "9": "Fizikalne in kemijske lastnosti",
+        "10": "Obstojnost in reaktivnost",
+        "11": "Toksikološki podatki",
+        "12": "Ekološki podatki",
+        "13": "Odstranjevanje",
+        "14": "Podatki o prevozu",
+        "15": "Zakonsko predpisani podatki",
+        "16": "Drugi podatki"
+      },
+      "revision_terms": [
+        "Revizija",
+        "Datum revizije",
+        "Datum izdaje",
+        "Različica",
+        "Verzija"
+      ],
+      "months": [
+        "januar",
+        "februar",
+        "marec",
+        "april",
+        "maj",
+        "junij",
+        "julij",
+        "avgust",
+        "september",
+        "oktober",
+        "november",
+        "december"
+      ]
+    },
+    "sv": {
+      "source": "eur-lex",
+      "url": "https://eur-lex.europa.eu/legal-content/SV/TXT/HTML/?uri=CELEX:32020R0878",
+      "title": [
+        "Säkerhetsdatablad"
+      ],
+      "section_word": "AVSNITT",
+      "heading_pattern": "AVSNITT {n}: ",
+      "sections": {
+        "1": "Namnet på ämnet/blandningen och bolaget/företaget",
+        "2": "Farliga egenskaper",
+        "3": "Sammansättning/information om beståndsdelar",
+        "4": "Åtgärder vid första hjälpen",
+        "5": "Brandbekämpningsåtgärder",
+        "6": "Åtgärder vid oavsiktliga utsläpp",
+        "7": "Hantering och lagring",
+        "8": "Begränsning av exponeringen/personligt skydd",
+        "9": "Fysikaliska och kemiska egenskaper",
+        "10": "Stabilitet och reaktivitet",
+        "11": "Toxikologisk information",
+        "12": "Ekologisk information",
+        "13": "Avfallshantering",
+        "14": "Transportinformation",
+        "15": "Gällande föreskrifter",
+        "16": "Annan information"
+      },
+      "revision_terms": [
+        "Revision",
+        "Revisionsdatum",
+        "Utfärdandedatum",
+        "Utgivningsdatum",
+        "Version",
+        "Ersätter"
+      ],
+      "months": [
+        "januari",
+        "februari",
+        "mars",
+        "april",
+        "maj",
+        "juni",
+        "juli",
+        "augusti",
+        "september",
+        "oktober",
+        "november",
+        "december"
+      ]
+    }
+  }
+}

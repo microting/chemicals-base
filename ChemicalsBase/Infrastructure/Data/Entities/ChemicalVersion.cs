@@ -37,4 +37,5 @@ public class ChemicalVersion : BaseEntity
     public virtual List<LoadTax> LoadTaxe { get; set; }
     public string RemoteId { get; set; }
     public bool Verified { get; set; }
+    public string? AdditionalTradeNames { get; set; }
 }
