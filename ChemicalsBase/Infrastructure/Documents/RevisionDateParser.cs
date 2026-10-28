@@ -214,7 +214,8 @@ public static class RevisionDateParser
             return excluded;
         }
 
-        private static void ExcludePrintColumns(string text, List<(int Index, int End, bool Print)> run,
+        /// <summary>One value per column: a whole date ("5. maj 2025") or else one whitespace token ("1.0").</summary>
+        private void ExcludePrintColumns(string text, List<(int Index, int End, bool Print)> run,
             List<(int Start, int End)> excluded)
         {
             if (!run.Any(label => label.Print))
@@ -224,18 +225,23 @@ public static class RevisionDateParser
 
             var rowStart = run[^1].End;
             var column = 0;
+            var valueEnd = rowStart;
             for (var token = ValueToken.Match(text, rowStart, Math.Min(MaxValueRow, text.Length - rowStart));
                  token.Success && column < run.Count;
                  token = token.NextMatch())
             {
-                if (!token.Value.Any(char.IsLetterOrDigit))
+                if (token.Index < valueEnd || !token.Value.Any(char.IsLetterOrDigit))
                 {
-                    continue; // ":" between a label and its value
+                    continue; // the rest of a multi-word date, or ":" between a label and its value
                 }
 
+                var date = dates.Match(text, token.Index, Math.Min(MaxDateLength, text.Length - token.Index));
+                valueEnd = date.Success && date.Index == token.Index
+                    ? date.Index + date.Length
+                    : token.Index + token.Length;
                 if (run[column].Print)
                 {
-                    excluded.Add((token.Index, token.Index + token.Length));
+                    excluded.Add((token.Index, valueEnd));
                 }
 
                 column++;
