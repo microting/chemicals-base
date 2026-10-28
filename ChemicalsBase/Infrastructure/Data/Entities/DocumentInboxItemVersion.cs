@@ -58,6 +58,9 @@ public class DocumentInboxItemVersion : PnBase
     /// </summary>
     public double? LanguageConfidence { get; set; }
 
+    /// <summary>The detector's Uncertain flag for DetectedLanguage; read LanguageConfidence together with it.</summary>
+    public bool LanguageUncertain { get; set; }
+
     public int? MatchedChemicalId { get; set; }
 
     /// <summary>The PendingReview document created on match/assign.</summary>

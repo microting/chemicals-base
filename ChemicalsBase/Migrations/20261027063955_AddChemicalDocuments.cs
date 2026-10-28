@@ -160,6 +160,7 @@ namespace ChemicalsBase.Migrations
                     DetectedLanguage = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LanguageConfidence = table.Column<double>(type: "double", nullable: true),
+                    LanguageUncertain = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     MatchedChemicalId = table.Column<int>(type: "int", nullable: true),
                     ChemicalDocumentId = table.Column<int>(type: "int", nullable: true),
                     MatchScore = table.Column<int>(type: "int", nullable: true),
@@ -208,6 +209,7 @@ namespace ChemicalsBase.Migrations
                     DetectedLanguage = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LanguageConfidence = table.Column<double>(type: "double", nullable: true),
+                    LanguageUncertain = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     MatchedChemicalId = table.Column<int>(type: "int", nullable: true),
                     ChemicalDocumentId = table.Column<int>(type: "int", nullable: true),
                     MatchScore = table.Column<int>(type: "int", nullable: true),

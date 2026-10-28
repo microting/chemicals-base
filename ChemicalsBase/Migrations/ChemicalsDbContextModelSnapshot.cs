@@ -1392,6 +1392,9 @@ namespace ChemicalsBase.Migrations
                     b.Property<double?>("LanguageConfidence")
                         .HasColumnType("double");
 
+                    b.Property<bool>("LanguageUncertain")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("MatchNotes")
                         .HasMaxLength(1024)
                         .HasColumnType("varchar(1024)");
@@ -1498,6 +1501,9 @@ namespace ChemicalsBase.Migrations
 
                     b.Property<double?>("LanguageConfidence")
                         .HasColumnType("double");
+
+                    b.Property<bool>("LanguageUncertain")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("MatchNotes")
                         .HasMaxLength(1024)
