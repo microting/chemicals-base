@@ -476,30 +476,131 @@ public class ChemicalDocumentWriterTests : DbTestFixture
     }
 
     [Test]
-    public async Task Failed_version_row_after_the_row_saved_throws_and_is_not_retried_later()
+    public async Task Failed_version_row_rolls_back_the_row_and_a_retry_creates_both()
     {
-        // PnBase.Create saves the row, then the version row. When the second save fails (a Galera certification or
-        // deadlock error), the row is ours: no AlreadyKnown, and nothing failed may be retried by a later save.
+        // PnBase.Create saves the row, then the version row. The writer wraps both in one transaction: when the
+        // second save fails (a Galera certification or deadlock error) neither row persists, nothing failed is
+        // retried by a later save, and a retry creates the document with its first version (not AlreadyKnown).
         var fault = new FailNextVersionInsert();
-        var options = new DbContextOptionsBuilder<ChemicalsBase.Infrastructure.ChemicalsDbContext>()
-            .UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString))
-            .AddInterceptors(fault)
-            .Options;
-        await using var faultyDb = new ChemicalsBase.Infrastructure.ChemicalsDbContext(options);
+        await using var faultyDb = PlainContext(fault);
         var writer = new ChemicalDocumentWriter(faultyDb, new InMemoryBlobStore(), _clock);
+        var pdf = TestPdf.Bytes("Bumper 25 EC etiket");
 
-        await Assert.ThrowsAsync<DbUpdateException>(() => writer.WriteAsync(BmdLabel(TestPdf.Bytes("Bumper 25 EC etiket"))));
+        await Assert.ThrowsAsync<DbUpdateException>(() => writer.WriteAsync(BmdLabel(pdf)));
         Assert.That(fault.Failed, Is.True, "the injected fault fired");
+        Assert.That(await DbContext.ChemicalDocuments.CountAsync(), Is.Zero, "the row was rolled back");
 
-        // A later, unrelated save in the same context: it must not write the failed version row.
-        var next = await writer.WriteAsync(BmdLabel(TestPdf.Bytes("Roundup etiket")));
-        Assert.That(next.Outcome, Is.EqualTo(WriteOutcome.Created));
+        var unrelated = await writer.WriteAsync(BmdLabel(TestPdf.Bytes("Roundup etiket")));
+        var retry = await writer.WriteAsync(BmdLabel(pdf));
 
-        var bumper = await DbContext.ChemicalDocuments.AsNoTracking().SingleAsync(d => d.Id != next.Document!.Id);
-        Assert.That(await DbContext.ChemicalDocumentVersions.CountAsync(v => v.ChemicalDocumentId == bumper.Id), Is.Zero);
-        Assert.That(await DbContext.ChemicalDocumentVersions.CountAsync(v => v.ChemicalDocumentId == next.Document!.Id),
-            Is.EqualTo(1));
+        Assert.That(unrelated.Outcome, Is.EqualTo(WriteOutcome.Created));
+        Assert.That(retry.Outcome, Is.EqualTo(WriteOutcome.Created));
+        Assert.That(await DbContext.ChemicalDocuments.CountAsync(), Is.EqualTo(2));
+        foreach (var id in new[] { unrelated.Document!.Id, retry.Document!.Id })
+        {
+            Assert.That(await DbContext.ChemicalDocumentVersions.CountAsync(v => v.ChemicalDocumentId == id), Is.EqualTo(1));
+        }
     }
+
+    [Test]
+    public async Task Create_enlists_in_the_callers_transaction()
+    {
+        await using var plainDb = PlainContext();
+        var writer = new ChemicalDocumentWriter(plainDb, new InMemoryBlobStore(), _clock);
+
+        await using (var transaction = await plainDb.Database.BeginTransactionAsync())
+        {
+            var result = await writer.WriteAsync(BmdLabel(TestPdf.Bytes("Bumper 25 EC etiket")));
+            Assert.That(result.Outcome, Is.EqualTo(WriteOutcome.Created));
+            await transaction.RollbackAsync(); // the caller owns commit and rollback
+        }
+
+        Assert.That(await DbContext.ChemicalDocuments.CountAsync(), Is.Zero);
+        Assert.That(await DbContext.ChemicalDocumentVersions.CountAsync(), Is.Zero);
+    }
+
+    // ---- stale automation vs a staff decision made in between (Copilot r4397879800) ----
+
+    [Test]
+    public async Task Stale_automation_status_change_does_not_overwrite_a_staff_decision()
+    {
+        var doc = (await _writer.WriteAsync(BmdLabel(TestPdf.Bytes("Bumper 25 EC etiket")))).Document!;
+        await StaffRejectsElsewhere(doc.Id);
+
+        // The automation still holds the unlocked PendingReview row it loaded before.
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _writer.SetStatusAsync(doc, ChemicalDocumentStatus.Superseded, null, "withdrawn-by-bmd"));
+
+        var stored = await Stored(doc.Id);
+        Assert.That(stored.Status, Is.EqualTo(ChemicalDocumentStatus.Rejected));
+        Assert.That(stored.ReviewNote, Is.EqualTo("wrong product"));
+        Assert.That(stored.StaffLocked, Is.True);
+    }
+
+    [Test]
+    public async Task Stale_automation_merge_does_not_fill_a_staff_locked_row()
+    {
+        var pdf = TestPdf.Bytes("Bumper 25 EC etiket");
+        var doc = (await _writer.WriteAsync(BmdLabel(pdf))).Document!;
+        await StaffRejectsElsewhere(doc.Id);
+
+        var again = await _writer.WriteAsync(BmdLabel(pdf, language: "da"));
+        Assert.That(again.Outcome, Is.EqualTo(WriteOutcome.AlreadyKnown));
+
+        var stored = await Stored(doc.Id);
+        Assert.That(stored.Language, Is.Null, "the gate re-ran on the fresh, staff-locked row");
+        Assert.That(stored.Status, Is.EqualTo(ChemicalDocumentStatus.Rejected));
+        Assert.That(stored.LastSeenAt, Is.EqualTo(T0.AddHours(1)), "bookkeeping still applied");
+    }
+
+    [Test]
+    public async Task Stale_touch_keeps_the_staff_decision_and_still_touches()
+    {
+        var doc = (await _writer.WriteAsync(BmdLabel(TestPdf.Bytes("Bumper 25 EC etiket")))).Document!;
+        await StaffRejectsElsewhere(doc.Id);
+
+        await _writer.TouchAsync(doc, @checked: true);
+
+        var stored = await Stored(doc.Id);
+        Assert.That(stored.Status, Is.EqualTo(ChemicalDocumentStatus.Rejected));
+        Assert.That(stored.LastCheckedAt, Is.EqualTo(T0.AddHours(1)));
+    }
+
+    [Test]
+    public async Task Stale_staff_decision_surfaces_the_conflict()
+    {
+        var doc = (await _writer.WriteAsync(BmdLabel(TestPdf.Bytes("Bumper 25 EC etiket")))).Document!;
+        await StaffRejectsElsewhere(doc.Id);
+
+        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+            () => _writer.SetStatusAsync(doc, ChemicalDocumentStatus.Active, "Anne Staff", "looks fine"));
+
+        var stored = await Stored(doc.Id);
+        Assert.That(stored.Status, Is.EqualTo(ChemicalDocumentStatus.Rejected));
+        Assert.That(stored.ReviewedBy, Is.EqualTo("Bo Staff"));
+
+        // The context stays usable: the conflicted row was reloaded.
+        await _writer.TouchAsync(doc);
+        Assert.That((await Stored(doc.Id)).Status, Is.EqualTo(ChemicalDocumentStatus.Rejected));
+    }
+
+    /// <summary>Staff rejects the row in another context (another request), one hour later.</summary>
+    private async Task StaffRejectsElsewhere(int id)
+    {
+        _clock.Advance(TimeSpan.FromHours(1));
+        await using var staffDb = new ChemicalsContextFactory().CreateDbContext([ConnectionString]);
+        var row = await staffDb.ChemicalDocuments.SingleAsync(d => d.Id == id);
+        await new ChemicalDocumentWriter(staffDb, new InMemoryBlobStore(), _clock)
+            .SetStatusAsync(row, ChemicalDocumentStatus.Rejected, "Bo Staff", "wrong product");
+    }
+
+    /// <summary>A context without the retrying execution strategy, so a test may own a transaction.</summary>
+    private ChemicalsBase.Infrastructure.ChemicalsDbContext PlainContext(
+        params Microsoft.EntityFrameworkCore.Diagnostics.IInterceptor[] interceptors) =>
+        new(new DbContextOptionsBuilder<ChemicalsBase.Infrastructure.ChemicalsDbContext>()
+            .UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString))
+            .AddInterceptors(interceptors)
+            .Options);
 
     /// <summary>Fails the first SaveChanges that inserts a ChemicalDocumentVersion, once.</summary>
     private sealed class FailNextVersionInsert : Microsoft.EntityFrameworkCore.Diagnostics.SaveChangesInterceptor
