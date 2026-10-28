@@ -390,6 +390,25 @@ public class SdsValidatorTests
     }
 
     [Test]
+    public void Scan_cap_never_splits_a_surrogate_pair()
+    {
+        // Copilot #175: a cut between the two halves of "😀" leaves a lone high surrogate, and Normalize throws.
+        var text = Sds("da", "Produkt Alpha Revisionsdato: 01-03-2024") + " "
+                   + new string('x', RevisionDateParser.MaxScanLength);
+        text = text[..(RevisionDateParser.MaxScanLength - 1)] + "\U0001F600" + " mere tekst";
+        Assert.That(char.IsHighSurrogate(text[RevisionDateParser.MaxScanLength - 1]), Is.True, "the cap falls inside the pair");
+
+        Assert.Multiple(() =>
+        {
+            Assert.DoesNotThrow(() => SdsLanguageDetector.Detect(text));
+            Assert.DoesNotThrow(() => SdsLanguageDetector.ProfileHits(text));
+            Assert.DoesNotThrow(() => DocumentClassifier.ClassifyText(text));
+            Assert.That(RevisionDateParser.Find(text, "da"), Is.EqualTo(new DateTime(2024, 3, 1)));
+            Assert.That(SdsValidator.ValidateText(text, Query("Produkt Alpha", "706-12")).Language, Is.EqualTo("da"));
+        });
+    }
+
+    [Test]
     public void Profile_hits_read_only_the_scan_cap()
     {
         var text = new string('x', RevisionDateParser.MaxScanLength) + " af mod uden mellem gennem øjne vand brug";

@@ -545,6 +545,36 @@ public class ChemicalDocumentWriterTests : DbTestFixture
     }
 
     [Test]
+    public async Task Md5_collision_with_another_chemical_is_a_collision_and_keeps_the_blob()
+    {
+        // Copilot #175: blob keys are global (md5), so the SHA-256 check must be too.
+        var pdf = TestPdf.Bytes("Bumper 25 EC etiket");
+        var first = (await _writer.WriteAsync(BmdLabel(pdf))).Document!;
+        first.ContentSha256 = new string('b', 64); // stands in for different bytes with the same md5
+        await DbContext.SaveChangesAsync();
+        var blobBefore = _blobs.Blobs[$"{Md5Of(pdf)}.pdf"];
+
+        await Assert.ThrowsAsync(Is.InstanceOf<InvalidOperationException>(),
+            () => _writer.WriteAsync(BmdLabel(pdf, chemicalId: ChemB)));
+
+        Assert.That(_blobs.Blobs[$"{Md5Of(pdf)}.pdf"], Is.SameAs(blobBefore));
+        Assert.That(await DbContext.ChemicalDocuments.CountAsync(), Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Existing_blob_with_other_bytes_under_the_md5_key_is_a_collision()
+    {
+        var pdf = TestPdf.Bytes("Bumper 25 EC etiket");
+        var other = TestPdf.Bytes("Roundup etiket"); // stands in for different bytes with the same md5
+        _blobs.Blobs[$"{Md5Of(pdf)}.pdf"] = other;
+
+        await Assert.ThrowsAsync(Is.InstanceOf<InvalidOperationException>(), () => _writer.WriteAsync(BmdLabel(pdf)));
+
+        Assert.That(_blobs.Blobs[$"{Md5Of(pdf)}.pdf"], Is.SameAs(other), "never overwritten");
+        Assert.That(await DbContext.ChemicalDocuments.CountAsync(), Is.Zero);
+    }
+
+    [Test]
     public async Task Sha256_mismatch_on_md5_hit_is_a_collision()
     {
         var pdf = TestPdf.Bytes("Bumper 25 EC etiket");
