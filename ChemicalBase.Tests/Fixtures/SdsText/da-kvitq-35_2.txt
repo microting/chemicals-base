@@ -1,0 +1,188 @@
+Kvit Q Myrelokkedåse
+Sikkerhedsdatablad
+i henhold til REACH-forordningen (EF) 1907/2006 ændret ved forordning (EU) 2020/878
+Udgivelsesdato: 28-06-2017 Revideret den: 20-09-2022 Erstatter version fra: 20-09-2022 Version: 3.0
+
+PUNKT 1: Identifikation af stoffet/blandingen og af selskabet/virksomheden
+1.1. Produktidentifikator
+Produktets form
+Handelsnavn
+UVP
+Godkendelsesnummer
+
+:
+:
+:
+:
+
+Blanding
+Kvit Q Myrelokkedåse
+79212690
+579-14
+
+1.2. Relevante identificerede anvendelser for stoffet eller blandingen samt anvendelser, der frarådes
+1.2.1. Relevante identificerede anvendelser
+Beregnet til offentligheden
+Vigtigste anvendelseskategori
+Anvendelse af stoffet/blandingen
+
+: Forbrugeranvendelse
+: Insektbekæmpelsesmiddel
+PT18 — Biocidholdige produkter til bekæmpelse af leddyr (f.eks. insekter, spindlere og
+krebsdyr) på anden vis end ved afskrækkelse eller tiltrækning.
+REACH PC8
+RB
+
+1.2.2. Anvendelser der frarådes
+Ingen tilgængelige oplysninger
+
+1.3. Nærmere oplysninger om leverandøren af sikkerhedsdatabladet
+SBM Life Science AB
+Scheelevägen 30
+223 63 Lund
+Sverige
+T +46 (0)40 41 81 80
+sds@example.com
+
+1.4. Nødtelefon
+Nødtelefonnummer
+
+: +1 813-676-1669 (Nødtelefonnummer SBM)
+
+Land
+
+Firmanavn
+
+Adresse
+
+Nødtelefonnummer
+
+Danmark
+
+Giftlinjen
+Bispebjerg Hospital
+
+Bispebjerg Bakke 23E
+Opgang 20 C
+2400 København NV
+
++45 82 12 12 12
+
+Bemærkning
+
+PUNKT 2: Fareidentifikation
+2.1. Klassificering af stoffet eller blandingen
+Klassificering ifølge Forordning (EF) nr. 1272/2008 [CLP]
+Farlig for vandmiljøet – kronisk fare, kategori 1
+Fuld tekst for H- og EUH-erklæringer: se afsnit 16
+
+H410
+
+Fysisk-kemiske, sundhedsmæssige og miljømæssige skadevirkninger
+Meget giftig med langvarige virkninger for vandlevende organismer.
+
+2.2. Mærkningselementer
+Mærkning ifølge Forordning (EF) nr. 1272/2008 [CLP]
+
+20-09-2022 (Revideret den)
+
+DA (dansk)
+
+1/12
+
+Kvit Q Myrelokkedåse
+Sikkerhedsdatablad
+i henhold til REACH-forordningen (EF) 1907/2006 ændret ved forordning (EU) 2020/878
+
+Farepiktogrammer (CLP)
+
+Signalord (CLP)
+Faresætninger (CLP)
+Sikkerhedssætninger (CLP)
+
+:
+
+GHS09
+: Advarsel
+: H410 - Meget giftig med langvarige virkninger for vandlevende organismer.
+: P101 - Hvis der er brug for lægehjælp, medbring da beholderen eller etiketten.
+P391 - Udslip opsamles.
+P273 - Undgå udledning til miljøet.
+P501 - Indholdet/beholderen bortskaffes i i overensstemmelse med kommunale regler for
+affaldshåndtering.
+
+2.3. Andre farer
+Indeholder ingen PBT/vPvB-stoffer ≥ 0,1 % vurderet i overensstemmelse med REACH-bilag XIII
+
+Komponent
+Imidacloprid (ISO) (138261-41-3)
+
+Dette stof/denne blanding opfylder ikke PBT-kriterierne i REACH-direktivet, bilag XIII
+Dette stof/denne blanding opfylder ikke vPvB-kriterierne i REACH-direktivet, bilag XIII
+
+Blandingen indeholder ikke stof(fer) inkluderet i listen, der er etableret i overensstemmelse med Artikel 59(1) i REACH for at have
+hormonforstyrrende egenskaber i overensstemmelse med kriterierne, der er beskrevet i Kommissionens delegerede forordning (EF) 2017/2100 eller
+Kommisionens forordning (EU) 2018/605 i en koncentration svarende til eller større end 0,1 %
+
+PUNKT 3: Sammensætning af/oplysning om indholdsstoffer
+3.1. Stoffer
+Ikke anvendelig
+
+3.2. Blandinger
+Kommentar
+
+: RB
+
+Navn
+
+Produktidentifikator
+
+%
+
+Klassificering ifølge Forordning
+(EF) nr. 1272/2008 [CLP]
+
+Sugar, invert
+
+CAS nr: 8013-17-0
+REACH-nr: 01-211949129335
+
+> 1,000
+
+Ikke klassificeret
+
+Imidacloprid (ISO)
+
+CAS nr: 138261-41-3
+EC-nummer: 428-040-8
+EC Index nummer: 612-25200-4
+REACH-nr: -
+
+0,028 ≤ x <
+0,100
+
+Acute Tox. 3 (Oral), H301
+Aquatic Acute 1, H400 (M=100)
+Aquatic Chronic 1, H410 (M=1000)
+
+Fuld tekst for H- og EUH-erklæringer: se afsnit 16
+
+PUNKT 4: Førstehjælpsforanstaltninger
+4.1. Beskrivelse af førstehjælpsforanstaltninger
+Førstehjælp generelt
+
+Førstehjælp efter indånding
+
+20-09-2022 (Revideret den)
+
+: Hvis der er brug for lægehjælp, medbring da beholderen eller etiketten. Ved bevidstløshed
+lægges den tilskadekomne i aflåst sideleje. Alle tilsmudsede beklædningsgenstande og sko
+tages af.
+: Flyt personen til et sted med frisk luft og sørg for, at vejrtrækningen lettes. Hold den
+tilskadekomne varm og i ro. Søg lægehjælp ved ubehag.
+
+DA (dansk)
+
+2/12
+
+

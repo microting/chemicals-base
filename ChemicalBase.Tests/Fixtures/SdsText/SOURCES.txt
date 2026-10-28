@@ -22,3 +22,13 @@ sv-10_1.txt      Jotun "NonStop VK", Swedish (Sweden), spike id 10. Jotun's own 
 no-mapei_1.txt   Mapei "MAPECOAT UNIVERSAL /A", Norwegian (bokmål), revision 7 of 07/05/2026. Mapei's own CDN; page 1
                  also carries Italian poison-centre lines (as published).
                  https://cdnmedia.mapei.com/docs/librariesprovider2/products-documents/2_9016648_no_eef3e01e3e38428da28d9fe024b37344.pdf?sfvrsn=b5fc82e9_0
+
+Added for the SDS validator (SdsValidatorTests, Task 9): the two spike PDFs behind the reg.nr. lessons (spike §2),
+already downloaded in the 2026-10-27 SDS search spike (no new fetch), same extraction (`pdftotext -l 2`). Redaction:
+e-mail addresses → sds@example.com, and the contact person's name in da-algefri-43_1.txt → "N.N.". Nothing else changed.
+da-algefri-43_1.txt  ECOstyle "AlgeFri N" concentrate, Danish, "MST Reg nr. 364-73-1-1", revision 10-11-2025 (spike id 43:
+                     offered for the ready-to-use 364-73-2-2, same family).
+                     https://webassets.silvan.dk/resources/Assets/2353630_Sikkerhedsdatablad.pdf
+da-kvitq-35_2.txt    SBM "Kvit Q Myrelokkedåse", Danish, "Godkendelsesnummer 579-14", revised 20-09-2022 (spike id 35:
+                     the sibling Kvit I 579-13 was rejected).
+                     https://cdn.lomax.dk/image/upload/dokumenter/80207820_1.pdf

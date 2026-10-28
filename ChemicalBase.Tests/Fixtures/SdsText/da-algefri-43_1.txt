@@ -1,0 +1,135 @@
+Sikkerhedsdatablad
+Udarbejdet
+Revision: (dato)
+SDS-version
+
+27-04-2015
+10-11-2025
+2.8
+
+PUNKT 1: Identifikation af stoffet/blandingen og af selskabet/virksomheden
+1.1. Produktidentifikator
+Handelsnavn:
+Produkt-nr.:
+MST Reg nr. / Produkt ID.:
+
+ECOstyle AlgeFri N
+1294
+364-73-1-1
+
+1.2. Relevante identificerede anvendelser for stoffet eller blandingen samt anvendelser, der frarådes
+Anbefalede anvendelser:
+Algemiddel. Koncentrat.
+Må kun anvendes til bekæmpelse af grønalger, gulalger og lav udendørs på bygningsmaterialer, hårde overflader og alle tagoverflader inkl. stråtag.
+Må ikke anvendes mod andre skadevoldere og ikke i højere doseringer end de i brugsanvisningen nævnte.
+Anvendelser der frarådes:
+Må kun anvendes som beskrevet ovenfor, andre anvendelser skal ske i samråd med leverandøren.
+1.3. Nærmere oplysninger om leverandøren af sikkerhedsdatabladet
+Firmanavn og adresse:
+ECOstyle A/S
+Hvidkærvej 17
+5250 Odense SV
+Danmark
++45 70 22 70 67
+www.ecostyle.dk
+Kontaktperson og mail:
+N.N.; sds@example.com
+Sikkerhedsdatabladet er udarbejdet og valideret af:
+Mediator ApS, Centervej 2, 6000 Kolding. Konsulent: FMG
+1.4. Nødtelefon
+Giftlinien: +45 82 12 12 12
+
+PUNKT 2: Fareidentifikation
+2.1. Klassificering af stoffet eller blandingen
+CLP (1272/2008):
+Eye Irrit. 2;H319
+
+Produktet er et biocidprodukt i henhold til EU Forordning nr. 528/2012 om tilgængeliggørelse på markedet og anvendelse af biocidholdige produkter.
+Ordlyd af H-sætninger – se nedenfor i punkt 16.
+2.2. Mærkningselementer
+
+Signalord:
+Advarsel
+Forårsager alvorlig øjenirritation. (H319)
+Hvis der er brug for lægehjælp, medbring da beholderen eller etiketten. (P101)
+Opbevares utilgængeligt for børn. (P102)
+VED KONTAKT MED ØJNENE: Skyl forsigtigt med vand i flere minutter. Fjern eventuelle kontaktlinser, hvis dette kan gøres let. Fortsæt skylning.
+(P305 + P351 + P338)
+Ved vedvarende øjenirritation: Søg lægehjælp. (P337 + P313)
+Indholdet/beholderen bortskaffes i overensstemmelse med lokale regler. (P501)
+
+1/8
+
+Sikkerhedsdatablad
+
+2.3. Andre farer
+Anden mærkning:
+Aktivstof: Pelargonsyre 207,3 g/l (20,94% w/w)
+Overtrædelse af nedenstående særligt fremhævede forskrifter kan medføre straf: Må kun anvendes til bekæmpelse af grønalger, gulalger og lav
+udendørs på bygningsmaterialer, hårde overflader og alle tagoverflader inkl. stråtag. Må ikke anvendes mod andre skadevoldere og ikke i
+højere doseringer end de i brugsanvisningen nævnte. Må kun anvendes, når det er vindstille for at undgå at sprede produktet til andre
+områder. Må kun anvendes hvis vejrudsigten ikke viser udsigt til regn et døgn efter behandlingen. Ved påførsel skal jorden og planter nær
+det behandlede område afdækkes, således at eventuel spild kan opsamles. Den behandlede overflade må ikke skylles efter behandling. Hold
+uvedkommende personer, børn og kæledyr væk fra behandlede overflader, indtil de er tørret. Opbevares utilgængeligt for børn. Må ikke
+opbevares sammen med fødevarer, drikkevarer og foderstoffer.
+Andet
+Nettoindhold: 20 l
+Vær opmærksom på, at Arbejdstilsynet har regler for anvendelsen. Læs nærmere i den eventuelt lovpligtige leverandørbrugsanvisning samt i
+Arbejdstilsynets informationsmateriale om bekæmpelsesmidler.
+PUNKT 3: Sammensætning af/oplysning om indholdsstoffer
+3.1./3.2. Stoffer / Blandinger
+Index-nr. /
+Indholdsstof
+REACH-Reg. nr.
+Nonansyre
+- / 01-2119529247(pelargonsyre)(Indeho 37-xxxx
+ldt som
+ammoniumsalt)
+
+CAS-nr.
+
+EF-nr.
+
+CLP-klassificering
+
+112-05-0
+
+203-931-2
+
+Skin Irrit. 2;H315, Eye Irrit. 2;H319,
+Aquatic Chronic 3;H412
+
+Vgt/Vgt
+%
+20,94
+
+Note
+-
+
+Ordlyd af H-sætninger – se nedenfor i punkt 16.
+PUNKT 4: Førstehjælpsforanstaltninger
+4.1. Beskrivelse af førstehjælpsforanstaltninger
+Indånding:
+Søg frisk luft.
+Søg læge ved åndedrætsbesvær.
+Indtagelse:
+Skyl munden grundigt og drik 1-2 glas vand i små slurke.
+Fremkald ikke opkastning.
+Søg læge.
+Hudkontakt:
+Søg læge ved vedvarende ubehag.
+Vask huden længe og grundigt med vand og sæbe. Efter afvaskning smøres huden med en fed creme.
+Øjenkontakt:
+Hvis produktet kommer i øjnene skylles med vand (helst fra øjenskyller) til irritationen ophører. Søg læge ved fortsat irritation.
+Øvrige oplysninger:
+Ved henvendelse til læge medbringes sikkerhedsdatablad eller etiket.
+4.2. Vigtigste symptomer og virkninger, både akutte og forsinkede
+Irritative virkninger: Produktet indeholder stoffer som er lokalirriterende ved hud/øjenkontakt eller ved indånding. Kontakt med lokalirriterende stoffer
+kan resultere i, at kontaktområdet bliver mere udsat for optag af skadelige stoffer som fx allergener.
+4.3. Angivelse af om øjeblikkelig lægehjælp og særlig behandling er nødvendig
+Hvis der opstår symptomer såsom eksem, åndenød, svien eller øjenskader, kontaktes lægen.
+Vis dette sikkerhedsdatablad til læge eller skadestue.
+
+2/8
+
+
