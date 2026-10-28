@@ -883,6 +883,7 @@ namespace ChemicalsBase.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Version")
+                        .IsConcurrencyToken()
                         .HasColumnType("int");
 
                     b.Property<string>("WorkflowState")

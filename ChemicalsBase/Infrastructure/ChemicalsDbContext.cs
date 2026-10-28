@@ -214,6 +214,9 @@ public class ChemicalsDbContext: DbContext
         modelBuilder.Entity<BarcodeSuggestionVersion>().HasIndex(x => x.BarcodeSuggestionId);
 
         // Not filtered on WorkflowState: a soft-deleted document is revived by Update, never re-created.
+        // PnBase increments Version on every update: as a concurrency token, a stale load cannot overwrite a staff
+        // decision saved in between (the writer re-runs its gate on the fresh row). No schema change.
+        modelBuilder.Entity<ChemicalDocument>().Property(d => d.Version).IsConcurrencyToken();
         modelBuilder.Entity<ChemicalDocument>().HasIndex(d => new { d.ChemicalId, d.Type, d.ContentMd5 }).IsUnique();
         modelBuilder.Entity<ChemicalDocument>().HasIndex(d => d.SourceFileId);
         modelBuilder.Entity<ChemicalDocument>().HasIndex(d => d.ContentMd5);

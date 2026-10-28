@@ -153,27 +153,20 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
             ReviewedAt = reviewed ? now : null,
         };
 
+        var ambient = db.Database.CurrentTransaction != null;
         try
         {
-            await created.Create(db);
+            await CreateAtomicallyAsync(created, ambient);
         }
         catch (DbUpdateException)
         {
-            // Detach everything that failed, or every later SaveChanges on this context retries it: the row (when its
-            // insert failed) and the version row PnBase.Create adds after the row saved.
-            var rowSaved = created.Id != 0;
-            db.Entry(created).State = EntityState.Detached;
-            foreach (var version in db.ChangeTracker.Entries<ChemicalDocumentVersion>()
-                         .Where(e => e.State == EntityState.Added)
-                         .ToList())
-            {
-                version.State = EntityState.Detached;
-            }
-
+            // Detach everything that failed, or every later SaveChanges on this context retries it.
+            var rowSaved = ambient && created.Id != 0;
+            DetachCreate(created);
             if (rowSaved)
             {
-                // The row is ours and committed; only its version row failed (a Galera certification or deadlock
-                // error). Not a race, so not AlreadyKnown.
+                // In the caller's transaction the row may stand while its version row failed (a Galera certification
+                // or deadlock error). Not a race, so not AlreadyKnown; the caller owns the rollback.
                 throw;
             }
 
@@ -192,6 +185,37 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
     }
 
     /// <summary>
+    /// The document row and its first version row (PnBase.Create saves twice) in one transaction, so a failed version
+    /// row never leaves a row without history. Inside a caller's transaction the writer enlists and the caller owns
+    /// commit and rollback. Run through the execution strategy, which the retrying MySQL strategy requires for a
+    /// user transaction; a retried attempt starts from a clean slate.
+    /// </summary>
+    private async Task CreateAtomicallyAsync(ChemicalDocument created, bool ambient)
+    {
+        if (ambient)
+        {
+            await created.Create(db);
+            return;
+        }
+
+        await db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+        {
+            DetachCreate(created);
+            created.Id = 0;
+            await using var transaction = await db.Database.BeginTransactionAsync();
+            await created.Create(db);
+            await transaction.CommitAsync();
+        });
+    }
+
+    /// <summary>Detaches a failed create: the row and the version row PnBase.Create adds after the row saved.</summary>
+    private void DetachCreate(ChemicalDocument created)
+    {
+        db.Entry(created).State = EntityState.Detached;
+        DetachAddedVersions();
+    }
+
+    /// <summary>
     /// Sets the status. A named <paramref name="reviewedBy"/> is a staff action: it stamps the review fields, replaces
     /// ReviewNote with <paramref name="note"/> (null clears the previous decision's note) and sets StaffLocked.
     /// Without a reviewer (automation) the status may not become Active, a Staff or StaffLocked row may not be
@@ -206,20 +230,27 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
         Demand(reviewer, doc, status);
 
         Track(doc);
-        doc.Status = status;
         if (reviewer != null)
         {
+            // Staff: a conflict means someone decided in between; the caller sees it (the row is reloaded).
+            doc.Status = status;
             doc.ReviewedBy = reviewer;
             doc.ReviewedAt = Now;
             doc.StaffLocked = true;
             doc.ReviewNote = note;
-        }
-        else if (note != null)
-        {
-            doc.ReviewNote = note;
+            await UpdateOrReloadAsync(doc);
+            return;
         }
 
-        await doc.Update(db);
+        await UpdateAutomationAsync(doc, row =>
+        {
+            Demand(null, row, status); // re-run on the fresh row after a conflict
+            row.Status = status;
+            if (note != null)
+            {
+                row.ReviewNote = note;
+            }
+        });
     }
 
     /// <summary>
@@ -230,14 +261,69 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
     {
         ArgumentNullException.ThrowIfNull(doc);
         Track(doc);
+        await UpdateAutomationAsync(doc, row => Touch(row, @checked));
+    }
+
+    private void Touch(ChemicalDocument row, bool @checked)
+    {
         var now = Now;
-        doc.LastSeenAt = now;
+        row.LastSeenAt = now;
         if (@checked)
         {
-            doc.LastCheckedAt = now;
+            row.LastCheckedAt = now;
         }
+    }
 
-        await doc.Update(db);
+    /// <summary>
+    /// Automation's save: <paramref name="apply"/> changes the row and runs the gate. On a concurrency conflict
+    /// (Version is a concurrency token: someone saved the row since it was loaded, e.g. a staff decision) the row is
+    /// reloaded and <paramref name="apply"/> runs again on the fresh values, so a stale load never overwrites a staff
+    /// decision. One retry; a second conflict propagates.
+    /// </summary>
+    private async Task UpdateAutomationAsync(ChemicalDocument doc, Action<ChemicalDocument> apply)
+    {
+        apply(doc);
+        try
+        {
+            await doc.Update(db);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await ReloadAsync(doc);
+            apply(doc);
+            await UpdateOrReloadAsync(doc);
+        }
+    }
+
+    /// <summary>Saves; on a concurrency conflict reloads the row (so the context stays usable) and rethrows.</summary>
+    private async Task UpdateOrReloadAsync(ChemicalDocument doc)
+    {
+        try
+        {
+            await doc.Update(db);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await ReloadAsync(doc);
+            throw;
+        }
+    }
+
+    private async Task ReloadAsync(ChemicalDocument doc)
+    {
+        DetachAddedVersions();
+        await db.Entry(doc).ReloadAsync();
+    }
+
+    /// <summary>A version row of a failed save would otherwise be retried by the next SaveChanges.</summary>
+    private void DetachAddedVersions()
+    {
+        foreach (var version in db.ChangeTracker.Entries<ChemicalDocumentVersion>()
+                     .Where(e => e.State == EntityState.Added)
+                     .ToList())
+        {
+            version.State = EntityState.Detached;
+        }
     }
 
     /// <summary>No WorkflowState filter: the unique index covers removed rows too, so they are revived, never re-created.</summary>
@@ -247,8 +333,12 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
 
     private async Task<WriteResult> KnownAsync(ChemicalDocument existing, NewChemicalDocument doc, string md5)
     {
-        MergeKnown(existing, doc);
-        await TouchAsync(existing);
+        Track(existing);
+        await UpdateAutomationAsync(existing, row =>
+        {
+            MergeKnown(row, doc); // the gate inside re-runs on the fresh row after a conflict
+            Touch(row, @checked: false);
+        });
         return new WriteResult(WriteOutcome.AlreadyKnown, existing, md5);
     }
 
