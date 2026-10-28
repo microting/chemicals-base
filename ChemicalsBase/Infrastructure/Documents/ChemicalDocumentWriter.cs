@@ -145,9 +145,25 @@ public sealed class ChemicalDocumentWriter(ChemicalsDbContext db, IChemicalBlobS
         }
         catch (DbUpdateException)
         {
-            // Most likely a concurrent writer inserted the same (ChemicalId, Type, md5) after our lookup. Detach the
-            // failed row first, or every later SaveChanges on this context retries the insert.
+            // Detach everything that failed, or every later SaveChanges on this context retries it: the row (when its
+            // insert failed) and the version row PnBase.Create adds after the row saved.
+            var rowSaved = created.Id != 0;
             db.Entry(created).State = EntityState.Detached;
+            foreach (var version in db.ChangeTracker.Entries<ChemicalDocumentVersion>()
+                         .Where(e => e.State == EntityState.Added)
+                         .ToList())
+            {
+                version.State = EntityState.Detached;
+            }
+
+            if (rowSaved)
+            {
+                // The row is ours and committed; only its version row failed (a Galera certification or deadlock
+                // error). Not a race, so not AlreadyKnown.
+                throw;
+            }
+
+            // Most likely a concurrent writer inserted the same (ChemicalId, Type, md5) after our lookup.
             var winner = await FindAsync(doc, md5);
             if (winner == null)
             {

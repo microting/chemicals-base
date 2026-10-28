@@ -28,8 +28,9 @@ namespace ChemicalsBase.Infrastructure.Documents;
 /// <param name="Language">Detected language (ISO 639-1), or null.</param>
 /// <param name="LanguageConfidence">0..1, from <see cref="SdsLanguageDetector"/>.</param>
 /// <param name="MatchesTargetLanguage"><paramref name="Language"/> == the query's TargetLanguage.</param>
-/// <param name="IdentityMatch">"regno", "name", "trade:&lt;trade name&gt;", "regno-family", or null.</param>
-/// <param name="RevisionDate">The first date after a revision keyword, or null.</param>
+/// <param name="IdentityMatch">"regno", "regno-family", "name", "trade:&lt;trade name, any ';' removed&gt;", or null.</param>
+/// <param name="RevisionDate">The latest plausible date after a revision keyword, print dates excluded
+/// (<see cref="RevisionDateParser"/>), or null.</param>
 /// <param name="Score">0..100.</param>
 /// <param name="Notes">"sds=yes; lang=da(1.00); id=regno; rev=2024-03-01" (plus "lang-uncertain" when flagged).</param>
 public sealed record SdsValidation(

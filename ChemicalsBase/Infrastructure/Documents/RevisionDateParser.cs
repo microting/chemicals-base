@@ -26,9 +26,15 @@ using System.Text.RegularExpressions;
 namespace ChemicalsBase.Infrastructure.Documents;
 
 /// <summary>
-/// Finds an SDS revision date: the latest valid date starting within <see cref="Window"/> characters after any
-/// revision keyword (ruling (b): issue and superseded dates are never later than the revision). Keywords are the language's <c>RevisionKeywords</c> from the headings file; when
-/// those find no date, the da and en keywords are tried (F38). Formats: <c>dd-MM-yyyy</c>, <c>dd.MM.yyyy</c>,
+/// Finds an SDS revision date: the latest plausible date starting within <see cref="Window"/> characters after any
+/// revision keyword (ruling (b): issue and superseded dates are never later than the revision).
+/// <list type="bullet">
+/// <item>A keyword is a whole word ("version", not "versionsnummer"). Its window ends early at a print-date label
+/// (<see cref="PrintDateLabels"/>): "Revisionsdato: 19.02.2026 Trykdato: 30.03.2026" gives 2026-02-19.</item>
+/// <item>Plausible: from 1990-01-01 to tomorrow (UTC), so a "Næste revision" date in the future never wins.</item>
+/// <item>Keywords are the language's <c>RevisionKeywords</c> from the headings file; when those find no date, the
+/// da and en keywords are tried (F38).</item>
+/// </list> Formats: <c>dd-MM-yyyy</c>, <c>dd.MM.yyyy</c>,
 /// <c>dd/MM/yyyy</c> (day and month may have one digit), <c>yyyy-MM-dd</c>, and <c>d. &lt;month&gt; yyyy</c> (the dot
 /// optional) with the language's <c>Months</c> or <c>MonthsGenitive</c>, or a da/en month name (F68).
 /// </summary>
@@ -45,12 +51,37 @@ public static class RevisionDateParser
 
     private static readonly string[] FallbackLanguages = ["da", "en"];
 
+    private static readonly DateTime Earliest = new(1990, 1, 1);
+
+    /// <summary>
+    /// Print-date labels that end a keyword's window. A print date is stamped on every download and is later than the
+    /// revision, so under the latest-date rule it would always win. Kept here, not in the verbatim Annex II JSON.
+    /// </summary>
+    internal static readonly IReadOnlyList<string> PrintDateLabels =
+    [
+        "trykdato", "udskriftsdato", "udskrivningsdato", "printdato", // da
+        "print date", "printing date", "date of printing", "date printed", "printed", // en
+        "druckdatum", "gedruckt am", // de
+        "utskriftsdatum", // sv
+        "utskriftsdato", // no
+        "date d'impression", "date d’impression", "imprimé le", // fr
+        "data di stampa", // it
+        "fecha de impresión", // es
+        "afdrukdatum", // nl
+        "tulostuspäivä", // fi
+        "data wydruku", // pl
+    ];
+
+    private static readonly Lazy<Regex> PrintDateLabel = new(() => new Regex(
+        $@"(?<![\p{{L}}\p{{M}}])(?:{Alternation(PrintDateLabels)})",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant, UntrustedText.MatchTimeout));
+
     private static readonly Lazy<IReadOnlyDictionary<string, Rules>> ByLanguage = new(() => SdsHeadings.All.Keys
         .ToDictionary(code => code, code => Rules.For([code])));
 
     private static readonly Lazy<Rules> Fallback = new(() => Rules.For(FallbackLanguages));
 
-    /// <summary>The revision date in <paramref name="text"/> for <paramref name="language"/> (null: da/en only).</summary>
+    /// <summary>The revision date in <paramref name="text"/> for <paramref name="language"/> (null: da/en).</summary>
     public static DateTime? Find(string text, string? language)
     {
         ArgumentNullException.ThrowIfNull(text);
@@ -88,11 +119,13 @@ public static class RevisionDateParser
             }
 
             return new Rules(
-                new Regex($@"(?<![\p{{L}}\p{{M}}])(?:{Alternation(keywords)})", RegexOptions.Compiled | RegexOptions.CultureInvariant, UntrustedText.MatchTimeout),
+                new Regex($@"(?<![\p{{L}}\p{{M}}])(?:{Alternation(keywords)})(?![\p{{L}}\p{{M}}])",
+                    RegexOptions.Compiled | RegexOptions.CultureInvariant, UntrustedText.MatchTimeout),
                 new Regex(
                     $@"(?<![0-9])(?:(?<iy>[0-9]{{4}})-(?<im>[0-9]{{1,2}})-(?<id>[0-9]{{1,2}})" +
                     $@"|(?<nd>[0-9]{{1,2}})(?<sep>[-./])(?<nm>[0-9]{{1,2}})\k<sep>(?<ny>[0-9]{{4}})" +
-                    $@"|(?<md>[0-9]{{1,2}})\.?\s?(?<mn>{Alternation(months.Keys)})(?![\p{{L}}\p{{M}}])\s?(?<my>[0-9]{{4}}))(?![0-9])",
+                    $@"|(?<md>[0-9]{{1,2}})\.?\s?(?<mn>{Alternation(months.Keys)})(?![\p{{L}}\p{{M}}])" +
+                    $@"\s?(?<my>[0-9]{{4}}))(?![0-9])",
                     RegexOptions.Compiled | RegexOptions.CultureInvariant, UntrustedText.MatchTimeout),
                 months);
         }
@@ -110,6 +143,12 @@ public static class RevisionDateParser
                 {
                     var end = keyword.Index + keyword.Length;
                     var length = Math.Min(Window + MaxDateLength, text.Length - end);
+                    var printLabel = PrintDateLabel.Value.Match(text, end, length);
+                    if (printLabel.Success)
+                    {
+                        length = printLabel.Index - end;
+                    }
+
                     for (var date = dates.Match(text, end, length); date.Success && date.Index - end <= Window;
                          date = date.NextMatch())
                     {
@@ -135,10 +174,13 @@ public static class RevisionDateParser
                 : m.Groups["ny"].Success ? (Int(m, "ny"), Int(m, "nm"), Int(m, "nd"))
                 : (Int(m, "my"), months[m.Groups["mn"].Value], Int(m, "md"));
 
-            return year is >= 1900 and <= 2099 && month is >= 1 and <= 12 && day >= 1
-                   && day <= DateTime.DaysInMonth(year, month)
-                ? new DateTime(year, month, day)
-                : null;
+            if (year is < 1 or > 9999 || month is < 1 or > 12 || day < 1 || day > DateTime.DaysInMonth(year, month))
+            {
+                return null;
+            }
+
+            var date = new DateTime(year, month, day);
+            return date >= Earliest && date <= DateTime.UtcNow.Date.AddDays(1) ? date : null;
         }
 
         private static int Int(Match m, string group) => int.Parse(m.Groups[group].Value);
