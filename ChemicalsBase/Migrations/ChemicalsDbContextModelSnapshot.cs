@@ -17,7 +17,7 @@ namespace ChemicalsBase.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.13")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -1679,6 +1679,9 @@ namespace ChemicalsBase.Migrations
                     b.Property<int>("CandidatesFound")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("CheckedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -1762,6 +1765,9 @@ namespace ChemicalsBase.Migrations
 
                     b.Property<int>("CandidatesFound")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("CheckedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");

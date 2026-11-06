@@ -73,6 +73,9 @@ public class HolderSdsSite : PnBase
 
     public int CandidatesFound { get; set; }
 
+    /// <summary>UTC time discovery/verification last evaluated this site; null = never.</summary>
+    public DateTime? CheckedAt { get; set; }
+
     [StringLength(255)]
     public string? Note { get; set; }
 }
