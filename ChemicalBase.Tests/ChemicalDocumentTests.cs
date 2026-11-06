@@ -366,6 +366,54 @@ public class ChemicalDocumentTests : DbTestFixture
     }
 
     [Test]
+    public async Task HolderSdsSite_CheckedAt_defaults_to_null()
+    {
+        await new HolderSdsSite { AuthorisationHolderId = 7, Domain = "example.dk" }.Create(DbContext);
+
+        var stored = await DbContext.HolderSdsSites.AsNoTracking().SingleAsync();
+        Assert.That(stored.CheckedAt, Is.Null);
+        var version = await DbContext.HolderSdsSiteVersions.AsNoTracking().SingleAsync();
+        Assert.That(version.CheckedAt, Is.Null);
+    }
+
+    [Test]
+    public async Task HolderSdsSite_CheckedAt_persists_on_create_and_update_and_is_versioned()
+    {
+        var first = new DateTime(2026, 10, 1, 8, 30, 0, DateTimeKind.Utc);
+        var second = new DateTime(2026, 11, 2, 9, 45, 0, DateTimeKind.Utc);
+        var site = new HolderSdsSite { AuthorisationHolderId = 7, Domain = "example.dk", CheckedAt = first };
+        await site.Create(DbContext);
+
+        var afterCreate = await DbContext.HolderSdsSites.AsNoTracking().SingleAsync();
+        Assert.That(afterCreate.CheckedAt, Is.EqualTo(first));
+
+        site.CheckedAt = second;
+        await site.Update(DbContext);
+
+        var afterUpdate = await DbContext.HolderSdsSites.AsNoTracking().SingleAsync();
+        Assert.That(afterUpdate.CheckedAt, Is.EqualTo(second));
+
+        var versions = await DbContext.HolderSdsSiteVersions.AsNoTracking()
+            .Where(v => v.HolderSdsSiteId == afterUpdate.Id).OrderBy(v => v.Version).ToListAsync();
+        Assert.That(versions.Select(v => v.CheckedAt), Is.EqualTo(new DateTime?[] { first, second }));
+    }
+
+    [Test]
+    public async Task HolderSdsSite_crawl_bookkeeping_update_does_not_touch_CheckedAt()
+    {
+        var checkedAt = new DateTime(2026, 10, 1, 8, 30, 0, DateTimeKind.Utc);
+        var site = new HolderSdsSite { AuthorisationHolderId = 7, Domain = "example.dk", CheckedAt = checkedAt };
+        await site.Create(DbContext);
+
+        site.LastCrawledAt = new DateTime(2026, 11, 5, 0, 0, 0, DateTimeKind.Utc);
+        site.CandidatesFound = 3;
+        await site.Update(DbContext);
+
+        var stored = await DbContext.HolderSdsSites.AsNoTracking().SingleAsync();
+        Assert.That(stored.CheckedAt, Is.EqualTo(checkedAt));
+    }
+
+    [Test]
     public async Task DocumentInboxItem_roundtrips_and_is_versioned()
     {
         var item = new DocumentInboxItem
