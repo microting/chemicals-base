@@ -43,6 +43,7 @@ public class ChemicalsDbContext: DbContext
     public DbSet<HolderSdsSiteVersion> HolderSdsSiteVersions { get; set; }
     public DbSet<DocumentInboxItem> DocumentInboxItems { get; set; }
     public DbSet<DocumentInboxItemVersion> DocumentInboxItemVersions { get; set; }
+    public DbSet<ChemicalDocumentLock> ChemicalDocumentLocks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -229,5 +230,6 @@ public class ChemicalsDbContext: DbContext
         modelBuilder.Entity<DocumentInboxItem>().HasIndex(i => new { i.Status, i.BatchId });
         modelBuilder.Entity<DocumentInboxItem>().HasIndex(i => i.ContentMd5);
         modelBuilder.Entity<DocumentInboxItemVersion>().HasIndex(x => x.DocumentInboxItemId);
+        modelBuilder.Ignore<ChemicalDocumentLock>(); // red stub: mapped with its migration
     }
 }

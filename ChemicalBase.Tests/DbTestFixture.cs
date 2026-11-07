@@ -110,6 +110,7 @@ namespace ChemicalBase.Tests
                 "HolderSdsSiteVersions",
                 "DocumentInboxItems",
                 "DocumentInboxItemVersions",
+                "ChemicalDocumentLocks",
             };
 
             var firstRunNotDone = true;
