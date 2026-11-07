@@ -230,6 +230,11 @@ public class ChemicalsDbContext: DbContext
         modelBuilder.Entity<DocumentInboxItem>().HasIndex(i => new { i.Status, i.BatchId });
         modelBuilder.Entity<DocumentInboxItem>().HasIndex(i => i.ContentMd5);
         modelBuilder.Entity<DocumentInboxItemVersion>().HasIndex(x => x.DocumentInboxItemId);
-        modelBuilder.Ignore<ChemicalDocumentLock>(); // red stub: mapped with its migration
+        // Written only by ChemicalDocumentLocks.AcquireAsync; goes with its chemical.
+        modelBuilder.Entity<ChemicalDocumentLock>()
+            .HasOne<Chemical>()
+            .WithOne()
+            .HasForeignKey<ChemicalDocumentLock>(l => l.ChemicalId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
