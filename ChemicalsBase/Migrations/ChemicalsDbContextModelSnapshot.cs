@@ -904,6 +904,22 @@ namespace ChemicalsBase.Migrations
                     b.ToTable("ChemicalDocuments");
                 });
 
+            modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.ChemicalDocumentLock", b =>
+                {
+                    b.Property<int>("ChemicalId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("Counter")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ChemicalId");
+
+                    b.ToTable("ChemicalDocumentLocks");
+                });
+
             modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.ChemicalDocumentVersion", b =>
                 {
                     b.Property<int>("Id")
@@ -2164,6 +2180,15 @@ namespace ChemicalsBase.Migrations
                     b.Navigation("AuthorisationHolder");
 
                     b.Navigation("ClassificationAndLabeling");
+                });
+
+            modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.ChemicalDocumentLock", b =>
+                {
+                    b.HasOne("ChemicalsBase.Infrastructure.Data.Entities.Chemical", null)
+                        .WithOne()
+                        .HasForeignKey("ChemicalsBase.Infrastructure.Data.Entities.ChemicalDocumentLock", "ChemicalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ChemicalsBase.Infrastructure.Data.Entities.ClassificationAndLabeling", b =>
